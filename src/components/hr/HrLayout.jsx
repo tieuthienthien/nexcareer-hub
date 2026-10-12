@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
+import { Button } from "@/components/ui/button";
 import { Building2, ArrowLeft, LogOut, LayoutDashboard, FileText, Users } from "lucide-react";
 
 const hrNav = [
@@ -16,6 +17,23 @@ export default function HrLayout() {
     logout(false);
     navigate("/");
   };
+
+  if (user && user.role !== "admin") {
+    return (
+      <div className="grid min-h-screen place-items-center bg-muted/30 p-6">
+        <div className="max-w-md rounded-2xl border border-border bg-card p-8 text-center">
+          <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-rose-100 text-rose-600">
+            <Building2 className="h-7 w-7" />
+          </div>
+          <h1 className="mt-5 font-heading text-xl font-700">Không có quyền truy cập</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            HR Studio dành riêng cho nhà tuyển dụng. Tài khoản của bạn không có quyền quản trị.
+          </p>
+          <Button asChild className="mt-6"><Link to="/">Về trang chủ</Link></Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-muted/30">
