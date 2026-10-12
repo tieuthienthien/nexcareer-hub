@@ -13,7 +13,7 @@ const pipeline = [
   { icon: Award, title: "Đề nghị & nhận việc", desc: "Gửi offer, thương lượng và hoàn tất thủ tục nhận việc." },
 ];
 
-const statusOrder = ["pending", "reviewing", "interview", "offer", "hired", "rejected"];
+const statusOrder = ["cv_screening", "test_invited", "test_submitted", "interview_invited", "interview_submitted", "hired", "rejected"];
 
 export default function HrDashboard() {
   const [stats, setStats] = useState({ jobs: 0, apps: 0, byStatus: {} });
@@ -41,7 +41,7 @@ export default function HrDashboard() {
   const cards = [
     { label: "Việc làm đang tuyển", value: stats.jobs, icon: Briefcase, color: "from-indigo-500 to-violet-500" },
     { label: "Tổng ứng viên", value: stats.apps, icon: Users, color: "from-sky-500 to-blue-500" },
-    { label: "Đang phỏng vấn", value: stats.byStatus.interview || 0, icon: UserCheck, color: "from-amber-500 to-orange-500" },
+    { label: "Đang phỏng vấn", value: (stats.byStatus.interview_invited || 0) + (stats.byStatus.interview_submitted || 0), icon: UserCheck, color: "from-amber-500 to-orange-500" },
     { label: "Đã nhận việc", value: stats.byStatus.hired || 0, icon: Award, color: "from-emerald-500 to-teal-500" },
   ];
 

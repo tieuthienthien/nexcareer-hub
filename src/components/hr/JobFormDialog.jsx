@@ -14,6 +14,8 @@ const empty = {
   salary_min: "", salary_max: "", salary_visible: true, category: "", experience_level: "mid",
   description: "", requirements: "", benefits: "", skillsText: "", vacancy: 1, deadline: "",
   status: "published", featured: false,
+  test_type: "none", test_duration_min: 15, test_prompt: "", test_char_limit: 2000,
+  test_language: "", test_starter_code: "", interviewQuestionsText: "",
 };
 
 export default function JobFormDialog({ job, open, onOpenChange, onSaved }) {
@@ -32,6 +34,13 @@ export default function JobFormDialog({ job, open, onOpenChange, onSaved }) {
         salary_max: job.salary_max ?? "",
         skillsText: (job.skills || []).join(", "),
         deadline: job.deadline ? job.deadline.slice(0, 10) : "",
+        test_type: job.test_type || "none",
+        test_duration_min: job.test_duration_min || 15,
+        test_prompt: job.test_prompt || "",
+        test_char_limit: job.test_char_limit || 2000,
+        test_language: job.test_language || "",
+        test_starter_code: job.test_starter_code || "",
+        interviewQuestionsText: (job.interview_questions || []).join("\n"),
       });
     } else {
       setForm(empty);
@@ -56,6 +65,10 @@ export default function JobFormDialog({ job, open, onOpenChange, onSaved }) {
         skills: form.skillsText.split(",").map((s) => s.trim()).filter(Boolean),
         vacancy: Number(form.vacancy) || 1, deadline: form.deadline || null,
         status: form.status, featured: form.featured,
+        test_type: form.test_type, test_duration_min: Number(form.test_duration_min) || 15,
+        test_prompt: form.test_prompt, test_char_limit: Number(form.test_char_limit) || 2000,
+        test_language: form.test_language, test_starter_code: form.test_starter_code,
+        interview_questions: form.interviewQuestionsText.split("\n").map((s) => s.trim()).filter(Boolean),
       };
       if (job?.id) await base44.entities.Job.update(job.id, payload);
       else await base44.entities.Job.create(payload);
@@ -128,6 +141,37 @@ export default function JobFormDialog({ job, open, onOpenChange, onSaved }) {
           <div className="space-y-2 sm:col-span-2"><Label>Mô tả công việc</Label><Textarea rows={4} value={form.description} onChange={(e) => set("description", e.target.value)} /></div>
           <div className="space-y-2 sm:col-span-2"><Label>Yêu cầu công việc</Label><Textarea rows={4} value={form.requirements} onChange={(e) => set("requirements", e.target.value)} /></div>
           <div className="space-y-2 sm:col-span-2"><Label>Quyền lợi</Label><Textarea rows={3} value={form.benefits} onChange={(e) => set("benefits", e.target.value)} /></div>
+
+          <div className="sm:col-span-2 mt-2 border-t border-border pt-4">
+            <h3 className="font-heading text-sm font-700">Cấu hình vòng 2 — Bài thi</h3>
+            <div className="mt-3 grid gap-4 sm:grid-cols-3">
+              <div className="space-y-2">
+                <Label>Loại bài</Label>
+                <Select value={form.test_type} onValueChange={(v) => set("test_type", v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Không có bài thi</SelectItem>
+                    <SelectItem value="situational">Tình huống</SelectItem>
+                    <SelectItem value="technical">Kỹ thuật (code)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2"><Label>Thời gian (phút)</Label><Input type="number" value={form.test_duration_min} onChange={(e) => set("test_duration_min", e.target.value)} /></div>
+              {form.test_type === "situational" && <div className="space-y-2"><Label>Giới hạn ký tự</Label><Input type="number" value={form.test_char_limit} onChange={(e) => set("test_char_limit", e.target.value)} /></div>}
+              {form.test_type === "technical" && <div className="space-y-2"><Label>Ngôn ngữ code</Label><Input value={form.test_language} onChange={(e) => set("test_language", e.target.value)} placeholder="javascript, python..." /></div>}
+            </div>
+            {form.test_type !== "none" && (
+              <>
+                <div className="mt-3 space-y-2"><Label>Đề bài / kịch bản tình huống</Label><Textarea rows={4} value={form.test_prompt} onChange={(e) => set("test_prompt", e.target.value)} placeholder="Mô tả đề bài hoặc tình huống cho ứng viên..." /></div>
+                {form.test_type === "technical" && <div className="mt-3 space-y-2"><Label>Code mẫu (nếu có)</Label><Textarea rows={4} value={form.test_starter_code} onChange={(e) => set("test_starter_code", e.target.value)} className="font-mono text-sm" placeholder="// code khởi tạo..." /></div>}
+              </>
+            )}
+          </div>
+
+          <div className="sm:col-span-2 border-t border-border pt-4">
+            <h3 className="font-heading text-sm font-700">Cấu hình vòng 3 — Phỏng vấn video</h3>
+            <div className="mt-3 space-y-2"><Label>Câu hỏi phỏng vấn (mỗi câu 1 dòng)</Label><Textarea rows={4} value={form.interviewQuestionsText} onChange={(e) => set("interviewQuestionsText", e.target.value)} placeholder={"Giới thiệu bản thân?\nDự án khó nhất bạn từng làm?"} /></div>
+          </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Hủy</Button>

@@ -109,6 +109,45 @@
     "featured": {
       "type": "boolean",
       "default": false
+    },
+    "test_type": {
+      "type": "string",
+      "enum": [
+        "none",
+        "situational",
+        "technical"
+      ],
+      "default": "none",
+      "description": "Lo\u1ea1i b\u00e0i thi v\u00f2ng 2"
+    },
+    "test_duration_min": {
+      "type": "number",
+      "default": 15,
+      "description": "Th\u1eddi gian l\u00e0m b\u00e0i thi (ph\u00fat)"
+    },
+    "test_prompt": {
+      "type": "string",
+      "description": "\u0110\u1ec1 b\u00e0i / k\u1ecbch b\u1ea3n t\u00ecnh hu\u1ed1ng v\u00f2ng 2"
+    },
+    "test_char_limit": {
+      "type": "number",
+      "default": 2000,
+      "description": "Gi\u1edbi h\u1ea1n k\u00fd t\u1ef1 cho b\u00e0i t\u00ecnh hu\u1ed1ng"
+    },
+    "test_language": {
+      "type": "string",
+      "description": "Ng\u00f4n ng\u1eef code cho b\u00e0i k\u1ef9 thu\u1eadt"
+    },
+    "test_starter_code": {
+      "type": "string",
+      "description": "Code m\u1eabu cho b\u00e0i k\u1ef9 thu\u1eadt"
+    },
+    "interview_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "C\u00e2u h\u1ecfi ph\u1ecfng v\u1ea5n v\u00f2ng 3"
     }
   },
   "required": [

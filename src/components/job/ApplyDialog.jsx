@@ -14,11 +14,13 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
+  const [aiResult, setAiResult] = useState(null);
 
   useEffect(() => {
     if (!open) return;
     setDone(false);
     setError("");
+    setAiResult(null);
     (async () => {
       try {
         const me = await base44.auth.me();
@@ -56,7 +58,7 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
         const up = await base44.integrations.Core.UploadPrivateFile({ file: cvFile });
         cv_uri = up.file_uri;
       }
-      await base44.entities.Application.create({
+      const created = await base44.entities.Application.create({
         job_id: job.id,
         job_title: job.title,
         company: job.company,
@@ -66,10 +68,16 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
         cv_file_uri: cv_uri,
         portfolio_url: form.portfolio_url,
         cover_letter: form.cover_letter,
-        status: "pending",
+        status: "cv_screening",
       });
       setDone(true);
       onApplied?.();
+      // Sàng lọc AI + email xác nhận (backend function)
+      try {
+        const res = await base44.functions.invoke("screenCv", { application_id: created.id });
+        const data = res.data || res;
+        setAiResult({ score: data.match_score, analysis: data.analysis });
+      } catch (e) {}
     } catch (e) {
       setError(e.message || "Không thể nộp hồ sơ. Vui lòng thử lại.");
     } finally {
@@ -89,6 +97,16 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
             <DialogDescription className="mt-2 max-w-sm">
               Hồ sơ của bạn đã được gửi cho <span className="font-600 text-foreground">{job.company}</span>. Bạn có thể theo dõi tình trạng trong Candidate Room.
             </DialogDescription>
+            {aiResult && (
+              <div className="mt-4 rounded-xl bg-primary/5 p-4 text-left text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="font-600 text-primary">Kết quả sàng lọc AI (tham khảo)</span>
+                  {aiResult.score != null && <span className="text-lg font-800 text-primary">{aiResult.score}%</span>}
+                </div>
+                {aiResult.analysis && <p className="mt-2 text-foreground/80">{aiResult.analysis}</p>}
+                <p className="mt-2 text-xs text-muted-foreground">Chúng tôi đã gửi email xác nhận — vui lòng kiểm tra hộp thư.</p>
+              </div>
+            )}
             <Button className="mt-6" onClick={() => onOpenChange(false)}>Hoàn tất</Button>
           </div>
         ) : (

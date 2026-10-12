@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, FileText, Briefcase, Upload, Download, Link2, Loader2, CheckCircle2, ExternalLink, Pencil, Save, Plus, Sparkles } from "lucide-react";
 import { applicationStatusLabel, applicationStatusColor } from "@/lib/jobUtils";
+import ApplicationTimeline from "@/components/candidate/ApplicationTimeline";
 
 export default function CandidateRoom() {
   const { user } = useAuth();
@@ -260,16 +261,9 @@ export default function CandidateRoom() {
                   <Button asChild className="mt-5"><Link to="/viec-lam">Khám phá việc làm</Link></Button>
                 </div>
               ) : (
-                <div className="mt-6 space-y-3">
+                <div className="mt-6 space-y-4">
                   {applications.map((a) => (
-                    <div key={a.id} className="flex items-center gap-4 rounded-xl border border-border p-4 transition-colors hover:bg-muted/30">
-                      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Briefcase className="h-5 w-5" /></div>
-                      <div className="min-w-0 flex-1">
-                        <Link to={`/viec-lam/${a.job_id}`} className="truncate text-sm font-600 hover:text-primary">{a.job_title}</Link>
-                        <div className="truncate text-xs text-muted-foreground">{a.company} · {new Date(a.created_date).toLocaleDateString("vi-VN")}</div>
-                      </div>
-                      <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-600 ${applicationStatusColor[a.status]}`}>{applicationStatusLabel[a.status]}</span>
-                    </div>
+                    <ApplicationTimeline key={a.id} app={a} />
                   ))}
                 </div>
               )}

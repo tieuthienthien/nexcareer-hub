@@ -1,0 +1,65 @@
+{
+  "name": "InterviewAnswer",
+  "type": "object",
+  "properties": {
+    "application_id": {
+      "type": "string",
+      "description": "ID h\u1ed3 s\u01a1 \u1ee9ng tuy\u1ec3n"
+    },
+    "question_index": {
+      "type": "number",
+      "description": "Th\u1ee9 t\u1ef1 c\u00e2u h\u1ecfi"
+    },
+    "question_text": {
+      "type": "string",
+      "description": "N\u1ed9i dung c\u00e2u h\u1ecfi"
+    },
+    "video_uri": {
+      "type": "string",
+      "description": "URI file video ghi h\u00ecnh (ri\u00eang t\u01b0)"
+    },
+    "duration_sec": {
+      "type": "number",
+      "description": "Th\u1eddi l\u01b0\u1ee3ng tr\u1ea3 l\u1eddi (gi\u00e2y)"
+    },
+    "transcript": {
+      "type": "string",
+      "description": "L\u1eddi tho\u1ea1i \u0111\u00e3 chuy\u1ec3n \u0111\u1ed5i (AI)"
+    },
+    "ai_analysis": {
+      "type": "string",
+      "description": "Nh\u1eadn x\u00e9t AI cho c\u00e2u tr\u1ea3 l\u1eddi"
+    }
+  },
+  "required": [
+    "application_id",
+    "question_index"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

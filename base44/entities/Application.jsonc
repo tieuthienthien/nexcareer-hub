@@ -26,7 +26,7 @@
     },
     "cv_file_uri": {
       "type": "string",
-      "description": "URI file CV \u0111\u00e3 upload (ri\u00eang t\u01b0)"
+      "description": "URI file CV (ri\u00eang t\u01b0)"
     },
     "portfolio_url": {
       "type": "string",
@@ -39,18 +39,71 @@
     "status": {
       "type": "string",
       "enum": [
-        "pending",
-        "reviewing",
-        "interview",
-        "offer",
-        "rejected",
-        "hired"
+        "cv_screening",
+        "cv_passed",
+        "cv_rejected",
+        "test_invited",
+        "test_submitted",
+        "test_passed",
+        "test_rejected",
+        "interview_invited",
+        "interview_submitted",
+        "hired",
+        "rejected"
       ],
-      "default": "pending"
+      "default": "cv_screening"
     },
     "notes": {
       "type": "string",
       "description": "Ghi ch\u00fa n\u1ed9i b\u1ed9 c\u1ee7a HR"
+    },
+    "cv_match_score": {
+      "type": "number",
+      "description": "\u0110i\u1ec3m ph\u00f9 h\u1ee3p CV theo AI (0-100)"
+    },
+    "cv_ai_analysis": {
+      "type": "string",
+      "description": "Nh\u1eadn x\u00e9t AI v\u00f2ng s\u00e0ng l\u1ecdc CV"
+    },
+    "test_answer": {
+      "type": "string",
+      "description": "B\u00e0i l\u00e0m v\u00f2ng 2 (text/code)"
+    },
+    "test_started_at": {
+      "type": "string",
+      "description": "Th\u1eddi \u0111i\u1ec3m b\u1eaft \u0111\u1ea7u l\u00e0m b\u00e0i thi (ISO)"
+    },
+    "test_submitted_at": {
+      "type": "string",
+      "description": "Th\u1eddi \u0111i\u1ec3m n\u1ed9p b\u00e0i thi (ISO)"
+    },
+    "test_auto_submitted": {
+      "type": "boolean",
+      "default": false
+    },
+    "test_score": {
+      "type": "number",
+      "description": "\u0110i\u1ec3m AI ch\u1ea5m b\u00e0i thi (0-100)"
+    },
+    "test_ai_analysis": {
+      "type": "string",
+      "description": "Nh\u1eadn x\u00e9t AI v\u00f2ng thi"
+    },
+    "interview_submitted_at": {
+      "type": "string",
+      "description": "Th\u1eddi \u0111i\u1ec3m ho\u00e0n th\u00e0nh ph\u1ecfng v\u1ea5n (ISO)"
+    },
+    "interview_ai_analysis": {
+      "type": "string",
+      "description": "Nh\u1eadn x\u00e9t AI ph\u1ecfng v\u1ea5n"
+    },
+    "interview_score": {
+      "type": "number",
+      "description": "\u0110i\u1ec3m AI ph\u1ecfng v\u1ea5n (0-100)"
+    },
+    "final_notes": {
+      "type": "string",
+      "description": "Ghi ch\u00fa quy\u1ebft \u0111\u1ecbnh cu\u1ed1i c\u1ee7a h\u1ed9i \u0111\u1ed3ng"
     }
   },
   "required": [

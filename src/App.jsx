@@ -17,6 +17,8 @@ import Contact from '@/pages/Contact';
 import HrDashboard from '@/pages/hr/HrDashboard';
 import HrJobs from '@/pages/hr/HrJobs';
 import HrApplications from '@/pages/hr/HrApplications';
+import AssessmentTest from '@/pages/AssessmentTest';
+import AssessmentInterview from '@/pages/AssessmentInterview';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
@@ -61,6 +63,11 @@ const AuthenticatedApp = () => {
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/candidate-room" element={<CandidateRoom />} />
         </Route>
+      </Route>
+
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route path="/phong-thi/:applicationId" element={<AssessmentTest />} />
+        <Route path="/phong-van/:applicationId" element={<AssessmentInterview />} />
       </Route>
 
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
