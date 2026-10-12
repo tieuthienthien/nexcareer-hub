@@ -118,7 +118,7 @@ export default function Home() {
 
       {/* Two portals CTA */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-indigo-600 p-8 text-white shadow-xl shadow-primary/20 lg:col-span-2">
             <div className="absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
             <div className="relative">
@@ -164,7 +164,7 @@ export default function Home() {
             <Link to="/viec-lam">Xem tất cả <ArrowRight className="h-4 w-4" /></Link>
           </Button>
         </div>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-40 animate-pulse rounded-2xl bg-muted" />)
             : featured.map((job) => <JobCard key={job.id} job={job} />)}
@@ -202,7 +202,7 @@ export default function Home() {
 
       {/* About / bối cảnh chung */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-12 lg:grid-cols-2">
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-600 text-accent">
               Về NexCareer Hub

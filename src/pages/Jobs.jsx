@@ -145,7 +145,7 @@ export default function Jobs() {
         <p className="mt-2 text-muted-foreground">Khám phá {jobs.length > 0 ? "hàng ngàn" : ""} cơ hội nghề nghiệp phù hợp với bạn</p>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
         <aside className="hidden lg:block">
           <div className="sticky top-24 rounded-2xl border border-border bg-card p-5">
             <div className="mb-5 flex items-center gap-2">

@@ -49,7 +49,7 @@ export default function Contact() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
           <div>
             <h2 className="font-heading text-2xl font-700">Kênh liên hệ</h2>
             <div className="mt-6 space-y-4">

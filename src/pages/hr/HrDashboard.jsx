@@ -48,7 +48,7 @@ export default function HrDashboard() {
   return (
     <div className="space-y-8">
       {/* Stat cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
           <div key={c.label} className="relative overflow-hidden rounded-2xl border border-border bg-card p-5">
             <div className={`absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br ${c.color} opacity-15 blur-xl`} />
@@ -68,7 +68,7 @@ export default function HrDashboard() {
           <h2 className="font-heading text-lg font-700">Quy trình tuyển dụng</h2>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">Các chặng từ tiếp nhận hồ sơ đến nhận việc</p>
-        <div className="mt-6 grid gap-4 md:grid-cols-3 lg:grid-cols-5">
+        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-5">
           {pipeline.map((p, i) => (
             <div key={p.title} className="relative rounded-2xl border border-border bg-muted/20 p-4">
               <div className="flex items-center justify-between">
@@ -83,7 +83,7 @@ export default function HrDashboard() {
       </div>
 
       {/* Recent applications + status breakdown */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
         <div className="rounded-2xl border border-border bg-card p-6">
           <div className="flex items-center justify-between">
             <h2 className="font-heading text-lg font-700">Ứng viên gần đây</h2>

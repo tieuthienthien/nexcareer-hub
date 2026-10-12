@@ -156,7 +156,7 @@ export default function CandidateRoom() {
                 )}
               </div>
 
-              <div className="mt-6 grid gap-5 sm:grid-cols-2">
+              <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <Field label="Họ và tên" value={form.full_name} disabled={!editing} onChange={(v) => setForm({ ...form, full_name: v })} />
                 <Field label="Email" value={form.email} disabled={!editing} onChange={(v) => setForm({ ...form, email: v })} />
                 <Field label="Số điện thoại" value={form.phone} disabled={!editing} onChange={(v) => setForm({ ...form, phone: v })} />
@@ -179,7 +179,7 @@ export default function CandidateRoom() {
 
           {/* CV & Portfolio tab */}
           <TabsContent value="cv" className="mt-4">
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <div className="rounded-2xl border border-border bg-card p-6">
                 <div className="flex items-center gap-3">
                   <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary"><FileText className="h-6 w-6" /></div>

@@ -126,7 +126,7 @@ export default function JobDetail() {
       </div>
 
       {/* Body */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
         <div className="space-y-6">
           {job.description && (
             <section className="rounded-2xl border border-border bg-card p-6">
