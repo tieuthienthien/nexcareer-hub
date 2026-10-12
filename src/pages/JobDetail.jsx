@@ -106,7 +106,7 @@ export default function JobDetail() {
             {applied ? (
               <Button disabled className="gap-2 bg-emerald-600 hover:bg-emerald-600"><CheckCircle2 className="h-4 w-4" /> Đã ứng tuyển</Button>
             ) : (
-              <Button size="lg" onClick={handleApply} className="gap-2">Ứng tuyển ngay</Button>
+              <Button size="lg" onClick={handleApply} className="gap-2">{isAuthenticated ? "Ứng tuyển ngay" : "Đăng nhập để ứng tuyển"}</Button>
             )}
             <Button variant="outline" size="sm" className="gap-2"><Share2 className="h-4 w-4" /> Chia sẻ</Button>
           </div>
@@ -168,7 +168,7 @@ export default function JobDetail() {
             {applied ? (
               <Button disabled className="mt-5 w-full gap-2 bg-emerald-600 hover:bg-emerald-600"><CheckCircle2 className="h-4 w-4" /> Đã ứng tuyển</Button>
             ) : (
-              <Button className="mt-5 w-full" onClick={handleApply}>Ứng tuyển ngay</Button>
+              <Button className="mt-5 w-full gap-2" onClick={handleApply}>{isAuthenticated ? "Ứng tuyển ngay" : "Đăng nhập để ứng tuyển"}</Button>
             )}
             <p className="mt-3 text-center text-[11px] text-muted-foreground">Ứng tuyển miễn phí & nhanh chóng</p>
           </div>
