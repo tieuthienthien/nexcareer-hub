@@ -1,0 +1,82 @@
+{
+  "name": "CandidateProfile",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "headline": {
+      "type": "string",
+      "description": "Ch\u1ee9c danh / ti\u00eau \u0111\u1ec1 h\u1ed3 s\u01a1"
+    },
+    "bio": {
+      "type": "string",
+      "description": "Gi\u1edbi thi\u1ec7u b\u1ea3n th\u00e2n"
+    },
+    "cv_file_uri": {
+      "type": "string",
+      "description": "URI file CV (ri\u00eang t\u01b0)"
+    },
+    "portfolio_url": {
+      "type": "string",
+      "description": "Link portfolio"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "experience_years": {
+      "type": "number"
+    },
+    "education": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "full_name"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

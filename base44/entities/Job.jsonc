@@ -1,0 +1,151 @@
+{
+  "name": "Job",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "T\u00ean v\u1ecb tr\u00ed tuy\u1ec3n d\u1ee5ng"
+    },
+    "company": {
+      "type": "string",
+      "description": "T\u00ean c\u00f4ng ty tuy\u1ec3n d\u1ee5ng"
+    },
+    "company_logo": {
+      "type": "string",
+      "description": "URL logo c\u00f4ng ty"
+    },
+    "location": {
+      "type": "string",
+      "description": "\u0110\u1ecba \u0111i\u1ec3m l\u00e0m vi\u1ec7c"
+    },
+    "work_type": {
+      "type": "string",
+      "enum": [
+        "remote",
+        "hybrid",
+        "onsite"
+      ],
+      "default": "onsite"
+    },
+    "employment_type": {
+      "type": "string",
+      "enum": [
+        "full-time",
+        "part-time",
+        "contract",
+        "intern"
+      ],
+      "default": "full-time"
+    },
+    "salary_min": {
+      "type": "number",
+      "description": "M\u1ee9c l\u01b0\u01a1ng t\u1ed1i thi\u1ec3u (tri\u1ec7u VND)"
+    },
+    "salary_max": {
+      "type": "number",
+      "description": "M\u1ee9c l\u01b0\u01a1ng t\u1ed1i \u0111a (tri\u1ec7u VND)"
+    },
+    "salary_visible": {
+      "type": "boolean",
+      "default": true
+    },
+    "category": {
+      "type": "string",
+      "description": "L\u0129nh v\u1ef1c/ng\u00e0nh ngh\u1ec1"
+    },
+    "experience_level": {
+      "type": "string",
+      "enum": [
+        "entry",
+        "junior",
+        "mid",
+        "senior",
+        "lead",
+        "manager"
+      ],
+      "default": "mid"
+    },
+    "description": {
+      "type": "string",
+      "description": "M\u00f4 t\u1ea3 c\u00f4ng vi\u1ec7c"
+    },
+    "requirements": {
+      "type": "string",
+      "description": "Y\u00eau c\u1ea7u c\u00f4ng vi\u1ec7c"
+    },
+    "benefits": {
+      "type": "string",
+      "description": "Quy\u1ec1n l\u1ee3i"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "vacancy": {
+      "type": "number",
+      "default": 1,
+      "description": "S\u1ed1 l\u01b0\u1ee3ng tuy\u1ec3n"
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date",
+      "description": "H\u1ea1n n\u1ed9p h\u1ed3 s\u01a1"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published",
+        "closed"
+      ],
+      "default": "published"
+    },
+    "views": {
+      "type": "number",
+      "default": 0
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "title",
+    "company",
+    "location"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.status": "published"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
