@@ -31,6 +31,7 @@ export default function HrApplications() {
   const [busy, setBusy] = useState(false);
   const [answers, setAnswers] = useState([]);
   const [finalNotes, setFinalNotes] = useState("");
+  const [job, setJob] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -51,6 +52,13 @@ export default function HrApplications() {
     setSelected(a);
     setFinalNotes(a.final_notes || "");
     setAnswers([]);
+    setJob(null);
+    if (a.job_id) {
+      try {
+        const j = await base44.entities.Job.get(a.job_id);
+        setJob(j);
+      } catch (e) {}
+    }
     if (a.status === "interview_submitted" || a.status === "hired" || a.status === "rejected") {
       try {
         const res = await base44.entities.InterviewAnswer.filter({ application_id: a.id }, { sort: "question_index", limit: 50 });
@@ -58,6 +66,8 @@ export default function HrApplications() {
       } catch (e) {}
     }
   };
+
+  const testTypeLabel = { situational: "Tình huống", technical: "Kỹ thuật", none: "—" };
 
   const advance = async (action) => {
     if (!selected) return;
@@ -155,6 +165,24 @@ export default function HrApplications() {
                 {/* Vòng 2 */}
                 {["test_invited", "test_submitted", "test_passed", "test_rejected", "interview_invited", "interview_submitted", "hired", "rejected"].includes(selected.status) && (
                   <Section icon={FileCode} title="Vòng 2 — Bài thi" accent="sky">
+                    {job && job.test_type && job.test_type !== "none" && (
+                      <div className="mb-3 rounded-lg border border-sky-200 bg-sky-50/60 p-3">
+                        <div className="flex flex-wrap items-center gap-2 text-xs">
+                          <span className="rounded-full bg-sky-600 px-2 py-0.5 font-600 text-white">Đề thi</span>
+                          <span className="text-muted-foreground">Loại: <b className="text-sky-700">{testTypeLabel[job.test_type]}</b></span>
+                          {job.test_language && <span className="text-muted-foreground">Ngôn ngữ: <b className="text-sky-700">{job.test_language}</b></span>}
+                          <span className="text-muted-foreground">Thời gian: <b className="text-sky-700">{job.test_duration_min || 15} phút</b></span>
+                          {job.test_char_limit && <span className="text-muted-foreground">Giới hạn: <b className="text-sky-700">{job.test_char_limit} ký tự</b></span>}
+                        </div>
+                        {job.test_prompt && <pre className="mt-2 whitespace-pre-wrap text-sm text-foreground">{job.test_prompt}</pre>}
+                        {job.test_starter_code && (
+                          <div className="mt-2">
+                            <div className="text-xs font-600 uppercase tracking-wide text-muted-foreground">Code mẫu</div>
+                            <pre className="mt-1 max-h-48 overflow-auto rounded-lg border border-border bg-slate-900 p-3 text-xs text-slate-100 whitespace-pre-wrap">{job.test_starter_code}</pre>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     {selected.test_submitted_at ? (
                       <>
                         <div className="text-xs text-muted-foreground">Nộp lúc {new Date(selected.test_submitted_at).toLocaleString("vi-VN")}{selected.test_auto_submitted && " (tự nộp hết giờ)"}</div>
