@@ -67,7 +67,7 @@ export default function Home() {
         <div className="absolute -bottom-20 right-0 h-72 w-[30rem] rounded-full bg-pastel-pink/15 blur-3xl" />
         <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 lg:px-8 lg:pt-28">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-pastel-lavender/40 bg-pastel-lavender/10 px-4 py-1.5 text-xs font-600 text-pastel-lavender">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-600 text-primary">
               <Sparkles className="h-3.5 w-3.5" /> Nền tảng tuyển dụng thế hệ mới
             </div>
             <h1 className="mt-6 font-heading text-4xl font-800 leading-[1.1] tracking-tight text-balance sm:text-5xl lg:text-6xl">
@@ -118,8 +118,8 @@ export default function Home() {
       {/* Two portals CTA */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-pastel-lavender via-primary to-pastel-pink p-8 text-white shadow-xl shadow-pastel-lavender/40 lg:col-span-2">
-            <div className="absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/20 blur-2xl" />
+          <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-accent to-chart-4 p-8 text-white shadow-xl shadow-primary/30 lg:col-span-2">
+            <div className="absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/25 blur-2xl" />
             <div className="relative">
               <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-600">
                 <User className="h-3.5 w-3.5" /> Dành cho ứng viên
