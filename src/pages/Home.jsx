@@ -133,14 +133,19 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="group relative overflow-hidden rounded-3xl border border-border bg-card p-8 shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl">
-            <div className="absolute -right-8 -top-8 h-36 w-36 rounded-full bg-accent/10 blur-2xl" />
+          <div className="panel-galaxy group relative overflow-hidden rounded-3xl p-8 transition-all hover:-translate-y-0.5">
+            {/* chấm bling galaxy */}
+            <div className="pointer-events-none absolute inset-0 starfield opacity-70" />
+            <span className="pointer-events-none absolute left-6 top-5 h-2 w-2 animate-twinkle rounded-full bg-pastel-pink shadow-[0_0_10px_hsl(340_70%_80%)]" />
+            <span className="pointer-events-none absolute right-10 top-12 h-1.5 w-1.5 animate-twinkle rounded-full bg-pastel-sky shadow-[0_0_10px_hsl(210_70%_80%)]" style={{ animationDelay: "0.8s" }} />
+            <span className="pointer-events-none absolute bottom-8 right-7 h-2 w-2 animate-twinkle rounded-full bg-pastel-mint shadow-[0_0_10px_hsl(165_55%_78%)]" style={{ animationDelay: "1.6s" }} />
+            <span className="pointer-events-none absolute bottom-16 left-8 h-1.5 w-1.5 animate-twinkle rounded-full bg-pastel-lavender shadow-[0_0_10px_hsl(266_70%_82%)]" style={{ animationDelay: "2.2s" }} />
             <div className="relative">
-              <div className="inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-600 text-accent">
+              <div className="inline-flex items-center gap-2 rounded-full bg-accent/15 px-3 py-1 text-xs font-600 text-accent">
                 <Building2 className="h-3.5 w-3.5" /> Dành cho HR
               </div>
-              <h2 className="mt-5 font-heading text-3xl font-800">HR Studio</h2>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              <h2 className="mt-5 font-heading text-3xl font-800 text-galaxy">HR Studio</h2>
+              <p className="mt-3 text-sm leading-relaxed text-foreground/75">
                 Quản lý quy trình tuyển dụng, đăng việc làm, theo dõi ứng viên — tất cả trong một studio.
               </p>
               <GalaxyButton asChild size="lg" variant="outline" className="btn-galaxy-ghost mt-6 gap-2">
