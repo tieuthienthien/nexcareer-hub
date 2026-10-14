@@ -308,8 +308,13 @@ export default function Home() {
               <GalaxyButton asChild size="lg" className="btn-galaxy">
                 <Link to="/register">Tạo hồ sơ ứng viên <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </GalaxyButton>
-              <GalaxyButton asChild size="lg" variant="outline" className="btn-galaxy-ghost">
-                <Link to="/hr-studio">Dành cho nhà tuyển dụng</Link>
+              <GalaxyButton
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-white/70 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 hover:border-white shadow-[0_0_22px_hsl(340_70%_80%/0.45)]"
+              >
+                <Link to="/hr-studio">Dành cho nhà tuyển dụng <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </GalaxyButton>
             </div>
           </div>
