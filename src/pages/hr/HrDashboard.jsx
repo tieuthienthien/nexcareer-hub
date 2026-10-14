@@ -4,6 +4,8 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Briefcase, Users, FileText, TrendingUp, ArrowRight, ClipboardList, UserCheck, CalendarCheck, Award } from "lucide-react";
 import { applicationStatusLabel, applicationStatusColor } from "@/lib/jobUtils";
+import FunnelChart from "@/components/hr/FunnelChart";
+import ApplicationsTrend from "@/components/hr/ApplicationsTrend";
 
 const pipeline = [
   { icon: ClipboardList, title: "Tiếp nhận hồ sơ", desc: "Ứng viên nộp CV qua hệ thống, hồ sơ tự động lưu vào kho ứng viên." },
@@ -59,6 +61,12 @@ export default function HrDashboard() {
             <div className="mt-0.5 text-xs font-500 text-muted-foreground">{c.label}</div>
           </div>
         ))}
+      </div>
+
+      {/* Analytics: funnel + trend */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <FunnelChart byStatus={stats.byStatus} total={stats.apps} />
+        <ApplicationsTrend />
       </div>
 
       {/* Recruitment process */}
