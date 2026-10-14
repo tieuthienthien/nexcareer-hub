@@ -19,14 +19,6 @@ import HrJobs from '@/pages/hr/HrJobs';
 import HrApplications from '@/pages/hr/HrApplications';
 import HrChatbot from '@/pages/hr/HrChatbot';
 import HrCompare from '@/pages/hr/HrCompare';
-import HrSchedule from '@/pages/hr/HrSchedule';
-import HrReports from '@/pages/hr/HrReports';
-import Companies from '@/pages/Companies';
-import CareerGuide from '@/pages/CareerGuide';
-import ApplicationTracking from '@/pages/ApplicationTracking';
-import SavedJobs from '@/pages/SavedJobs';
-import Notifications from '@/pages/Notifications';
-import AccountSettings from '@/pages/AccountSettings';
 import AssessmentTest from '@/pages/AssessmentTest';
 import AssessmentInterview from '@/pages/AssessmentInterview';
 import Login from '@/pages/Login';
@@ -70,14 +62,8 @@ const AuthenticatedApp = () => {
         <Route path="/viec-lam" element={<Jobs />} />
         <Route path="/viec-lam/:id" element={<JobDetail />} />
         <Route path="/lien-he" element={<Contact />} />
-        <Route path="/cong-ty" element={<Companies />} />
-        <Route path="/huong-nghiep" element={<CareerGuide />} />
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/candidate-room" element={<CandidateRoom />} />
-          <Route path="/ho-so-ung-tuyen" element={<ApplicationTracking />} />
-          <Route path="/viec-da-luu" element={<SavedJobs />} />
-          <Route path="/thong-bao" element={<Notifications />} />
-          <Route path="/tai-khoan/cai-dat" element={<AccountSettings />} />
         </Route>
       </Route>
 
@@ -93,8 +79,6 @@ const AuthenticatedApp = () => {
           <Route path="applications" element={<HrApplications />} />
           <Route path="compare" element={<HrCompare />} />
           <Route path="chatbot" element={<HrChatbot />} />
-          <Route path="lich-phong-van" element={<HrSchedule />} />
-          <Route path="bao-cao" element={<HrReports />} />
         </Route>
       </Route>
 

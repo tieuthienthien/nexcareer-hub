@@ -39,30 +39,6 @@ export default async function(req: Request): Promise<Response> {
       await base44.asServiceRole.integrations.Core.SendEmail({ to: app.email, subject: mail.subject, html: mail.html });
     } catch (e) {}
 
-    // Tạo thông báo cho ứng viên về thay đổi vòng
-    try {
-      const notifMap: Record<string, { type: string; title: string; message: string; link: string }> = {
-        approve_round1: { type: "test_invite", title: "Bạn đã qua Vòng 1", message: `Chúc mừng! Bạn đã qua sàng lọc CV cho vị trí "${app.job_title}". Hãy chuẩn bị làm bài thi Vòng 2.`, link: "/ho-so-ung-tuyen" },
-        reject_round1: { type: "rejection", title: "Kết quả Vòng 1", message: `Hồ sơ "${app.job_title}" chưa qua Vòng 1 — sàng lọc CV.`, link: "/ho-so-ung-tuyen" },
-        approve_round2: { type: "interview_invite", title: "Mời phỏng vấn Vòng 3", message: `Bạn đã qua Vòng 2 cho vị trí "${app.job_title}". Hãy tham gia phỏng vấn AI.`, link: "/ho-so-ung-tuyen" },
-        reject_round2: { type: "rejection", title: "Kết quả Vòng 2", message: `Hồ sơ "${app.job_title}" chưa qua Vòng 2 — bài thi.`, link: "/ho-so-ung-tuyen" },
-        hire: { type: "offer", title: "Chúc mừng trúng tuyển 🎉", message: `Bạn đã trúng tuyển vị trí "${app.job_title}".`, link: "/ho-so-ung-tuyen" },
-        reject_round3: { type: "rejection", title: "Kết quả phỏng vấn", message: `Hồ sơ "${app.job_title}" chưa đạt Vòng 3 — phỏng vấn.`, link: "/ho-so-ung-tuyen" },
-      };
-      const n = notifMap[action];
-      if (n && app.created_by_id) {
-        await base44.asServiceRole.entities.Notification.create({
-          user_id: app.created_by_id,
-          type: n.type,
-          title: n.title,
-          message: n.message,
-          link: n.link,
-          application_id: applicationId,
-          read: false,
-        });
-      }
-    } catch (e) {}
-
     return Response.json({ ok: true, application: updated });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
