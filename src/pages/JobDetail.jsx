@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
-import { MapPin, Briefcase, Clock, Wallet, Users, CalendarDays, Building2, CheckCircle2, ArrowLeft, Share2, TrendingUp, Eye } from "lucide-react";
+import { MapPin, Briefcase, Clock, Wallet, Users, CalendarDays, Building2, CheckCircle2, ArrowLeft, Share2, TrendingUp, Eye, Bookmark, BookmarkCheck } from "lucide-react";
 import ApplyDialog from "@/components/job/ApplyDialog";
 import { formatSalary, workTypeLabel, employmentTypeLabel, experienceLabel, companyInitials, companyGradient } from "@/lib/jobUtils";
 
@@ -21,6 +21,39 @@ export default function JobDetail() {
   const [related, setRelated] = useState([]);
   const [applyOpen, setApplyOpen] = useState(false);
   const [applied, setApplied] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [savingJob, setSavingJob] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated || !id) { setSaved(false); return; }
+    let on = true;
+    (async () => {
+      try {
+        const res = await base44.entities.SavedJob.filter({ job_id: id }, { limit: 1 });
+        if (on) setSaved(!!(res.items || [])[0]);
+      } catch { if (on) setSaved(false); }
+    })();
+    return () => { on = false; };
+  }, [id, isAuthenticated]);
+
+  const toggleSave = async () => {
+    if (!isAuthenticated) { navigate(`/login?returnTo=${encodeURIComponent(`/viec-lam/${id}`)}`); return; }
+    if (saved) {
+      try {
+        const res = await base44.entities.SavedJob.filter({ job_id: id }, { limit: 1 });
+        const rec = (res.items || [])[0];
+        if (rec) await base44.entities.SavedJob.delete(rec.id);
+        setSaved(false);
+      } catch {}
+      return;
+    }
+    setSavingJob(true);
+    try {
+      await base44.entities.SavedJob.create({ job_id: id, job_title: job?.title, company: job?.company, company_logo: job?.company_logo });
+      setSaved(true);
+    } catch {}
+    setSavingJob(false);
+  };
 
   useEffect(() => {
     (async () => {
@@ -108,7 +141,9 @@ export default function JobDetail() {
             ) : (
               <Button size="lg" onClick={handleApply} className="gap-2">{isAuthenticated ? "Ứng tuyển ngay" : "Đăng nhập để ứng tuyển"}</Button>
             )}
-            <Button variant="outline" size="sm" className="gap-2"><Share2 className="h-4 w-4" /> Chia sẻ</Button>
+            <Button variant="outline" size="sm" onClick={toggleSave} disabled={savingJob} className="gap-2">
+              {saved ? <BookmarkCheck className="h-4 w-4 text-primary" /> : <Bookmark className="h-4 w-4" />} {saved ? "Đã lưu" : "Lưu việc"}
+            </Button>
           </div>
         </div>
 

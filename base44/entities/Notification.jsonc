@@ -1,0 +1,81 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID ng\u01b0\u1eddi d\u00f9ng nh\u1eadn th\u00f4ng b\u00e1o (ch\u1ee7 s\u1edf h\u1eefu)"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "stage_update",
+        "test_invite",
+        "interview_invite",
+        "offer",
+        "rejection",
+        "system"
+      ],
+      "default": "system"
+    },
+    "title": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "link": {
+      "type": "string",
+      "description": "\u0110\u01b0\u1eddng d\u1eabn n\u1ed9i b\u1ed9 khi click th\u00f4ng b\u00e1o"
+    },
+    "read": {
+      "type": "boolean",
+      "default": false
+    },
+    "application_id": {
+      "type": "string",
+      "description": "ID h\u1ed3 s\u01a1 \u1ee9ng tuy\u1ec3n li\u00ean quan (n\u1ebfu c\u00f3)"
+    }
+  },
+  "required": [
+    "user_id",
+    "title",
+    "message"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
