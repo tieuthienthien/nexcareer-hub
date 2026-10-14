@@ -1,0 +1,52 @@
+{
+  "name": "ChatbotKnowledge",
+  "type": "object",
+  "properties": {
+    "question": {
+      "type": "string",
+      "description": "C\u00e2u h\u1ecfi m\u1eabu / ch\u1ee7 \u0111\u1ec1 \u0111\u1ec3 train chatbot"
+    },
+    "answer": {
+      "type": "string",
+      "description": "C\u00e2u tr\u1ea3 l\u1eddi chatbot s\u1ebd d\u00f9ng"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "T\u1eeb kh\u00f3a gi\u00fap ph\u00e2n lo\u1ea1i c\u00e2u h\u1ecfi"
+    },
+    "category": {
+      "type": "string",
+      "description": "Nh\u00f3m ch\u1ee7 \u0111\u1ec1 (vd: vi\u1ec7c l\u00e0m, \u1ee9ng tuy\u1ec3n, li\u00ean h\u1ec7)"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "B\u1eadt/t\u1eaft m\u1ee5c ki\u1ebfn th\u1ee9c n\u00e0y"
+    }
+  },
+  "required": [
+    "question",
+    "answer"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

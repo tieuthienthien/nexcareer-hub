@@ -1,12 +1,13 @@
 import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Building2, ArrowLeft, LogOut, LayoutDashboard, FileText, Users } from "lucide-react";
+import { Building2, ArrowLeft, LogOut, LayoutDashboard, FileText, Users, MessageCircle } from "lucide-react";
 
 const hrNav = [
   { label: "Tổng quan", path: "/hr-studio", icon: LayoutDashboard, end: true },
   { label: "Việc làm", path: "/hr-studio/jobs", icon: FileText },
   { label: "Ứng viên", path: "/hr-studio/applications", icon: Users },
+  { label: "Chatbot", path: "/hr-studio/chatbot", icon: MessageCircle },
 ];
 
 export default function HrLayout() {

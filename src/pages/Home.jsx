@@ -63,16 +63,15 @@ export default function Home() {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid opacity-60" />
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background" />
-        <div className="absolute -top-24 left-1/2 h-72 w-[40rem] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute -top-24 left-1/2 h-72 w-[40rem] -translate-x-1/2 rounded-full bg-pastel-lavender/20 blur-3xl" />
+        <div className="absolute -bottom-20 right-0 h-72 w-[30rem] rounded-full bg-pastel-pink/15 blur-3xl" />
         <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 lg:px-8 lg:pt-28">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-600 text-primary">
+            <div className="inline-flex items-center gap-2 rounded-full border border-pastel-lavender/40 bg-pastel-lavender/10 px-4 py-1.5 text-xs font-600 text-pastel-lavender">
               <Sparkles className="h-3.5 w-3.5" /> Nền tảng tuyển dụng thế hệ mới
             </div>
             <h1 className="mt-6 font-heading text-4xl font-800 leading-[1.1] tracking-tight text-balance sm:text-5xl lg:text-6xl">
-              Khởi đầu sự nghiệp <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">đẳng cấp mới</span> cùng NexCareer
+              Khởi đầu sự nghiệp <span className="text-galaxy">đẳng cấp mới</span> cùng NexCareer
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               Hàng ngàn cơ hội việc làm từ các nhà tuyển dụng hàng đầu. Tìm việc nhanh, ứng tuyển dễ, theo dõi hồ sơ minh bạch — tất cả trong một nền tảng.

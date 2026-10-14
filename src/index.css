@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -42,6 +42,12 @@
     --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 244 76% 60%;
+
+    /* Galaxy Pastel Tech — pastel accent colors (dùng cho mọi trang) */
+    --pastel-lavender: 266 55% 78%;
+    --pastel-pink: 340 55% 80%;
+    --pastel-mint: 165 50% 78%;
+    --pastel-sky: 210 45% 80%;
   }
 
   .dark {
@@ -78,6 +84,35 @@
     --sidebar-border: 222 27% 20%;
     --sidebar-ring: 244 76% 67%;
   }
+
+  /* Galaxy Pastel Tech — scope riêng cho trang công khai */
+  .galaxy {
+    color-scheme: dark;
+    --background: 266 32% 12%;
+    --foreground: 270 20% 95%;
+    --card: 266 26% 18%;
+    --card-foreground: 270 20% 95%;
+    --popover: 266 26% 17%;
+    --popover-foreground: 270 20% 95%;
+    --primary: 266 55% 78%;
+    --primary-foreground: 266 35% 16%;
+    --secondary: 266 28% 24%;
+    --secondary-foreground: 270 20% 94%;
+    --muted: 266 24% 22%;
+    --muted-foreground: 270 22% 70%;
+    --accent: 340 55% 80%;
+    --accent-foreground: 340 40% 18%;
+    --destructive: 12 70% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 266 28% 30%;
+    --input: 266 28% 30%;
+    --ring: 266 55% 78%;
+    --chart-1: 266 55% 78%;
+    --chart-2: 340 55% 80%;
+    --chart-3: 165 50% 78%;
+    --chart-4: 210 45% 80%;
+    --chart-5: 60 70% 78%;
+  }
 }
 
 @layer base {
@@ -97,5 +132,36 @@
   .bg-grid {
     background-image: radial-gradient(circle at 1px 1px, hsl(var(--border)) 1px, transparent 0);
     background-size: 32px 32px;
+  }
+  /* Galaxy Pastel Tech utilities */
+  .galaxy-bg {
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(ellipse 60% 45% at 15% 10%, hsl(266 60% 45% / 45%), transparent 70%),
+      radial-gradient(ellipse 50% 40% at 90% 25%, hsl(340 55% 55% / 30%), transparent 70%),
+      radial-gradient(ellipse 55% 45% at 70% 95%, hsl(210 50% 55% / 30%), transparent 70%),
+      radial-gradient(ellipse 40% 30% at 5% 85%, hsl(165 50% 50% / 20%), transparent 70%);
+    background-attachment: fixed;
+  }
+  .starfield {
+    background-image:
+      radial-gradient(1px 1px at 20px 30px, white, transparent),
+      radial-gradient(1px 1px at 80px 120px, hsl(266 55% 90%), transparent),
+      radial-gradient(1.5px 1.5px at 150px 60px, white, transparent),
+      radial-gradient(1px 1px at 200px 180px, hsl(210 45% 85%), transparent),
+      radial-gradient(1px 1px at 260px 20px, white, transparent),
+      radial-gradient(1.5px 1.5px at 40px 220px, hsl(340 55% 88%), transparent);
+    background-size: 300px 260px;
+  }
+  .text-galaxy {
+    background-image: linear-gradient(100deg, hsl(var(--pastel-lavender)), hsl(var(--pastel-pink)) 40%, hsl(var(--pastel-sky)) 75%, hsl(var(--pastel-mint)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .glass {
+    background-color: hsl(var(--card) / 0.7);
+    backdrop-filter: blur(14px);
+    border: 1px solid hsl(var(--border));
   }
 }
