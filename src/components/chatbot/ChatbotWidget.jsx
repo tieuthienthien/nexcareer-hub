@@ -37,7 +37,7 @@ export default function ChatbotWidget() {
   return (
     <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
       {open && (
-        <div className="flex w-[88vw] max-w-sm origin-bottom-right flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-2xl animate-pop-in" style={{ height: "30rem" }}>
+        <div className="panel-galaxy flex w-[88vw] max-w-sm origin-bottom-right flex-col overflow-hidden rounded-3xl animate-pop-in" style={{ height: "30rem" }}>
           {/* Header */}
           <div className="galaxy-bg relative flex items-center gap-3 border-b border-border px-4 py-3">
             <div className="relative">
@@ -80,7 +80,7 @@ export default function ChatbotWidget() {
               className="h-10 rounded-full"
               disabled={loading}
             />
-            <Button type="submit" size="icon" className="h-10 w-10 shrink-0 rounded-full" disabled={loading || !input.trim()}>
+            <Button type="submit" size="icon" className="btn-galaxy h-10 w-10 shrink-0 rounded-full" disabled={loading || !input.trim()}>
               <Send className="h-4 w-4" />
             </Button>
           </form>
@@ -90,11 +90,10 @@ export default function ChatbotWidget() {
       {/* Floating mascot button */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="group relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-pastel-lavender to-pastel-pink shadow-xl shadow-pastel-lavender/40 transition-transform hover:scale-105 active:animate-jelly"
+        className="btn-galaxy group relative flex h-16 w-16 items-center justify-center rounded-full transition-transform hover:scale-105 active:animate-jelly"
         aria-label={open ? "Đóng chat" : "Mở chat với Starbuddy"}
       >
-        {!open && <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-pastel-pink text-[9px] font-700 text-white">1</span>}
-        <span className="absolute inset-0 animate-twinkle rounded-full opacity-60" style={{ background: "radial-gradient(circle, hsl(var(--pastel-lavender)/0.4), transparent 70%)" }} />
+        {!open && <span className="absolute -right-0.5 -top-0.5 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-pastel-pink text-[9px] font-700 text-white">1</span>}
         {open ? (
           <X className="h-7 w-7 text-white" />
         ) : (

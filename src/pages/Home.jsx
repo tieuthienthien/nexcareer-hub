@@ -209,12 +209,12 @@ export default function Home() {
             <h2 className="mt-5 font-heading text-3xl font-800 leading-tight">
               Bối cảnh & tầm nhìn của chúng tôi
             </h2>
-            <p className="mt-5 leading-relaxed text-muted-foreground">
+            <p className="mt-5 leading-relaxed text-foreground/80">
               NexCareer Hub ra đời trong bối cảnh thị trường lao động Việt Nam đang chuyển dịch mạnh mẽ: ứng viên
               ngày càng đề cao trải nghiệm ứng tuyển minh bạch, trong khi nhà tuyển dụng cần công cụ quản lý hồ sơ
               hiệu quả và dữ liệu hóa toàn bộ quy trình.
             </p>
-            <p className="mt-4 leading-relaxed text-muted-foreground">
+            <p className="mt-4 leading-relaxed text-foreground/80">
               Chúng tôi xây dựng một nền tảng hai chiều — <span className="font-600 text-foreground">Candidate Room</span> cho
               ứng viên và <span className="font-600 text-foreground">HR Studio</span> cho nhà tuyển dụng — kết nối đúng
               người, đúng việc, đúng thời điểm, với trải nghiệm hiện đại, nhanh chóng và công bằng.
