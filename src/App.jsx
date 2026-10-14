@@ -18,6 +18,7 @@ import HrDashboard from '@/pages/hr/HrDashboard';
 import HrJobs from '@/pages/hr/HrJobs';
 import HrApplications from '@/pages/hr/HrApplications';
 import HrChatbot from '@/pages/hr/HrChatbot';
+import HrCompare from '@/pages/hr/HrCompare';
 import AssessmentTest from '@/pages/AssessmentTest';
 import AssessmentInterview from '@/pages/AssessmentInterview';
 import Login from '@/pages/Login';
@@ -76,6 +77,7 @@ const AuthenticatedApp = () => {
           <Route index element={<HrDashboard />} />
           <Route path="jobs" element={<HrJobs />} />
           <Route path="applications" element={<HrApplications />} />
+          <Route path="compare" element={<HrCompare />} />
           <Route path="chatbot" element={<HrChatbot />} />
         </Route>
       </Route>
