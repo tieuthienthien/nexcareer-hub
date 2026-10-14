@@ -224,3 +224,30 @@
   0% { background-position: 0% 50%; }
   100% { background-position: 300% 50%; }
 }
+
+/* Mưa sao khi click */
+.star-rain {
+  position: absolute;
+  display: inline-block;
+  line-height: 1;
+  transform: translate(0, 0) rotate(0);
+  opacity: 1;
+  filter: drop-shadow(0 0 4px currentColor);
+  animation-name: star-rain-fall;
+  animation-timing-function: cubic-bezier(0.2, 0.6, 0.3, 1);
+  animation-fill-mode: forwards;
+}
+@keyframes star-rain-fall {
+  0% {
+    transform: translate(0, 0) rotate(0) scale(0.6);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+    transform: translate(calc(var(--dx) * 0.25), calc(var(--dy) * 0.2)) rotate(calc(var(--rot) * 0.25)) scale(1.1);
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.7);
+    opacity: 0;
+  }
+}

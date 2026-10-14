@@ -2,6 +2,7 @@ import { Link, Outlet } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
 import ChatbotWidget from "@/components/chatbot/ChatbotWidget";
+import StarRainClick from "@/components/StarRainClick";
 
 export default function SiteLayout() {
   return (
@@ -15,6 +16,7 @@ export default function SiteLayout() {
         <Footer />
       </div>
       <ChatbotWidget />
+      <StarRainClick />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Building2, ArrowLeft, LogOut, LayoutDashboard, FileText, Users, MessageCircle } from "lucide-react";
+import StarRainClick from "@/components/StarRainClick";
 
 const hrNav = [
   { label: "Tổng quan", path: "/hr-studio", icon: LayoutDashboard, end: true },
@@ -102,6 +103,7 @@ export default function HrLayout() {
           <Outlet />
         </main>
       </div>
+      <StarRainClick />
     </div>
   );
 }
