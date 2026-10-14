@@ -31,6 +31,7 @@ export default function HrApplications() {
   const [busy, setBusy] = useState(false);
   const [answers, setAnswers] = useState([]);
   const [finalNotes, setFinalNotes] = useState("");
+  const [round1Reason, setRound1Reason] = useState("");
   const [job, setJob] = useState(null);
 
   const load = async () => {
@@ -51,6 +52,7 @@ export default function HrApplications() {
   const open = async (a) => {
     setSelected(a);
     setFinalNotes(a.final_notes || "");
+    setRound1Reason(a.hr_decision_reason || "");
     setAnswers([]);
     setJob(null);
     if (a.job_id) {
@@ -73,7 +75,10 @@ export default function HrApplications() {
     if (!selected) return;
     setBusy(true);
     try {
-      const res = await base44.functions.invoke("advanceStage", { application_id: selected.id, action, final_notes: finalNotes || undefined });
+      const payload = { application_id: selected.id, action };
+      if (action === "approve_round1" || action === "reject_round1") payload.hr_decision_reason = round1Reason || undefined;
+      if (action === "hire" || action === "reject_round3") payload.final_notes = finalNotes || undefined;
+      const res = await base44.functions.invoke("advanceStage", payload);
       const data = res.data || res;
       const updated = data.application || { ...selected, status: data.status };
       setApps((prev) => prev.map((x) => (x.id === selected.id ? updated : x)));
@@ -154,11 +159,33 @@ export default function HrApplications() {
                 {/* Vòng 1 */}
                 <Section icon={Sparkles} title="Vòng 1 — Sàng lọc CV" accent="primary">
                   {selected.cv_file_uri && <Button variant="outline" size="sm" onClick={() => viewFile(selected.cv_file_uri)} className="gap-2"><Download className="h-4 w-4" /> Xem CV</Button>}
-                  {selected.cv_match_score != null && <div className="mt-2 text-sm">Điểm khớp AI: <b className="text-primary">{selected.cv_match_score}/100</b></div>}
+                  {selected.cv_match_score != null && <div className="mt-2 text-sm">Điểm khớp AI: <b className="text-primary">{selected.cv_match_score}/100</b> <span className="text-xs text-muted-foreground">(AI tham khảo — HR quyết định cuối)</span></div>}
                   {selected.cv_ai_analysis && <p className="mt-2 rounded-lg bg-muted/40 p-3 text-sm">{selected.cv_ai_analysis}</p>}
+                  {selected.cv_strengths && (
+                    <div className="mt-2">
+                      <div className="text-xs font-600 uppercase tracking-wide text-emerald-700">Điểm mạnh (bằng chứng từ CV)</div>
+                      <p className="mt-1 whitespace-pre-wrap rounded-lg bg-emerald-50/60 p-3 text-sm">{selected.cv_strengths}</p>
+                    </div>
+                  )}
+                  {selected.cv_gaps && (
+                    <div className="mt-2">
+                      <div className="text-xs font-600 uppercase tracking-wide text-amber-700">Khoảng trống / cần xác minh</div>
+                      <p className="mt-1 whitespace-pre-wrap rounded-lg bg-amber-50/60 p-3 text-sm">{selected.cv_gaps}</p>
+                    </div>
+                  )}
+                  {selected.cv_quality_signals && (
+                    <div className="mt-2">
+                      <div className="text-xs font-600 uppercase tracking-wide text-muted-foreground">Tín hiệu chất lượng CV (tham khảo, không phải bằng chứng lừa đảo)</div>
+                      <p className="mt-1 whitespace-pre-wrap rounded-lg bg-muted/40 p-3 text-sm">{selected.cv_quality_signals}</p>
+                    </div>
+                  )}
                   {selected.cover_letter && <div className="mt-2"><div className="text-xs font-600 uppercase tracking-wide text-muted-foreground">Thư ứng tuyển</div><p className="mt-1 whitespace-pre-wrap rounded-lg bg-muted/40 p-3 text-sm">{selected.cover_letter}</p></div>}
+                  {selected.hr_decision_reason && <div className="mt-2 text-xs text-muted-foreground">Lý do HR: <span className="text-foreground/80">{selected.hr_decision_reason}</span></div>}
                   {selected.status === "cv_screening" && (
-                    <Actions busy={busy} onApprove={() => advance("approve_round1")} onReject={() => advance("reject_round1")} approveLabel="Duyệt — mời vòng 2" rejectLabel="Từ chối" />
+                    <>
+                      <Textarea rows={2} value={round1Reason} onChange={(e) => setRound1Reason(e.target.value)} placeholder="Ghi lý do duyệt/từ chối (bắt buộc khi ghi đè AI)..." className="mt-3" />
+                      <Actions busy={busy} onApprove={() => advance("approve_round1")} onReject={() => advance("reject_round1")} approveLabel="Duyệt — mời vòng 2" rejectLabel="Từ chối" />
+                    </>
                   )}
                 </Section>
 

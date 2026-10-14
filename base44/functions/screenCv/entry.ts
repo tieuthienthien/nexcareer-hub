@@ -18,6 +18,9 @@ export default async function(req: Request): Promise<Response> {
 
     let matchScore: number | null = null;
     let analysis = "";
+    let strengths = "";
+    let gaps = "";
+    let qualitySignals = "";
 
     if (app.cv_file_uri) {
       let cvText = "";
@@ -42,7 +45,7 @@ export default async function(req: Request): Promise<Response> {
       }
 
       const llm = await base44.asServiceRole.integrations.Core.InvokeLLM({
-        prompt: `Bạn là chuyên gia tuyển dụng của Nexora. Đánh giá mức độ phù hợp của CV với mô tả công việc dựa trên ngữ nghĩa, loại bỏ CV "ảo" chỉ nhồi từ khóa.
+        prompt: `Bạn là chuyên gia tuyển dụng của NexCareer Hub. Đánh giá mức độ phù hợp của CV với mô tả công việc theo ngữ nghĩa (không chỉ khớp từ khóa). Phân biệt rõ: (1) sự kiện/kinh nghiệm trích xuất được từ CV, (2) tuyên bố của ứng viên, (3) suy luận của AI, (4) thông tin còn thiếu/chưa xác minh. KHÔNG coi thiếu thông tin là bằng chứng ứng viên thiếu kỹ năng. KHÔNG chấm điểm chỉ vì lặp từ khóa. KHÔNG kết luận CV là giả mạo chỉ vì văn phong lạ hoặc thiếu chi tiết.
 
 Vị trí: ${job.title} - ${job.company || ""}
 Mô tả công việc: ${job.description || ""}
@@ -52,12 +55,13 @@ Cấp bậc: ${job.experience_level || ""}
 
 Thông tin trích từ CV: ${cvText}
 
-Hãy trả về JSON tiếng Việt:
+Trả về JSON tiếng Việt:
 {
-  "match_score": số từ 0 đến 100,
-  "analysis": nhận xét ngắn 2-3 câu bằng tiếng Việt,
-  "strengths": điểm mạnh ngắn gọn,
-  "gaps": điểm thiếu ngắn gọn
+  "match_score": số 0-100,
+  "analysis": nhận xét 2-3 câu, nêu rõ cơ sở,
+  "strengths": điểm mạnh cụ thể dựa trên bằng chứng từ CV (mỗi ý gạch đầu dòng ngắn),
+  "gaps": thông tin thiếu / chưa rõ / cần xác minh (không suy diễn thành thiếu năng lực),
+  "quality_signals": tín hiệu đánh giá: mục nào mơ hồ, ngày tháng thiếu, kỹ năng không có ví dụ, trùng lặp, bất thường phân tích — đây là tín hiệu tham khảo, KHÔNG phải bằng chứng lừa đảo
 }
 Chỉ trả JSON hợp lệ.`,
         response_json_schema: {
@@ -66,17 +70,24 @@ Chỉ trả JSON hợp lệ.`,
             match_score: { type: "number" },
             analysis: { type: "string" },
             strengths: { type: "string" },
-            gaps: { type: "string" }
+            gaps: { type: "string" },
+            quality_signals: { type: "string" }
           }
         }
       });
       matchScore = typeof llm.match_score === "number" ? llm.match_score : null;
       analysis = llm.analysis || "";
+      strengths = llm.strengths || "";
+      gaps = llm.gaps || "";
+      qualitySignals = llm.quality_signals || "";
     }
 
     await base44.asServiceRole.entities.Application.update(applicationId, {
       cv_match_score: matchScore,
-      cv_ai_analysis: analysis
+      cv_ai_analysis: analysis,
+      cv_strengths: strengths,
+      cv_gaps: gaps,
+      cv_quality_signals: qualitySignals
     });
 
     const origin = appOrigin(req);

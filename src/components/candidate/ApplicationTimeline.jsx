@@ -63,6 +63,18 @@ export default function ApplicationTimeline({ app }) {
                 {r.id === 1 && (st === "active" || st === "passed") && app.cv_ai_analysis && (
                   <p className="mt-2 rounded-lg bg-muted/40 p-2.5 text-xs text-foreground/80">{app.cv_ai_analysis}</p>
                 )}
+                {r.id === 1 && (st === "active" || st === "passed") && app.cv_strengths && (
+                  <div className="mt-1.5">
+                    <div className="text-[10px] font-700 uppercase tracking-wide text-emerald-700">Điểm mạnh</div>
+                    <p className="mt-0.5 whitespace-pre-wrap rounded-lg bg-emerald-50/60 p-2 text-[11px] text-foreground/80">{app.cv_strengths}</p>
+                  </div>
+                )}
+                {r.id === 1 && (st === "active" || st === "passed") && app.cv_gaps && (
+                  <div className="mt-1.5">
+                    <div className="text-[10px] font-700 uppercase tracking-wide text-amber-700">Cần bổ sung / xác minh</div>
+                    <p className="mt-0.5 whitespace-pre-wrap rounded-lg bg-amber-50/60 p-2 text-[11px] text-foreground/80">{app.cv_gaps}</p>
+                  </div>
+                )}
                 {r.id === 2 && st === "active" && app.status === "test_invited" && (
                   <Link to={`/phong-thi/${app.id}`} className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-600 text-primary-foreground hover:bg-primary/90">
                     Vào phòng thi <ArrowRight className="h-3.5 w-3.5" />

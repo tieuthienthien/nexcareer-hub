@@ -21,6 +21,7 @@ export default async function(req: Request): Promise<Response> {
     const applicationId = body?.application_id;
     const action = body?.action;
     const finalNotes = body?.final_notes;
+    const decisionReason = body?.hr_decision_reason;
     if (!applicationId || !ACTIONS[action]) return Response.json({ error: 'Tham số không hợp lệ' }, { status: 400 });
 
     const app = await base44.entities.Application.get(applicationId);
@@ -29,6 +30,7 @@ export default async function(req: Request): Promise<Response> {
     const next = ACTIONS[action];
     const updateData: any = { status: next.status };
     if (finalNotes) updateData.final_notes = finalNotes;
+    if (decisionReason) updateData.hr_decision_reason = decisionReason;
     const updated = await base44.entities.Application.update(applicationId, updateData);
 
     const origin = appOrigin(req);
