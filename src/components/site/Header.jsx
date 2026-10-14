@@ -9,6 +9,7 @@ const navLinks = [
   { label: "Trang chủ", path: "/" },
   { label: "Việc làm", path: "/viec-lam" },
   { label: "Liên hệ", path: "/lien-he" },
+  { label: "Trung tâm hỗ trợ", path: "/ho-tro" },
 ];
 
 export default function Header() {

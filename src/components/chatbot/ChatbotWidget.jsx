@@ -41,6 +41,15 @@ export default function ChatbotWidget() {
   }, [messages, loading, open]);
 
   useEffect(() => {
+    const handler = (e) => {
+      setOpen(true);
+      if (e?.detail?.q) ask(e.detail.q);
+    };
+    window.addEventListener("starbuddy:open", handler);
+    return () => window.removeEventListener("starbuddy:open", handler);
+  }, []);
+
+  useEffect(() => {
     if (!open) return;
     let alive = true;
     base44.entities.ChatbotKnowledge.filter({ active: true }, { sort: "-created_date", limit: 8 })

@@ -19,6 +19,8 @@ import HrJobs from '@/pages/hr/HrJobs';
 import HrApplications from '@/pages/hr/HrApplications';
 import HrChatbot from '@/pages/hr/HrChatbot';
 import HrCompare from '@/pages/hr/HrCompare';
+import HrFeedback from '@/pages/hr/HrFeedback';
+import SupportCenter from '@/pages/SupportCenter';
 import AssessmentTest from '@/pages/AssessmentTest';
 import AssessmentInterview from '@/pages/AssessmentInterview';
 import Login from '@/pages/Login';
@@ -62,6 +64,7 @@ const AuthenticatedApp = () => {
         <Route path="/viec-lam" element={<Jobs />} />
         <Route path="/viec-lam/:id" element={<JobDetail />} />
         <Route path="/lien-he" element={<Contact />} />
+        <Route path="/ho-tro" element={<SupportCenter />} />
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/candidate-room" element={<CandidateRoom />} />
         </Route>
@@ -79,6 +82,7 @@ const AuthenticatedApp = () => {
           <Route path="applications" element={<HrApplications />} />
           <Route path="compare" element={<HrCompare />} />
           <Route path="chatbot" element={<HrChatbot />} />
+          <Route path="feedback" element={<HrFeedback />} />
         </Route>
       </Route>
 

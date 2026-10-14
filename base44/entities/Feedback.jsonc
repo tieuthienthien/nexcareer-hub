@@ -1,0 +1,107 @@
+{
+  "name": "Feedback",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID ng\u01b0\u1eddi d\u00f9ng g\u1eedi (n\u1ebfu \u0111\u0103ng nh\u1eadp)"
+    },
+    "overall_rating": {
+      "type": "number",
+      "description": "\u0110\u00e1nh gi\u00e1 t\u1ed5ng quan 1\u20135 sao"
+    },
+    "ease_rating": {
+      "type": "number",
+      "description": "\u0110\u00e1nh gi\u00e1 d\u1ec5 s\u1eed d\u1ee5ng (1\u20135, t\u00f9y ch\u1ecdn)"
+    },
+    "interface_rating": {
+      "type": "number",
+      "description": "\u0110\u00e1nh gi\u00e1 giao di\u1ec7n (1\u20135, t\u00f9y ch\u1ecdn)"
+    },
+    "performance_rating": {
+      "type": "number",
+      "description": "\u0110\u00e1nh gi\u00e1 hi\u1ec7u n\u0103ng (1\u20135, t\u00f9y ch\u1ecdn)"
+    },
+    "support_rating": {
+      "type": "number",
+      "description": "\u0110\u00e1nh gi\u00e1 h\u1ed7 tr\u1ee3 (1\u20135, t\u00f9y ch\u1ecdn)"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "suggestion",
+        "bug",
+        "usability",
+        "other"
+      ],
+      "description": "Lo\u1ea1i g\u00f3p \u00fd"
+    },
+    "comment": {
+      "type": "string",
+      "description": "N\u1ed9i dung g\u00f3p \u00fd (t\u00f9y ch\u1ecdn)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "in_progress",
+        "resolved"
+      ],
+      "default": "new"
+    },
+    "is_featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "HR duy\u1ec7t hi\u1ec3n th\u1ecb c\u00f4ng khai nh\u01b0 \u0111\u00e1nh gi\u00e1 c\u1ed9ng \u0111\u1ed3ng"
+    },
+    "anonymous": {
+      "type": "boolean",
+      "default": false
+    },
+    "display_name": {
+      "type": "string",
+      "description": "T\u00ean hi\u1ec3n th\u1ecb (cho \u0111\u00e1nh gi\u00e1 c\u00f4ng khai)"
+    },
+    "consent_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "Ng\u01b0\u1eddi d\u00f9ng \u0111\u1ed3ng \u00fd hi\u1ec3n th\u1ecb c\u00f4ng khai"
+    }
+  },
+  "required": [
+    "overall_rating",
+    "category"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.is_featured": true
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
