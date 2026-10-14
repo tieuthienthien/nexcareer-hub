@@ -120,6 +120,18 @@ module.exports = {
   				'25%': { transform: 'rotate(-8deg)' },
   				'50%': { transform: 'rotate(8deg)' },
   				'75%': { transform: 'rotate(-4deg)' }
+  			},
+  			'galaxy-zoom': {
+  				'0%, 100%': { transform: 'scale(1)' },
+  				'50%': { transform: 'scale(1.08)' }
+  			},
+  			'ripple': {
+  				'to': { transform: 'scale(4)', opacity: '0' }
+  			},
+  			'shake-x': {
+  				'0%, 100%': { transform: 'translateX(0)' },
+  				'20%, 60%': { transform: 'translateX(-6px)' },
+  				'40%, 80%': { transform: 'translateX(6px)' }
   			}
   		},
   		animation: {
@@ -130,7 +142,10 @@ module.exports = {
   			'jelly': 'jelly 0.6s ease',
   			'float-up': 'float-up 0.9s ease-out forwards',
   			'pop-in': 'pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
-  			'wiggle': 'wiggle 0.5s ease-in-out'
+  			'wiggle': 'wiggle 0.5s ease-in-out',
+  			'galaxy-zoom': 'galaxy-zoom 3.5s ease-in-out infinite',
+  			'ripple': 'ripple 0.6s ease-out forwards',
+  			'shake-x': 'shake-x 0.4s ease-in-out'
   		}
   	}
   },

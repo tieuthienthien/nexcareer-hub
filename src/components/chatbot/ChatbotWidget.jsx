@@ -65,7 +65,7 @@ export default function ChatbotWidget() {
             ))}
             {loading && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <img src="/images/astro/thinking.png" alt="" className="h-7 w-7 animate-float rounded-full object-cover" />
+                <img src="/images/astro/thinking.png" alt="" className="h-7 w-7 animate-galaxy-zoom rounded-full object-cover" />
                 <span className="glass rounded-2xl px-3.5 py-2">Starbuddy đang nghĩ…</span>
               </div>
             )}
@@ -97,7 +97,7 @@ export default function ChatbotWidget() {
         {open ? (
           <X className="h-7 w-7 text-white" />
         ) : (
-          <img src="/images/mascot.png" alt="Starbuddy" className="h-14 w-14 animate-float rounded-full object-cover" />
+          <img src="/images/mascot.png" alt="Starbuddy" className="h-14 w-14 animate-galaxy-zoom rounded-full object-cover" />
         )}
       </button>
       {!open && (
