@@ -11,18 +11,32 @@ export default function ChatbotWidget() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [suggestionsHidden, setSuggestionsHidden] = useState(false);
   const scrollRef = useRef(null);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, loading, open]);
 
-  const send = async (e) => {
-    e?.preventDefault();
-    const text = input.trim();
+  useEffect(() => {
+    if (!open) return;
+    let alive = true;
+    base44.entities.ChatbotKnowledge.filter({ active: true }, { sort: "-created_date", limit: 8 })
+      .then((res) => {
+        if (!alive) return;
+        const items = (res.items || []).map((k) => k.question).filter(Boolean);
+        setSuggestions(items);
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [open]);
+
+  const ask = async (text) => {
     if (!text || loading) return;
     setMessages((m) => [...m, { role: "user", text }]);
     setInput("");
+    setSuggestionsHidden(true);
     setLoading(true);
     try {
       const res = await base44.functions.invoke("chatWithBot", { message: text });
@@ -32,6 +46,13 @@ export default function ChatbotWidget() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const send = (e) => {
+    e?.preventDefault();
+    const text = input.trim();
+    if (!text) return;
+    ask(text);
   };
 
   return (
@@ -67,6 +88,20 @@ export default function ChatbotWidget() {
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <img src="/images/astro/thinking.png" alt="" className="h-7 w-7 animate-galaxy-zoom rounded-full object-cover" />
                 <span className="glass rounded-2xl px-3.5 py-2">Starbuddy đang nghĩ…</span>
+              </div>
+            )}
+            {suggestions.length > 0 && !suggestionsHidden && !loading && (
+              <div className="flex flex-wrap gap-2 pt-1">
+                {suggestions.map((q, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => ask(q)}
+                    className="rounded-full border border-pastel-lavender/60 bg-card/80 px-3 py-1.5 text-xs font-500 text-foreground transition-all hover:-translate-y-0.5 hover:border-pastel-pink hover:bg-pastel-pink/10 hover:shadow-[0_0_12px_hsl(340_70%_80%/0.4)]"
+                  >
+                    {q}
+                  </button>
+                ))}
               </div>
             )}
           </div>
