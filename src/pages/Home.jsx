@@ -34,22 +34,20 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const [feat, count, top] = await Promise.all([
-          base44.entities.Job.filter({ status: "published" }, { sort: "-created_date", limit: 6 }),
-          base44.entities.Job.count({ status: "published" }),
-          base44.entities.Job.aggregate({ query: { status: "published" }, groupBy: "company", sort: "-count", limit: 6 }),
-        ]);
-        setFeatured(feat.items || []);
-        setTotalJobs(count || 0);
-        setTopEmployers(top.rows || []);
-      } catch (e) {
-        // ignore — sections degrade gracefully
-      } finally {
-        setLoading(false);
-      }
-    })();
+    let alive = true;
+    const run = async () => {
+      const safe = async (fn, fallback) => { try { return await fn(); } catch { return fallback; } };
+      const feat = await safe(() => base44.entities.Job.filter({ status: "published" }, { sort: "-created_date", limit: 6 }), { items: [] });
+      const count = await safe(() => base44.entities.Job.count({ status: "published" }), 0);
+      const top = await safe(() => base44.entities.Job.aggregate({ query: { status: "published" }, groupBy: "company", sort: "-count", limit: 6 }), { rows: [] });
+      if (!alive) return;
+      setFeatured(feat.items || []);
+      setTotalJobs(count || 0);
+      setTopEmployers(top.rows || []);
+      setLoading(false);
+    };
+    run();
+    return () => { alive = false; };
   }, []);
 
   const handleSearch = (e) => {
