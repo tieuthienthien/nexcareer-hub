@@ -98,7 +98,7 @@ export default function Home() {
                   className="h-14 border-0 bg-transparent pl-12 text-base shadow-none focus-visible:ring-0"
                 />
               </div>
-              <Button type="submit" size="lg" className="h-14 px-8 text-base font-600 sm:w-auto">
+              <Button type="submit" size="lg" className="btn-galaxy h-14 px-8 text-base font-700 sm:w-auto">
                 <Search className="mr-2 h-5 w-5" /> Tìm việc
               </Button>
             </div>
@@ -118,8 +118,8 @@ export default function Home() {
       {/* Two portals CTA */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-indigo-600 p-8 text-white shadow-xl shadow-primary/20 lg:col-span-2">
-            <div className="absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
+          <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-pastel-lavender via-primary to-pastel-pink p-8 text-white shadow-xl shadow-pastel-lavender/40 lg:col-span-2">
+            <div className="absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/20 blur-2xl" />
             <div className="relative">
               <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-600">
                 <User className="h-3.5 w-3.5" /> Dành cho ứng viên
@@ -128,7 +128,7 @@ export default function Home() {
               <p className="mt-3 max-w-md text-sm leading-relaxed text-white/85">
                 Quản lý hồ sơ cá nhân, tải lên CV & portfolio, theo dõi tình trạng ứng tuyển mọi lúc, mọi nơi.
               </p>
-              <Button asChild size="lg" className="mt-6 bg-white text-primary hover:bg-white/90">
+              <Button asChild size="lg" className="btn-galaxy mt-6">
                 <Link to="/candidate-room">Khám phá ngay <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             </div>
@@ -144,7 +144,7 @@ export default function Home() {
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 Quản lý quy trình tuyển dụng, đăng việc làm, theo dõi ứng viên — tất cả trong một studio.
               </p>
-              <Button asChild size="lg" variant="outline" className="mt-6 gap-2">
+              <Button asChild size="lg" variant="outline" className="btn-galaxy-ghost mt-6 gap-2">
                 <Link to="/hr-studio">Khám phá ngay <ArrowRight className="h-4 w-4" /></Link>
               </Button>
             </div>
@@ -301,10 +301,10 @@ export default function Home() {
             <h2 className="font-heading text-3xl font-800 sm:text-4xl">Sẵn sàng bước tiếp theo?</h2>
             <p className="mt-4 text-white/80">Tham gia NexCareer Hub hôm nay — miễn phí, minh bạch, hiệu quả.</p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90">
+              <Button asChild size="lg" className="btn-galaxy">
                 <Link to="/register">Tạo hồ sơ ứng viên <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white/30 bg-white/10 text-white hover:bg-white/20">
+              <Button asChild size="lg" variant="outline" className="btn-galaxy-ghost">
                 <Link to="/hr-studio">Dành cho nhà tuyển dụng</Link>
               </Button>
             </div>
