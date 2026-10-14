@@ -47,7 +47,7 @@ export default function HrLayout() {
             alt="X-ME NexCareer Hub"
             fittingType="fill"
             focalPointY={0.32}
-            className="h-9 w-9 rounded-xl ring-1 ring-border"
+            className="h-9 w-9 rounded-full ring-1 ring-border"
           />
           <div className="leading-tight">
             <div className="font-heading text-sm font-700">HR Studio</div>
@@ -97,7 +97,7 @@ export default function HrLayout() {
               alt="X-ME NexCareer Hub"
               fittingType="fill"
               focalPointY={0.32}
-              className="h-8 w-8 rounded-lg ring-1 ring-border"
+              className="h-8 w-8 rounded-full ring-1 ring-border"
             />
             <span className="font-heading text-sm font-700">HR Studio</span>
           </div>

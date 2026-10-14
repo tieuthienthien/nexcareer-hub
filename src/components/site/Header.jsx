@@ -32,7 +32,7 @@ export default function Header() {
             alt="X-ME NexCareer Hub"
             fittingType="fill"
             focalPointY={0.32}
-            className="h-10 w-10 rounded-xl ring-1 ring-border shadow-lg shadow-primary/25"
+            className="h-10 w-10 rounded-full ring-1 ring-border shadow-lg shadow-primary/25"
           />
           <div className="leading-tight">
             <div className="font-heading text-[15px] font-700 tracking-tight">NexCareer Hub</div>
