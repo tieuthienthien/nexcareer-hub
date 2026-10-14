@@ -26,10 +26,10 @@ export default function StarRainClick() {
       const count = 14;
       const particles = Array.from({ length: count }, (_, i) => {
         const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
-        const dist = 60 + Math.random() * 70;
-        // thiên về rơi xuống (mưa sao)
+        const dist = 50 + Math.random() * 80;
+        // tỏa ra xung quanh theo hình tròn
         const dx = Math.cos(angle) * dist;
-        const dy = Math.abs(Math.sin(angle)) * dist + 60 + Math.random() * 50;
+        const dy = Math.sin(angle) * dist;
         return {
           dx,
           dy,
