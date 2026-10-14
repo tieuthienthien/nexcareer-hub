@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Building2, Menu, X, User, LogOut, Briefcase, Sparkles } from "lucide-react";
+import { Building2, Menu, X, User, LogOut, Briefcase } from "lucide-react";
+import { Image } from "@/components/ui/image";
 
 const navLinks = [
   { label: "Trang chủ", path: "/" },
@@ -26,9 +27,13 @@ export default function Header() {
     <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white shadow-lg shadow-primary/25">
-            <Sparkles className="h-5 w-5" />
-          </div>
+          <Image
+            src="https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492/133362060_PhihnhgiaX-MEgiangnhmngm.png"
+            alt="X-ME NexCareer Hub"
+            fittingType="fill"
+            focalPointY={0.32}
+            className="h-10 w-10 rounded-xl ring-1 ring-border shadow-lg shadow-primary/25"
+          />
           <div className="leading-tight">
             <div className="font-heading text-[15px] font-700 tracking-tight">NexCareer Hub</div>
             <div className="text-[10px] font-500 uppercase tracking-[0.18em] text-muted-foreground">Recruitment Platform</div>

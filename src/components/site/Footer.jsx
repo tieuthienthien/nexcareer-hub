@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Sparkles, Facebook, Phone, Mail, MapPin } from "lucide-react";
+import { Facebook, Phone, Mail, MapPin } from "lucide-react";
+import { Image } from "@/components/ui/image";
 
 export default function Footer() {
   return (
@@ -8,9 +9,13 @@ export default function Footer() {
         <div className="grid gap-10 md:grid-cols-4">
           <div className="md:col-span-1">
             <div className="flex items-center gap-2.5">
-              <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white">
-                <Sparkles className="h-5 w-5" />
-              </div>
+              <Image
+                src="https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492/133362060_PhihnhgiaX-MEgiangnhmngm.png"
+                alt="X-ME NexCareer Hub"
+                fittingType="fill"
+                focalPointY={0.32}
+                className="h-10 w-10 rounded-xl ring-1 ring-border"
+              />
               <span className="font-heading text-[15px] font-700">NexCareer Hub</span>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">

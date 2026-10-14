@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Building2, ArrowLeft, LogOut, LayoutDashboard, FileText, Users, MessageCircle } from "lucide-react";
+import { Image } from "@/components/ui/image";
 import StarRainClick from "@/components/StarRainClick";
 
 const hrNav = [
@@ -41,9 +42,13 @@ export default function HrLayout() {
     <div className="min-h-screen bg-muted/30">
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-border bg-card lg:flex">
         <div className="flex h-16 items-center gap-2.5 border-b border-border px-5">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white">
-            <Building2 className="h-5 w-5" />
-          </div>
+          <Image
+            src="https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492/133362060_PhihnhgiaX-MEgiangnhmngm.png"
+            alt="X-ME NexCareer Hub"
+            fittingType="fill"
+            focalPointY={0.32}
+            className="h-9 w-9 rounded-xl ring-1 ring-border"
+          />
           <div className="leading-tight">
             <div className="font-heading text-sm font-700">HR Studio</div>
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">NexCareer Hub</div>
@@ -87,9 +92,13 @@ export default function HrLayout() {
       <div className="lg:pl-64">
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 lg:hidden">
-            <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-primary to-accent text-white">
-              <Building2 className="h-4 w-4" />
-            </div>
+            <Image
+              src="https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492/133362060_PhihnhgiaX-MEgiangnhmngm.png"
+              alt="X-ME NexCareer Hub"
+              fittingType="fill"
+              focalPointY={0.32}
+              className="h-8 w-8 rounded-lg ring-1 ring-border"
+            />
             <span className="font-heading text-sm font-700">HR Studio</span>
           </div>
           <div className="hidden lg:block">
