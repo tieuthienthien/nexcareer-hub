@@ -2,7 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send, X, Sparkles } from "lucide-react";
+import { Send, X, Sparkles, ThumbsUp, ThumbsDown } from "lucide-react";
+
+const CATEGORIES = [
+  { label: "CV & Hồ sơ", q: "Làm sao để tải CV lên NexCareer Hub?" },
+  { label: "Tìm việc", q: "Tìm việc làm trên NexCareer Hub thế nào?" },
+  { label: "Vòng 1", q: "Vòng 1 sàng lọc CV hoạt động ra sao?" },
+  { label: "Vòng 2", q: "Vòng 2 bài thi kỹ thuật diễn ra thế nào?" },
+  { label: "Phỏng vấn AI", q: "Vòng 3 phỏng vấn AI cần chuẩn bị gì?" },
+  { label: "Kết quả", q: "Tôi xem kết quả ứng tuyển ở đâu?" },
+  { label: "Tài khoản", q: "Đăng nhập bằng Google thế nào?" },
+  { label: "Hỗ trợ", q: "Làm sao để liên hệ hỗ trợ?" },
+];
 
 export default function ChatbotWidget() {
   const [open, setOpen] = useState(false);
@@ -13,7 +24,17 @@ export default function ChatbotWidget() {
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [suggestionsHidden, setSuggestionsHidden] = useState(false);
+  const [feedback, setFeedback] = useState({});
   const scrollRef = useRef(null);
+
+  const handleFeedback = async (i, helpful) => {
+    if (feedback[i]) return;
+    setFeedback((f) => ({ ...f, [i]: helpful }));
+    const userMsg = [...messages].reverse().find((m) => m.role === "user");
+    try {
+      await base44.entities.ChatbotLog.create({ message: userMsg?.text || "", source: "feedback", helpful });
+    } catch {}
+  };
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -74,13 +95,41 @@ export default function ChatbotWidget() {
             </button>
           </div>
 
+          {/* Category shortcuts */}
+          <div className="galaxy-bg flex gap-1.5 overflow-x-auto border-b border-border px-3 py-2">
+            {CATEGORIES.map((c) => (
+              <button
+                key={c.label}
+                type="button"
+                onClick={() => ask(c.q)}
+                className="shrink-0 rounded-full border border-pastel-lavender/50 bg-card/70 px-2.5 py-1 text-[11px] font-500 text-foreground/80 transition-all hover:-translate-y-0.5 hover:border-pastel-pink hover:bg-pastel-pink/10"
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+
           {/* Messages */}
           <div ref={scrollRef} className="galaxy-bg flex-1 space-y-3 overflow-y-auto px-4 py-4">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 {m.role === "bot" && <img src="/images/astro/happy.png" alt="" className="mr-2 h-7 w-7 shrink-0 self-end rounded-full object-cover" />}
-                <div className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${m.role === "user" ? "bg-primary text-primary-foreground rounded-br-sm" : "glass text-foreground rounded-bl-sm"}`}>
-                  {m.text}
+                <div className="max-w-[78%]">
+                  <div className={`rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${m.role === "user" ? "bg-primary text-primary-foreground rounded-br-sm" : "glass text-foreground rounded-bl-sm"}`}>
+                    {m.text}
+                  </div>
+                  {m.role === "bot" && i > 0 && !loading && (
+                    <div className="mt-1 flex items-center gap-2 pl-1">
+                      {feedback[i] ? (
+                        <span className="text-[10px] font-500 text-muted-foreground">Cảm ơn phản hồi! 💫</span>
+                      ) : (
+                        <>
+                          <button onClick={() => handleFeedback(i, true)} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-emerald-600" aria-label="Có ích"><ThumbsUp className="h-3.5 w-3.5" /></button>
+                          <button onClick={() => handleFeedback(i, false)} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-rose-600" aria-label="Không ích"><ThumbsDown className="h-3.5 w-3.5" /></button>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

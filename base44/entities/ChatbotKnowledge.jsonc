@@ -2,13 +2,28 @@
   "name": "ChatbotKnowledge",
   "type": "object",
   "properties": {
+    "intent_id": {
+      "type": "string",
+      "description": "M\u00e3 \u0111\u1ecbnh danh duy\u00ean nh\u1ea5t c\u1ee7a intent (VD: r1.score.meaning)"
+    },
     "question": {
       "type": "string",
-      "description": "C\u00e2u h\u1ecfi m\u1eabu / ch\u1ee7 \u0111\u1ec1 \u0111\u1ec3 train chatbot"
+      "description": "C\u00e2u h\u1ecfi m\u1eabu ch\u00ednh (canonical)"
     },
     "answer": {
       "type": "string",
-      "description": "C\u00e2u tr\u1ea3 l\u1eddi chatbot s\u1ebd d\u00f9ng"
+      "description": "C\u00e2u tr\u1ea3 l\u1eddi ti\u1ebfng Vi\u1ec7t"
+    },
+    "answer_en": {
+      "type": "string",
+      "description": "C\u00e2u tr\u1ea3 l\u1eddi ti\u1ebfng Anh (d\u1ef1 ph\u00f2ng)"
+    },
+    "variants": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "C\u00e1c c\u00e1ch h\u1ecfi thay th\u1ebf / \u0111\u1ed3ng ngh\u0129a / vi\u1ebft t\u1eaft"
     },
     "keywords": {
       "type": "array",
@@ -19,7 +34,46 @@
     },
     "category": {
       "type": "string",
-      "description": "Nh\u00f3m ch\u1ee7 \u0111\u1ec1 (vd: vi\u1ec7c l\u00e0m, \u1ee9ng tuy\u1ec3n, li\u00ean h\u1ec7)"
+      "description": "Nh\u00f3m ch\u1ee7 \u0111\u1ec1 (A\u2013P)"
+    },
+    "subcategory": {
+      "type": "string",
+      "description": "Nh\u00f3m con chi ti\u1ebft h\u01a1n"
+    },
+    "user_role": {
+      "type": "string",
+      "enum": [
+        "all",
+        "candidate",
+        "recruiter",
+        "hiring_manager",
+        "public"
+      ],
+      "default": "all"
+    },
+    "answer_type": {
+      "type": "string",
+      "enum": [
+        "static",
+        "database",
+        "rule_based",
+        "ai_required"
+      ],
+      "default": "static"
+    },
+    "related_intents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "page_link": {
+      "type": "string",
+      "description": "Trang/h\u00e0nh \u0111\u1ed9ng li\u00ean quan trong app"
+    },
+    "last_reviewed": {
+      "type": "string",
+      "format": "date"
     },
     "active": {
       "type": "boolean",

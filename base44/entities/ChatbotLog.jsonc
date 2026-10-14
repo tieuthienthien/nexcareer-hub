@@ -1,0 +1,58 @@
+{
+  "name": "ChatbotLog",
+  "type": "object",
+  "properties": {
+    "message": {
+      "type": "string",
+      "description": "Tin nh\u1eafn g\u1ed1c c\u1ee7a ng\u01b0\u1eddi d\u00f9ng (\u0111\u00e3 t\u1ed1i gi\u1ea3n ho\u00e1, kh\u00f4ng l\u01b0u PII nh\u1ea1y n\u1ebfu c\u00f3 th\u1ec3)"
+    },
+    "normalized": {
+      "type": "string",
+      "description": "B\u1ea3n chu\u1ea9n ho\u00e1 \u0111\u1ec3 gom t\u1ea7n su\u1ea5t"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "db",
+        "ai",
+        "escalation",
+        "feedback"
+      ],
+      "default": "escalation"
+    },
+    "matched_intent": {
+      "type": "string",
+      "description": "Intent/ID \u0111\u00e3 kh\u1edbp (n\u1ebfu c\u00f3)"
+    },
+    "helpful": {
+      "type": "boolean",
+      "description": "Ph\u1ea3n h\u1ed3i ng\u01b0\u1eddi d\u00f9ng: c\u00f3 \u00edch / kh\u00f4ng"
+    },
+    "resolved": {
+      "type": "boolean",
+      "default": false,
+      "description": "HR \u0111\u00e3 x\u1eed l\u00fd m\u1ee5c log n\u00e0y"
+    }
+  },
+  "required": [
+    "message"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
