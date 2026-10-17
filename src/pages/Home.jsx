@@ -4,33 +4,21 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import GalaxyButton from "@/components/ui/galaxy-button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Building2, User, ArrowRight, Sparkles, TrendingUp, Users, Briefcase, Award, CheckCircle2, BarChart3, Target, Heart } from "lucide-react";
+import { Search, Building2, User, ArrowRight, Sparkles, Users, Briefcase, Award, CheckCircle2, Code2, Target, Heart } from "lucide-react";
 import JobCard from "@/components/job/JobCard";
-import { companyInitials, companyGradient } from "@/lib/jobUtils";
 
 const categories = [
-  { name: "Công nghệ thông tin", icon: BarChart3, count: "1.2K+" },
-  { name: "Marketing & Truyền thông", icon: Target, count: "560+" },
-  { name: "Tài chính - Ngân hàng", icon: Award, count: "480+" },
-  { name: "Kinh doanh - Bán hàng", icon: TrendingUp, count: "890+" },
-  { name: "Nhân sự", icon: Users, count: "210+" },
-  { name: "Thiết kế & Sáng tạo", icon: Heart, count: "340+" },
-];
-
-const stats = [
-  { value: "12.000+", label: "Việc làm đang tuyển" },
-  { value: "850+", label: "Nhà tuyển dụng" },
-  { value: "320K+", label: "Ứng viên" },
-  { value: "98%", label: "Tỷ lệ hài lòng" },
+  { name: "Kỹ thuật phần mềm", icon: Code2 },
+  { name: "Thiết kế UI/UX", icon: Heart },
+  { name: "Marketing & Truyền thông", icon: Target },
+  { name: "Nhân sự", icon: Users },
 ];
 
 export default function Home() {
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState("");
-  const [location, setLocation] = useState("");
   const [featured, setFeatured] = useState([]);
   const [totalJobs, setTotalJobs] = useState(0);
-  const [topEmployers, setTopEmployers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,11 +27,9 @@ export default function Home() {
       const safe = async (fn, fallback) => { try { return await fn(); } catch { return fallback; } };
       const feat = await safe(() => base44.entities.Job.filter({ status: "published" }, { sort: "-created_date", limit: 6 }), { items: [] });
       const count = await safe(() => base44.entities.Job.count({ status: "published" }), 0);
-      const top = await safe(() => base44.entities.Job.aggregate({ query: { status: "published" }, groupBy: "company", sort: "-count", limit: 6 }), { rows: [] });
       if (!alive) return;
       setFeatured(feat.items || []);
       setTotalJobs(count || 0);
-      setTopEmployers(top.rows || []);
       setLoading(false);
     };
     run();
@@ -54,7 +40,6 @@ export default function Home() {
     e.preventDefault();
     const params = new URLSearchParams();
     if (keyword) params.set("q", keyword);
-    if (location) params.set("location", location);
     navigate(`/viec-lam?${params.toString()}`);
   };
 
@@ -67,13 +52,13 @@ export default function Home() {
         <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 lg:px-8 lg:pt-28">
           <div className="mx-auto max-w-3xl text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-600 text-primary">
-              <Sparkles className="h-3.5 w-3.5" /> Nền tảng tuyển dụng thế hệ mới
+              <Sparkles className="h-3.5 w-3.5" /> Cổng tuyển dụng của Nexora Technology
             </div>
             <h1 className="mt-6 font-heading text-4xl font-800 leading-[1.1] tracking-tight text-balance sm:text-5xl lg:text-6xl">
-              Khởi đầu sự nghiệp <span className="text-galaxy">đẳng cấp mới</span> cùng NexCareer
+              Gia nhập <span className="text-galaxy">Nexora Technology</span> cùng NexCareer Hub
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Hàng ngàn cơ hội việc làm từ các nhà tuyển dụng hàng đầu. Tìm việc nhanh, ứng tuyển dễ, theo dõi hồ sơ minh bạch — tất cả trong một nền tảng.
+              Các vị trí đang mở tại Nexora Technology — công ty phần mềm tại TP. Hồ Chí Minh. Ứng tuyển dễ, theo dõi hồ sơ minh bạch qua 3 vòng đánh giá.
             </p>
           </div>
 
@@ -84,16 +69,7 @@ export default function Home() {
                 <Input
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
-                  placeholder="Vị trí, từ khóa, công ty..."
-                  className="h-14 border-0 bg-transparent pl-12 text-base shadow-none focus-visible:ring-0"
-                />
-              </div>
-              <div className="relative flex-1 sm:border-l sm:border-border">
-                <MapPin className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Địa điểm..."
+                  placeholder="Vị trí, từ khóa..."
                   className="h-14 border-0 bg-transparent pl-12 text-base shadow-none focus-visible:ring-0"
                 />
               </div>
@@ -103,8 +79,12 @@ export default function Home() {
             </div>
           </form>
 
-          <div className="mx-auto mt-8 grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-4">
-            {stats.map((s) => (
+          <div className="mx-auto mt-8 grid max-w-4xl grid-cols-3 gap-4">
+            {[
+              { value: String(totalJobs), label: "Vị trí đang tuyển" },
+              { value: "3", label: "Vòng đánh giá" },
+              { value: "Đang cập nhật", label: "Tỷ lệ hài lòng" },
+            ].map((s) => (
               <div key={s.label} className="text-center">
                 <div className="font-heading text-2xl font-800 text-primary sm:text-3xl">{s.value}</div>
                 <div className="mt-1 text-xs font-500 text-muted-foreground sm:text-sm">{s.label}</div>
@@ -146,7 +126,7 @@ export default function Home() {
               </div>
               <h2 className="mt-5 font-heading text-3xl font-800 text-galaxy">HR Studio</h2>
               <p className="mt-3 text-sm leading-relaxed text-foreground/75">
-                Quản lý quy trình tuyển dụng, đăng việc làm, theo dõi ứng viên — tất cả trong một studio.
+                Dành cho bộ phận Nhân sự Nexora: đăng vị trí, sàng lọc và theo dõi ứng viên trong một studio.
               </p>
               <GalaxyButton asChild size="lg" variant="outline" className="btn-galaxy-ghost mt-6 gap-2">
                 <Link to="/hr-studio">Khám phá ngay <ArrowRight className="h-4 w-4" /></Link>
@@ -161,7 +141,7 @@ export default function Home() {
         <div className="flex items-end justify-between">
           <div>
             <h2 className="font-heading text-2xl font-700 sm:text-3xl">Việc làm nổi bật</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Những cơ hội tốt nhất đang chờ bạn</p>
+            <p className="mt-2 text-sm text-muted-foreground">Các vị trí đang tuyển tại Nexora Technology</p>
           </div>
           <Button asChild variant="ghost" className="gap-2">
             <Link to="/viec-lam">Xem tất cả <ArrowRight className="h-4 w-4" /></Link>
@@ -183,9 +163,9 @@ export default function Home() {
       {/* Categories */}
       <section className="bg-muted/30 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-center font-heading text-2xl font-700 sm:text-3xl">Khám phá theo lĩnh vực</h2>
-          <p className="mt-2 text-center text-sm text-muted-foreground">Tìm việc theo ngành nghề bạn yêu thích</p>
-          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          <h2 className="text-center font-heading text-2xl font-700 sm:text-3xl">Khám phá theo phòng ban</h2>
+          <p className="mt-2 text-center text-sm text-muted-foreground">Các phòng ban đang tuyển tại Nexora</p>
+          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {categories.map((c) => (
               <Link
                 key={c.name}
@@ -196,37 +176,34 @@ export default function Home() {
                   <c.icon className="h-6 w-6" />
                 </div>
                 <div className="mt-3 text-xs font-600 leading-tight">{c.name}</div>
-                <div className="mt-1 text-[11px] text-muted-foreground">{c.count} việc làm</div>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* About / bối cảnh chung */}
+      {/* About Nexora */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-600 text-accent">
-              Về NexCareer Hub
+              Về Nexora Technology
             </div>
             <h2 className="mt-5 font-heading text-3xl font-800 leading-tight">
-              Bối cảnh & tầm nhìn của chúng tôi
+              Công ty phần mềm sinh năm 2025, tại Sài Gòn
             </h2>
             <p className="mt-5 leading-relaxed text-foreground/80">
-              NexCareer Hub ra đời trong bối cảnh thị trường lao động Việt Nam đang chuyển dịch mạnh mẽ: ứng viên
-              ngày càng đề cao trải nghiệm ứng tuyển minh bạch, trong khi nhà tuyển dụng cần công cụ quản lý hồ sơ
-              hiệu quả và dữ liệu hóa toàn bộ quy trình.
+              Nexora Technology là đối tác phát triển phần mềm theo yêu cầu — từ web, mobile đến IoT và chuyển đổi hệ thống cũ.
+              Chúng tôi là đội ngũ kỹ sư, thiết kế và quản lý sản phẩm cùng chung triết lý: làm ít hơn, làm tốt hơn.
             </p>
             <p className="mt-4 leading-relaxed text-foreground/80">
-              Chúng tôi xây dựng một nền tảng hai chiều — <span className="font-600 text-foreground">Candidate Room</span> cho
-              ứng viên và <span className="font-600 text-foreground">HR Studio</span> cho nhà tuyển dụng — kết nối đúng
-              người, đúng việc, đúng thời điểm, với trải nghiệm hiện đại, nhanh chóng và công bằng.
+              NexCareer Hub là cổng tuyển dụng nội bộ của Nexora — <span className="font-600 text-foreground">Candidate Room</span> cho
+              ứng viên và <span className="font-600 text-foreground">HR Studio</span> cho bộ phận Nhân sự, giúp Nexora tìm đúng người, đúng việc.
             </p>
             <ul className="mt-6 space-y-3">
               {[
                 "Ứng tuyển minh bạch, theo dõi trạng thái theo thời gian thực",
-                "Quản lý tuyển dụng tập trung, dữ liệu hóa toàn bộ quy trình",
+                "Quy trình 3 vòng: sàng lọc CV, bài thi, phỏng vấn AI",
                 "Bảo mật thông tin hồ sơ ứng viên được đặt lên hàng đầu",
               ].map((t) => (
                 <li key={t} className="flex items-start gap-3 text-sm">
@@ -238,10 +215,10 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             {[
+              { icon: Award, title: "Chất lượng trên hết", desc: "Mỗi dòng code đều được review. Mỗi release đều được kiểm thử." },
+              { icon: Target, title: "Minh bạch tuyệt đối", desc: "Bạn biết mọi thứ chúng tôi đang làm, mọi lúc." },
+              { icon: Users, title: "Đối tác dài hạn", desc: "Sản phẩm sống rất lâu sau khi ra mắt. Chúng tôi ở đó cùng bạn." },
               { icon: User, title: "Cho ứng viên", desc: "Hồ sơ, CV, portfolio và tình trạng ứng tuyển trong một nơi." },
-              { icon: Building2, title: "Cho HR", desc: "Đăng việc, sàng lọc, phỏng vấn và nhận việc liền mạch." },
-              { icon: Target, title: "Kết nối đúng người", desc: "Gợi ý việc làm thông minh dựa trên hồ sơ." },
-              { icon: Award, title: "Tiêu chuẩn cao", desc: "Nhà tuyển dụng được xác minh, cơ hội chất lượng." },
             ].map((f) => (
               <div key={f.title} className="rounded-2xl border border-border bg-card p-5">
                 <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -255,55 +232,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Top employers ranking */}
-      <section className="bg-muted/30 py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between">
-            <div>
-              <h2 className="font-heading text-2xl font-700 sm:text-3xl">Top nhà tuyển dụng</h2>
-              <p className="mt-2 text-sm text-muted-foreground">Xếp hạng theo số lượng việc làm đang tuyển</p>
-            </div>
-            <TrendingUp className="h-8 w-8 text-primary" />
-          </div>
-          <div className="mt-8 overflow-hidden rounded-2xl border border-border bg-card">
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-16 animate-pulse bg-muted" />)
-            ) : topEmployers.length === 0 ? (
-              <div className="py-12 text-center text-sm text-muted-foreground">Chưa có dữ liệu nhà tuyển dụng.</div>
-            ) : (
-              topEmployers.map((row, i) => (
-                <div
-                  key={row.company}
-                  className="flex items-center gap-4 border-b border-border/60 px-5 py-4 last:border-0 transition-colors hover:bg-muted/40"
-                >
-                  <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-700 ${i < 3 ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
-                    {i + 1}
-                  </div>
-                  <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${companyGradient(row.company)} text-sm font-700 text-white`}>
-                    {companyInitials(row.company)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-600">{row.company}</div>
-                    <div className="text-xs text-muted-foreground">Nhà tuyển dụng hàng đầu</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-700 text-primary">{row.count}</div>
-                    <div className="text-[11px] text-muted-foreground">việc làm</div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </section>
-
       {/* Final CTA */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-foreground to-primary p-10 text-center text-white sm:p-16">
           <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-accent/30 blur-3xl" />
           <div className="relative mx-auto max-w-2xl">
             <h2 className="font-heading text-3xl font-800 sm:text-4xl">Sẵn sàng bước tiếp theo?</h2>
-            <p className="mt-4 text-white/80">Tham gia NexCareer Hub hôm nay — miễn phí, minh bạch, hiệu quả.</p>
+            <p className="mt-4 text-white/80">Ứng tuyển vào Nexora Technology hôm nay — minh bạch, nhanh chóng.</p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <GalaxyButton asChild size="lg" className="btn-galaxy">
                 <Link to="/register">Tạo hồ sơ ứng viên <ArrowRight className="ml-2 h-4 w-4" /></Link>
@@ -314,7 +249,7 @@ export default function Home() {
                 variant="outline"
                 className="border-white/70 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 hover:border-white shadow-[0_0_22px_hsl(340_70%_80%/0.45)]"
               >
-                <Link to="/hr-studio">Dành cho nhà tuyển dụng <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link to="/hr-studio">Dành cho HR Nexora <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </GalaxyButton>
             </div>
           </div>

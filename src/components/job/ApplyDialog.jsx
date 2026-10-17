@@ -113,7 +113,7 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
           <>
             <DialogHeader>
               <DialogTitle className="text-xl">Ứng tuyển: {job.title}</DialogTitle>
-              <DialogDescription>{job.company} · {job.location}</DialogDescription>
+              <DialogDescription>{job.company}</DialogDescription>
             </DialogHeader>
 
             {error && (

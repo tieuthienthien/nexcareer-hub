@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, MapPin, SlidersHorizontal, X, Briefcase, Loader2, Frown } from "lucide-react";
+import { Search, SlidersHorizontal, X, Briefcase, Loader2, Frown } from "lucide-react";
 import JobCard from "@/components/job/JobCard";
 import { workTypeLabel, employmentTypeLabel, experienceLabel } from "@/lib/jobUtils";
 
@@ -25,7 +25,6 @@ export default function Jobs() {
   const [showFilters, setShowFilters] = useState(false);
 
   const [q, setQ] = useState(searchParams.get("q") || "");
-  const [location, setLocation] = useState(searchParams.get("location") || "");
   const [category, setCategory] = useState(searchParams.get("category") || "all");
   const [workType, setWorkType] = useState("all");
   const [employmentType, setEmploymentType] = useState("all");
@@ -44,13 +43,12 @@ export default function Jobs() {
   const buildQuery = useCallback(() => {
     const query = { status: "published" };
     if (q.trim()) query.title = { $regex: q.trim(), $options: "i" };
-    if (location.trim()) query.location = { $regex: location.trim(), $options: "i" };
     if (category !== "all") query.category = category;
     if (workType !== "all") query.work_type = workType;
     if (employmentType !== "all") query.employment_type = employmentType;
     if (experience !== "all") query.experience_level = experience;
     return query;
-  }, [q, location, category, workType, employmentType, experience]);
+  }, [q, category, workType, employmentType, experience]);
 
   const fetchJobs = useCallback(async (reset = true) => {
     if (reset) setLoading(true);
@@ -82,7 +80,7 @@ export default function Jobs() {
   };
 
   const resetFilters = () => {
-    setQ(""); setLocation(""); setCategory("all"); setWorkType("all"); setEmploymentType("all"); setExperience("all");
+    setQ(""); setCategory("all"); setWorkType("all"); setEmploymentType("all"); setExperience("all");
     setSearchParams({});
   };
 
@@ -142,7 +140,7 @@ export default function Jobs() {
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8">
         <h1 className="font-heading text-3xl font-800 tracking-tight sm:text-4xl">Tìm việc làm</h1>
-        <p className="mt-2 text-muted-foreground">Khám phá {jobs.length > 0 ? "hàng ngàn" : ""} cơ hội nghề nghiệp phù hợp với bạn</p>
+        <p className="mt-2 text-muted-foreground">Các vị trí đang tuyển tại Nexora Technology</p>
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
@@ -162,10 +160,6 @@ export default function Jobs() {
               <div className="relative flex-1">
                 <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Vị trí, từ khóa..." className="h-11 border-0 bg-muted/40 pl-10 shadow-none focus-visible:ring-1" />
-              </div>
-              <div className="relative flex-1">
-                <MapPin className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Địa điểm..." className="h-11 border-0 bg-muted/40 pl-10 shadow-none focus-visible:ring-1" />
               </div>
               <Select value={sort} onValueChange={setSort}>
                 <SelectTrigger className="h-11 sm:w-44"><SelectValue /></SelectTrigger>

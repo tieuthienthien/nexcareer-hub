@@ -1,4 +1,4 @@
-import { Facebook, Phone, Mail, MapPin, Clock, Send } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,25 +7,18 @@ import { useState } from "react";
 
 const channels = [
   {
-    icon: Facebook,
-    title: "Facebook",
-    value: "facebook.com/nexcareerhub",
-    href: "https://facebook.com",
-    desc: "Inbox trực tiếp để được hỗ trợ nhanh nhất",
-  },
-  {
     icon: Phone,
-    title: "Hotline",
-    value: "1900 1234",
-    href: "tel:19001234",
-    desc: "Hỗ trợ ứng viên & nhà tuyển dụng",
+    title: "Điện thoại",
+    value: "+84 969 536 234",
+    href: "tel:+84969536234",
+    desc: "Liên hệ trong giờ làm việc",
   },
   {
     icon: Mail,
-    title: "Email tuyển dụng",
-    value: "tuyendung@nexcareer.vn",
-    href: "mailto:tuyendung@nexcareer.vn",
-    desc: "Gửi yêu cầu hợp tác tuyển dụng",
+    title: "Email",
+    value: "email@nexoratechno.com",
+    href: "mailto:email@nexoratechno.com",
+    desc: "Phản hồi trong vòng 24 giờ làm việc",
   },
 ];
 
@@ -42,7 +35,7 @@ export default function Contact() {
             </div>
             <h1 className="mt-5 font-heading text-4xl font-800 tracking-tight sm:text-5xl">Kết nối với chúng tôi</h1>
             <p className="mt-4 text-muted-foreground">
-              Bạn có câu hỏi về ứng tuyển, hợp tác tuyển dụng hoặc muốn trở thành đối tác? Đội ngũ NexCareer Hub luôn sẵn sàng lắng nghe.
+              Bạn có câu hỏi về vị trí ứng tuyển tại Nexora Technology? Đội ngũ Nhân sự luôn sẵn sàng lắng nghe.
             </p>
           </div>
         </div>
@@ -74,14 +67,14 @@ export default function Contact() {
               <Clock className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
               <div>
                 <div className="font-600">Giờ làm việc</div>
-                <div className="mt-1 text-muted-foreground">Thứ 2 – Thứ 6: 8:00 – 18:00 · Thứ 7: 8:00 – 12:00</div>
+                <div className="mt-1 text-muted-foreground">Thứ 2 – Thứ 6, 9:00 – 18:00 (GMT+7)</div>
               </div>
             </div>
             <div className="mt-4 flex items-start gap-3 rounded-2xl bg-muted/50 p-5 text-sm">
               <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
               <div>
                 <div className="font-600">Văn phòng</div>
-                <div className="mt-1 text-muted-foreground">Tòa nhà NexCareer, Quận 1, TP. Hồ Chí Minh</div>
+                <div className="mt-1 text-muted-foreground">17/5 Tân Thuận Tây, Khu phố 34, Phường Tân Thuận, TP. Hồ Chí Minh, Việt Nam</div>
               </div>
             </div>
           </div>
@@ -112,7 +105,7 @@ export default function Contact() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="subject">Chủ đề</Label>
-                  <Input id="subject" placeholder="Hợp tác tuyển dụng" />
+                  <Input id="subject" placeholder="Câu hỏi về ứng tuyển" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="msg">Nội dung</Label>

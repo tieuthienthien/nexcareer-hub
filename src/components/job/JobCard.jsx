@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MapPin, Briefcase, Clock, ArrowUpRight } from "lucide-react";
+import { Briefcase, Clock, ArrowUpRight } from "lucide-react";
 import { formatSalary, workTypeLabel, employmentTypeLabel, companyInitials, companyGradient } from "@/lib/jobUtils";
 
 export default function JobCard({ job }) {
@@ -22,9 +22,6 @@ export default function JobCard({ job }) {
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <MapPin className="h-3.5 w-3.5" /> {job.location}
-        </span>
         <span className="flex items-center gap-1.5">
           <Briefcase className="h-3.5 w-3.5" /> {employmentTypeLabel[job.employment_type]}
         </span>

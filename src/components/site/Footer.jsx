@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Phone, Mail, MapPin } from "lucide-react";
+import { Phone, Mail, MapPin } from "lucide-react";
 import { Image } from "@/components/ui/image";
 
 export default function Footer() {
@@ -19,7 +19,7 @@ export default function Footer() {
               <span className="font-heading text-[15px] font-700">NexCareer Hub</span>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              Nền tảng tuyển dụng hiện đại kết nối ứng viên tài năng với nhà tuyển dụng hàng đầu tại Việt Nam.
+              Cổng tuyển dụng của Nexora Technology — công ty phần mềm tại TP. Hồ Chí Minh.
             </p>
           </div>
 
@@ -45,9 +45,8 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-600">Kết nối</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2"><Facebook className="h-4 w-4 text-primary" /> facebook.com/nexcareerhub</li>
-              <li className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" /> Hotline: 1900 1234</li>
-              <li className="flex items-center gap-2"><Mail className="h-4 w-4 text-primary" /> tuyen dung@nexcareer.vn</li>
+                            <li className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" /> +84 969 536 234</li>
+              <li className="flex items-center gap-2"><Mail className="h-4 w-4 text-primary" /> email@nexoratechno.com</li>
               <li className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> TP. Hồ Chí Minh</li>
             </ul>
           </div>
@@ -55,7 +54,7 @@ export default function Footer() {
 
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
           <p>© {new Date().getFullYear()} NexCareer Hub. Mọi quyền được bảo lưu.</p>
-          <p>Thiết kế cho ứng viên & nhà tuyển dụng Việt Nam.</p>
+          <p>Nexora Technology · TP. Hồ Chí Minh</p>
         </div>
       </div>
     </footer>

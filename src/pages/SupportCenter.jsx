@@ -24,7 +24,7 @@ const GUIDES = [
     icon: FileText, title: "Hồ sơ & CV", desc: "Cập nhật thông tin cá nhân, tải CV (PDF/Word) và portfolio trong Candidate Room.", link: "/candidate-room", cta: "Mở Candidate Room",
   },
   {
-    icon: Briefcase, title: "Tìm việc & ứng tuyển", desc: "Tìm việc theo từ khóa, lọc địa điểm/loại hình/lĩnh vực và nộp hồ sơ nhanh.", link: "/viec-lam", cta: "Xem việc làm",
+    icon: Briefcase, title: "Tìm việc & ứng tuyển", desc: "Tìm việc theo từ khóa, lọc theo loại hình/lĩnh vực và nộp hồ sơ nhanh.", link: "/viec-lam", cta: "Xem việc làm",
   },
   {
     icon: ClipboardList, title: "Theo dõi hồ sơ ứng tuyển", desc: "Xem tiến trình 3 vòng và quyết định cuối ngay trong Candidate Room.", link: "/candidate-room", cta: "Theo dõi ứng tuyển",
