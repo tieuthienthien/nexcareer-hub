@@ -20,14 +20,6 @@ import HrApplications from '@/pages/hr/HrApplications';
 import HrChatbot from '@/pages/hr/HrChatbot';
 import HrCompare from '@/pages/hr/HrCompare';
 import HrFeedback from '@/pages/hr/HrFeedback';
-import HrCvJobs from '@/pages/hr/HrCvJobs';
-import CvLayout from '@/components/cv/CvLayout';
-import CvHome from '@/pages/cv/CvHome';
-import CvJobs from '@/pages/cv/CvJobs';
-import CvJobDetail from '@/pages/cv/CvJobDetail';
-import CvDocuments from '@/pages/cv/CvDocuments';
-import CvEditor from '@/pages/cv/CvEditor';
-import CvApplications from '@/pages/cv/CvApplications';
 import SupportCenter from '@/pages/SupportCenter';
 import AssessmentTest from '@/pages/AssessmentTest';
 import AssessmentInterview from '@/pages/AssessmentInterview';
@@ -78,20 +70,6 @@ const AuthenticatedApp = () => {
         </Route>
       </Route>
 
-      <Route element={<CvLayout />}>
-        <Route path="/cv" element={<CvHome />} />
-        <Route path="/cv/viec-lam" element={<CvJobs />} />
-        <Route path="/cv/viec-lam/:id" element={<CvJobDetail />} />
-      </Route>
-
-      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        <Route element={<CvLayout />}>
-          <Route path="/cv/quan-ly-cv" element={<CvDocuments />} />
-          <Route path="/cv/cv/:id" element={<CvEditor />} />
-          <Route path="/cv/ung-tuyen" element={<CvApplications />} />
-        </Route>
-      </Route>
-
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/phong-thi/:applicationId" element={<AssessmentTest />} />
         <Route path="/phong-van/:applicationId" element={<AssessmentInterview />} />
@@ -105,7 +83,6 @@ const AuthenticatedApp = () => {
           <Route path="compare" element={<HrCompare />} />
           <Route path="chatbot" element={<HrChatbot />} />
           <Route path="feedback" element={<HrFeedback />} />
-          <Route path="cv-jobs" element={<HrCvJobs />} />
         </Route>
       </Route>
 
