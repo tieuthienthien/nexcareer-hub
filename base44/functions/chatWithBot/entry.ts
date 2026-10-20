@@ -140,6 +140,17 @@ async function logChat(base44, message, source, matchedIntent) {
 }
 
 // ============ Layer 5: AI trả lời (dùng khi không khớp kho kiến thức) ============
+// HR có thể tắt AI trong HR Studio → Starbuddy. Mặc định bật khi chưa có cấu hình.
+async function isAiEnabled(base44) {
+  try {
+    const { items } = await base44.asServiceRole.entities.ChatbotSetting.list({ limit: 1 });
+    const row = items && items[0];
+    return row ? row.ai_enabled !== false : true;
+  } catch {
+    return true;
+  }
+}
+
 const BOT_CONTEXT = `Bạn là Starbuddy — trợ lý ảo của NexCareer Hub, cổng tuyển dụng của Nexora Technology (công ty phần mềm tại TP. Hồ Chí Minh).
 Quy trình tuyển dụng gồm 3 vòng: (1) Sàng lọc CV bằng AI, (2) Bài thi kỹ thuật hoặc tình huống giới hạn thời gian, (3) Phỏng vấn video do AI đặt câu hỏi và hội đồng đánh giá.
 Ứng viên dùng Candidate Room (/candidate-room) để quản lý hồ sơ, CV và theo dõi tiến trình 3 vòng; tìm việc tại /viec-lam. Nhà tuyển dụng dùng HR Studio (/hr-studio). Trang hỗ trợ: /ho-tro, liên hệ: /lien-he.
@@ -190,17 +201,19 @@ export default async function(req) {
       }
     }
 
-    // --- Layer 5: AI trả lời cho câu hỏi ngoài kho kiến thức ---
-    try {
-      const aiRes = await base44.asServiceRole.integrations.Core.InvokeLLM({
-        prompt: buildAiPrompt(message),
-      });
-      const aiAnswer = (typeof aiRes === "string" ? aiRes : aiRes?.answer || aiRes?.text || "").trim();
-      if (aiAnswer) {
-        await logChat(base44, message, "ai", "ai.fallback");
-        return Response.json({ answer: aiAnswer, matched: true, source: "ai" });
-      }
-    } catch {}
+    // --- Layer 5: AI trả lời cho câu hỏi ngoài kho kiến thức (chỉ khi HR bật) ---
+    if (await isAiEnabled(base44)) {
+      try {
+        const aiRes = await base44.asServiceRole.integrations.Core.InvokeLLM({
+          prompt: buildAiPrompt(message),
+        });
+        const aiAnswer = (typeof aiRes === "string" ? aiRes : aiRes?.answer || aiRes?.text || "").trim();
+        if (aiAnswer) {
+          await logChat(base44, message, "ai", "ai.fallback");
+          return Response.json({ answer: aiAnswer, matched: true, source: "ai" });
+        }
+      } catch {}
+    }
 
     // --- Layer 6: trả lời an toàn khi AI không phản hồi ---
     const answer = "Mình chưa có câu trả lời sẵn cho câu hỏi này. Bạn có thể thử câu hỏi mẫu bên dưới, xem trang Trung tâm hỗ trợ / Câu hỏi thường gặp, hoặc liên hệ HR qua trang Liên hệ để được hỗ trợ nhé.";

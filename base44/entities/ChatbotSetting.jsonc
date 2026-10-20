@@ -1,0 +1,33 @@
+{
+  "name": "ChatbotSetting",
+  "type": "object",
+  "properties": {
+    "ai_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "B\u1eadt/t\u1eaft l\u1edbp AI tr\u1ea3 l\u1eddi c\u1ee7a Starbuddy cho c\u00e1c c\u00e2u h\u1ecfi ngo\u00e0i kho ki\u1ebfn th\u1ee9c"
+    }
+  },
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

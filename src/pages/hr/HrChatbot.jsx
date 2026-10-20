@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Sparkles, Plus, Pencil, Trash2, Search, Power, MessageCircle, Inbox, CheckCircle2 } from "lucide-react";
+import ChatbotAiToggle from "@/components/hr/ChatbotAiToggle";
 
 const ROLES = ["all", "candidate", "recruiter", "hiring_manager", "public"];
 const TYPES = ["static", "database", "rule_based", "ai_required"];
@@ -21,6 +22,8 @@ export default function HrChatbot() {
           <p className="mt-1 text-sm text-muted-foreground">Quản lý kho kiến thức và xem câu chưa đáp ứng cho trợ lý tuyển dụng.</p>
         </div>
       </div>
+
+      <ChatbotAiToggle />
 
       <div className="flex gap-2">
         <button onClick={() => setTab("kb")} className={`rounded-xl px-4 py-2 text-sm font-600 transition-colors ${tab === "kb" ? "bg-primary text-primary-foreground" : "bg-card border border-border hover:bg-muted"}`}>Kho kiến thức</button>
