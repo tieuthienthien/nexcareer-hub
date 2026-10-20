@@ -180,6 +180,12 @@ export default function HrApplications() {
                     </div>
                   )}
                   {selected.cover_letter && <div className="mt-2"><div className="text-xs font-600 uppercase tracking-wide text-muted-foreground">Thư ứng tuyển</div><p className="mt-1 whitespace-pre-wrap rounded-lg bg-muted/40 p-3 text-sm">{selected.cover_letter}</p></div>}
+                  {selected.cv_snapshot && (
+                    <div className="mt-2">
+                      <div className="text-xs font-600 uppercase tracking-wide text-primary">CV nộp từ nền tảng CV</div>
+                      <pre className="mt-1 max-h-72 overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-muted/30 p-3 text-xs">{selected.cv_snapshot}</pre>
+                    </div>
+                  )}
                   {selected.hr_decision_reason && <div className="mt-2 text-xs text-muted-foreground">Lý do HR: <span className="text-foreground/80">{selected.hr_decision_reason}</span></div>}
                   {selected.status === "cv_screening" && (
                     <>
