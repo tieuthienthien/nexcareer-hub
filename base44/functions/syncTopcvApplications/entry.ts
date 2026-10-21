@@ -15,6 +15,19 @@ function firstValue(obj, keys) {
   return undefined;
 }
 
+function pickString(obj, keys) {
+  const value = firstValue(obj, keys);
+  if (value === undefined) return undefined;
+  return typeof value === 'string' || typeof value === 'number' ? String(value).trim() || undefined : undefined;
+}
+
+function toUriList(value) {
+  const list = Array.isArray(value) ? value : value ? [value] : [];
+  return list
+    .map((v) => (typeof v === 'string' ? v : firstValue(v, ['file_url', 'file_uri', 'url', 'uri', 'href', 'link'])))
+    .filter((v) => typeof v === 'string' && v.trim() !== '');
+}
+
 function isMasked(value) {
   return typeof value === 'string' && value.includes('*');
 }
@@ -118,19 +131,19 @@ export default async function (req) {
       const contact = {
         full_name: nameUnusable ? fallbackName : String(name),
         email: emailUnusable ? fallbackEmail : String(email),
-        phone,
+        phone: pickString(candidate, ['phone', 'phone_number']) || pickString(item, ['phone', 'phone_number', 'candidate_phone']),
         job_id: job ? job.id : UNMATCHED_JOB_ID,
         job_title: job ? job.title : (jobTitle || 'Chưa ghép được tin tuyển dụng'),
         company: COMPANY_NAME,
         cv_source: SOURCE,
-        cv_source_url: firstValue(item, ['cv_source_url', 'cv_url', 'cvUrl', 'cv_file_url', 'cv_link', 'resume_url']) ||
-          firstValue(candidate, ['cv_source_url', 'cv_url', 'cvUrl', 'cv_file_url', 'cv_link']),
-        english_certificate: firstValue(candidate, ['english_certificate', 'englishCertificate', 'certificate']) ||
-          firstValue(item, ['english_certificate', 'englishCertificate', 'certificate']),
-        github_url: firstValue(candidate, ['github_url', 'githubUrl', 'github']) ||
-          firstValue(item, ['github_url', 'githubUrl', 'github']),
-        certificate_uris: firstValue(candidate, ['certificate_uris', 'certificates']) ||
-          firstValue(item, ['certificate_uris', 'certificates']),
+        cv_source_url: pickString(item, ['cv_source_url', 'cv_url', 'cvUrl', 'cv_file_url', 'cv_link', 'resume_url']) ||
+          pickString(candidate, ['cv_source_url', 'cv_url', 'cvUrl', 'cv_file_url', 'cv_link']),
+        english_certificate: pickString(candidate, ['english_certificate', 'englishCertificate', 'certificate']) ||
+          pickString(item, ['english_certificate', 'englishCertificate', 'certificate']),
+        github_url: pickString(candidate, ['github_url', 'githubUrl', 'github']) ||
+          pickString(item, ['github_url', 'githubUrl', 'github']),
+        certificate_uris: toUriList(firstValue(candidate, ['certificate_uris', 'certificates']) ||
+          firstValue(item, ['certificate_uris', 'certificates'])),
         external_id: String(sourceId),
         external_source: SOURCE,
         needs_review: flags.length > 0
