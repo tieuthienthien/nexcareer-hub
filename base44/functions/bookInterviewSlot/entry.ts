@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { buildEmail, appOrigin } from "../../shared/stageEmails.ts";
-import { canAccessApplication } from "../../shared/applicationAccess.ts";
+import { authorizeApplicationAccess, accessDeniedMessage } from "../../shared/applicationAccess.ts";
 
 const TZ_OFFSET = '+07:00';
 
@@ -31,7 +31,7 @@ export default async function (req: Request): Promise<Response> {
 
     const app = await base44.asServiceRole.entities.Application.get(applicationId);
     if (!app) return Response.json({ error: 'Không tìm thấy hồ sơ' }, { status: 404 });
-    if (!canAccessApplication(app, user, true)) return Response.json({ error: 'Không có quyền' }, { status: 403 });
+    if (!(await authorizeApplicationAccess(base44, app, user))) return Response.json({ error: accessDeniedMessage(app, user) }, { status: 403 });
 
     const canSchedule = ['test_passed', 'interview_invited', 'scheduled'].includes(app.status);
     if (!canSchedule) {
