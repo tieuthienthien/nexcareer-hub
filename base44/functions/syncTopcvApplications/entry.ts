@@ -21,6 +21,17 @@ function pickString(obj, keys) {
   return typeof value === 'string' || typeof value === 'number' ? String(value).trim() || undefined : undefined;
 }
 
+function cleanUrl(value) {
+  if (value === undefined) return undefined;
+  const s = String(value).trim();
+  if (!s) return undefined;
+  const start = s.indexOf('http');
+  const base = start > 0 ? s.slice(start) : s;
+  const second = base.indexOf('http', 4);
+  const url = (second > 0 ? base.slice(0, second) : base).trim().replace(/\/+$/, '');
+  return /^https?:\/\//i.test(url) ? url : `https://${url.replace(/^\/+/, '')}`;
+}
+
 function toUriList(value) {
   const list = Array.isArray(value) ? value : value ? [value] : [];
   return list
@@ -136,12 +147,14 @@ export default async function (req) {
         job_title: job ? job.title : (jobTitle || 'Chưa ghép được tin tuyển dụng'),
         company: COMPANY_NAME,
         cv_source: SOURCE,
-        cv_source_url: pickString(item, ['cv_source_url', 'cv_url', 'cvUrl', 'cv_file_url', 'cv_link', 'resume_url']) ||
-          pickString(candidate, ['cv_source_url', 'cv_url', 'cvUrl', 'cv_file_url', 'cv_link']),
+        cv_source_url: cleanUrl(pickString(item, ['cv_source_url', 'cv_url', 'cvUrl', 'cv_file_url', 'cv_link', 'resume_url']) ||
+          pickString(candidate, ['cv_source_url', 'cv_url', 'cvUrl', 'cv_file_url', 'cv_link'])),
         english_certificate: pickString(candidate, ['english_certificate', 'englishCertificate', 'certificate']) ||
           pickString(item, ['english_certificate', 'englishCertificate', 'certificate']),
-        github_url: pickString(candidate, ['github_url', 'githubUrl', 'github']) ||
-          pickString(item, ['github_url', 'githubUrl', 'github']),
+        github_url: cleanUrl(pickString(candidate, ['github_url', 'githubUrl', 'github']) ||
+          pickString(item, ['github_url', 'githubUrl', 'github'])),
+        portfolio_url: cleanUrl(pickString(candidate, ['portfolio_url', 'portfolioUrl', 'portfolio']) ||
+          pickString(item, ['portfolio_url', 'portfolioUrl', 'portfolio'])),
         certificate_uris: toUriList(firstValue(candidate, ['certificate_uris', 'certificates']) ||
           firstValue(item, ['certificate_uris', 'certificates'])),
         external_id: String(sourceId),

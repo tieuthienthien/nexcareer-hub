@@ -16,6 +16,12 @@ const roundFilters = [
   { value: "done", label: "Đã kết thúc" },
 ];
 
+const fileNameOf = (uri) => {
+  const last = String(uri || "").split("/").pop() || "";
+  const i = last.indexOf("_");
+  return (i > -1 ? last.slice(i + 1) : last) || "tệp đính kèm";
+};
+
 const roundOf = (s) => {
   const i = getStageInfo(s);
   if (["hired", "rejected", "cv_rejected", "test_rejected"].includes(s)) return "done";
@@ -35,6 +41,7 @@ export default function HrApplications() {
   const [job, setJob] = useState(null);
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState("");
+  const [fileMsg, setFileMsg] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -112,10 +119,13 @@ export default function HrApplications() {
   };
 
   const viewFile = async (uri) => {
+    setFileMsg("");
     try {
       const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({ file_uri: uri });
       window.open(signed_url, "_blank");
-    } catch (e) { alert("Không xem được file."); }
+    } catch (e) {
+      setFileMsg(`Không mở được tệp "${fileNameOf(uri)}": tệp đang lưu riêng trong hệ thống TopCV nên chưa xem trực tiếp tại đây được.`);
+    }
   };
 
   return (
@@ -183,6 +193,9 @@ export default function HrApplications() {
               </DialogHeader>
 
               <div className="space-y-5 py-2">
+                {fileMsg && (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">{fileMsg}</div>
+                )}
                 {selected.needs_review && (
                   <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
                     Hồ sơ này cần rà soát: nguồn TopCV đang ẩn một phần thông tin cá nhân hoặc hồ sơ chưa ghép được tin tuyển dụng.
@@ -199,7 +212,7 @@ export default function HrApplications() {
                       <span className="text-xs text-muted-foreground">Chứng chỉ kèm theo:</span>
                       {selected.certificate_uris.map((uri, i) => (
                         <button key={`${uri}-${i}`} type="button" onClick={() => viewFile(uri)} className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-xs text-primary hover:bg-muted">
-                          <Paperclip className="h-3 w-3" /> Tệp {i + 1}
+                          <Paperclip className="h-3 w-3" /> {fileNameOf(uri)}
                         </button>
                       ))}
                     </div>
