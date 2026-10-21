@@ -80,7 +80,10 @@ export default async function (req: Request): Promise<Response> {
           await base44.asServiceRole.integrations.Core.SendEmail({ to: normalizeEmail(app.email)!, subject: mail.subject, html: mail.html });
           emailSent = true;
         } catch (e: any) {
-          emailError = e?.message || 'Không gửi được email cho ứng viên';
+          const raw = e?.message || '';
+          emailError = /custom domain/i.test(raw)
+            ? 'Ứng viên chưa đăng nhập vào app lần nào nên hệ thống chỉ gửi được khi app có tên miền email đã xác thực (mục Tên miền). Hãy gửi lại sau khi kết nối tên miền.'
+            : raw || 'Không gửi được email cho ứng viên';
         }
       }
     }
