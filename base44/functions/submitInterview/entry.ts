@@ -14,7 +14,7 @@ export default async function(req: Request): Promise<Response> {
 
     const app = await base44.entities.Application.get(applicationId);
     if (!app) return Response.json({ error: 'Không tìm thấy hồ sơ' }, { status: 404 });
-    if (!canAccessApplication(app, user)) return Response.json({ error: 'Không có quyền' }, { status: 403 });
+    if (!canAccessApplication(app, user, true)) return Response.json({ error: 'Không có quyền' }, { status: 403 });
     if (app.status !== 'interview_invited') return Response.json({ error: 'Bạn chưa được mời phỏng vấn' }, { status: 400 });
 
     const submittedAt = new Date().toISOString();

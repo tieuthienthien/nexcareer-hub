@@ -15,7 +15,7 @@ export default async function (req: Request): Promise<Response> {
 
     const app = await base44.asServiceRole.entities.Application.get(applicationId);
     if (!app) return Response.json({ error: 'Không tìm thấy hồ sơ' }, { status: 404 });
-    if (!canAccessApplication(app, user)) return Response.json({ error: 'Không có quyền' }, { status: 403 });
+    if (!canAccessApplication(app, user, true)) return Response.json({ error: 'Không có quyền' }, { status: 403 });
     if (!app.exam_attempt_id) return Response.json({ error: 'Bạn chưa bắt đầu bài thi' }, { status: 400 });
 
     const attempt = await base44.asServiceRole.entities.ExamAttempt.get(app.exam_attempt_id);
