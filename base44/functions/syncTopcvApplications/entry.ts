@@ -5,6 +5,7 @@ const APPLICATIONS_URL = 'https://topcvxme.base44.app/functions/nexoraApplicatio
 const COMPANY_URL = 'https://topcvxme.base44.app/functions/nexoraCompany';
 const COMPANY_NAME = 'Nexora Technology';
 const SOURCE = 'topcvxme';
+const UNMATCHED_JOB_ID = 'topcv-unmatched';
 
 function firstValue(obj, keys) {
   for (const key of keys) {
@@ -14,10 +15,8 @@ function firstValue(obj, keys) {
   return undefined;
 }
 
-function toIso(value) {
-  if (!value) return undefined;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+function isMasked(value) {
+  return typeof value === 'string' && value.includes('*');
 }
 
 function extractList(payload) {
@@ -60,16 +59,17 @@ export default async function (req) {
     if (!sourceList.length) {
       const fallback = await fetchList(COMPANY_URL, apiKey);
       sourceList = fallback.list;
-      if (!sourceList.length) {
-        return Response.json({
-          ok: false,
-          ready: false,
-          total: 0,
-          created: 0,
-          updated: 0,
-          message: 'Nguồn TopCV chưa cung cấp dữ liệu hồ sơ ứng tuyển.'
-        });
-      }
+    }
+    if (!sourceList.length) {
+      return Response.json({
+        ok: true,
+        ready: false,
+        total: 0,
+        created: 0,
+        updated: 0,
+        needsReview: 0,
+        message: 'Nguồn TopCV chưa có hồ sơ nào thuộc Nexora Technology.'
+      });
     }
 
     const jobsPage = await base44.asServiceRole.entities.Job.filter({ company: COMPANY_NAME }, { limit: 200 });
@@ -83,43 +83,52 @@ export default async function (req) {
 
     const toCreate = [];
     const toUpdate = [];
-    let skipped = 0;
+    let needsReview = 0;
 
     for (const item of sourceList) {
-      const sourceId = firstValue(item, ['id', 'application_id', 'applicationId', 'external_id']);
-      const fullName = firstValue(item, ['full_name', 'fullName', 'candidate_name', 'candidateName', 'name']);
-      const email = firstValue(item, ['email', 'candidate_email', 'candidateEmail']);
-      if (!sourceId || !fullName || !email) {
-        skipped += 1;
-        continue;
-      }
-
+      const candidate = item?.candidate || {};
       const sourceJobId = firstValue(item, ['job_id', 'jobId', 'job_external_id']);
       const jobTitle = firstValue(item, ['job_title', 'jobTitle', 'position', 'job', 'title']);
+      const appliedAt = firstValue(item, ['applied_at', 'appliedAt', 'created_date', 'createdDate', 'submitted_at']);
+      const sourceId =
+        firstValue(item, ['id', 'application_id', 'applicationId', 'external_id']) ||
+        `${sourceJobId || 'job'}-${appliedAt || ''}`;
+
+      const name = firstValue(candidate, ['full_name', 'fullName', 'name']) ||
+        firstValue(item, ['full_name', 'fullName', 'candidate_name', 'candidateName', 'name']);
+      const email = firstValue(candidate, ['email', 'candidate_email', 'candidateEmail']) ||
+        firstValue(item, ['email', 'candidate_email', 'candidateEmail']);
+      const phone = firstValue(candidate, ['phone', 'phone_number']) ||
+        firstValue(item, ['phone', 'phone_number', 'candidate_phone']);
+
       const job =
         jobs.find((j) => sourceJobId && j.external_id === String(sourceJobId)) ||
         jobs.find((j) => normalizeTitle(j.title) === normalizeTitle(jobTitle)) ||
         jobs.find((j) => jobTitle && normalizeTitle(j.title).includes(normalizeTitle(jobTitle)));
-      if (!job) {
-        skipped += 1;
-        continue;
-      }
 
-      const cvUrl = firstValue(item, ['cv_source_url', 'cv_url', 'cvUrl', 'cv_file_url', 'cv_link', 'resume_url']);
+      const nameUnusable = !name || isMasked(name);
+      const emailUnusable = !email || isMasked(email);
+      const flags = [];
+      if (nameUnusable || emailUnusable) flags.push('nguồn đang ẩn thông tin cá nhân');
+      if (!job) flags.push('chưa ghép được tin tuyển dụng');
+
+      const fallbackName = `Hồ sơ TopCV #${String(sourceId).slice(-6)}`;
+      const fallbackEmail = `${String(sourceId).toLowerCase().replace(/[^a-z0-9]/g, '')}@topcvxme.local`;
+
       const contact = {
-        full_name: String(fullName),
-        email: String(email),
-        phone: firstValue(item, ['phone', 'phone_number', 'candidate_phone']),
-        job_id: job.id,
-        job_title: job.title,
+        full_name: nameUnusable ? fallbackName : String(name),
+        email: emailUnusable ? fallbackEmail : String(email),
+        phone,
+        job_id: job ? job.id : UNMATCHED_JOB_ID,
+        job_title: job ? job.title : (jobTitle || 'Chưa ghép được tin tuyển dụng'),
         company: COMPANY_NAME,
         cv_source: SOURCE,
-        cv_source_url: cvUrl,
-        portfolio_url: firstValue(item, ['portfolio_url', 'portfolio', 'website']),
-        cover_letter: firstValue(item, ['cover_letter', 'coverLetter', 'note', 'message']),
+        cv_source_url: firstValue(item, ['cv_source_url', 'cv_url', 'cvUrl', 'cv_file_url', 'cv_link', 'resume_url']),
         external_id: String(sourceId),
-        external_source: SOURCE
+        external_source: SOURCE,
+        needs_review: flags.length > 0
       };
+      if (flags.length) needsReview += 1;
 
       const match = existing.find((a) => a.external_id === String(sourceId));
       if (match) {
@@ -127,9 +136,11 @@ export default async function (req) {
           id: match.id,
           full_name: contact.full_name,
           email: contact.email,
-          phone: contact.phone,
-          cv_source_url: contact.cv_source_url,
-          portfolio_url: contact.portfolio_url,
+          phone: contact.phone || match.phone,
+          cv_source_url: contact.cv_source_url || match.cv_source_url,
+          job_id: contact.job_id,
+          job_title: contact.job_title,
+          needs_review: contact.needs_review,
           last_synced_at: new Date().toISOString()
         });
       } else {
@@ -137,7 +148,9 @@ export default async function (req) {
           ...contact,
           status: 'cv_screening',
           last_synced_at: new Date().toISOString(),
-          notes: `Hồ sơ đồng bộ từ TopCV lúc ${new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Saigon' })}`
+          notes: flags.length
+            ? `Cần rà soát: ${flags.join('; ')}. Đồng bộ từ TopCV lúc ${new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Saigon' })}`
+            : `Hồ sơ đồng bộ từ TopCV lúc ${new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Saigon' })}`
         });
       }
     }
@@ -151,7 +164,7 @@ export default async function (req) {
       total: sourceList.length,
       created: toCreate.length,
       updated: toUpdate.length,
-      skipped,
+      needsReview,
       syncedAt: new Date().toISOString()
     });
   } catch (error) {

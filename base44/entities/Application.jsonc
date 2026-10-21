@@ -64,6 +64,11 @@
       "type": "string",
       "description": "Th\u1eddi \u0111i\u1ec3m \u0111\u1ed3ng b\u1ed9 g\u1ea7n nh\u1ea5t t\u1eeb ngu\u1ed3n (ISO)"
     },
+    "needs_review": {
+      "type": "boolean",
+      "default": false,
+      "description": "H\u1ed3 s\u01a1 c\u1ea7n HR r\u00e0 so\u00e1t: thi\u1ebfu th\u00f4ng tin t\u1eeb ngu\u1ed3n ho\u1eb7c ch\u01b0a gh\u00e9p \u0111\u01b0\u1ee3c tin tuy\u1ec3n d\u1ee5ng"
+    },
     "status": {
       "type": "string",
       "enum": [

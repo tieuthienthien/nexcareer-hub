@@ -62,7 +62,7 @@ export default function HrApplications() {
       } else if (data.ready === false) {
         setSyncMsg(data.message || "Nguồn TopCV chưa cung cấp dữ liệu hồ sơ.");
       } else {
-        setSyncMsg(`Đã nhận ${data.total} hồ sơ · tạo mới ${data.created} · cập nhật ${data.updated}${data.skipped ? ` · bỏ qua ${data.skipped}` : ""}`);
+        setSyncMsg(`Đã nhận ${data.total} hồ sơ · tạo mới ${data.created} · cập nhật ${data.updated}${data.needsReview ? ` · ${data.needsReview} hồ sơ cần rà soát` : ""}`);
         await load();
       }
     } catch (e) {
@@ -164,6 +164,7 @@ export default function HrApplications() {
               <div className="flex items-center gap-2">
                 {a.cv_match_score != null && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-600 text-primary">{a.cv_match_score}%</span>}
                 <span className="text-xs text-muted-foreground">{new Date(a.created_date).toLocaleDateString("vi-VN")}</span>
+                {a.needs_review && <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-600 text-amber-700">Cần rà soát</span>}
                 <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-600 ${applicationStatusColor[a.status]}`}>{applicationStatusLabel[a.status]}</span>
               </div>
             </button>
@@ -182,6 +183,11 @@ export default function HrApplications() {
               </DialogHeader>
 
               <div className="space-y-5 py-2">
+                {selected.needs_review && (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                    Hồ sơ này cần rà soát: nguồn TopCV đang ẩn một phần thông tin cá nhân hoặc hồ sơ chưa ghép được tin tuyển dụng.
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-muted-foreground" /> {selected.email}</div>
                   <div className="flex items-center gap-2"><Phone className="h-4 w-4 text-muted-foreground" /> {selected.phone || "—"}</div>
