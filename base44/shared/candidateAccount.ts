@@ -26,8 +26,8 @@ export async function ensureCandidateUser(base44: any, rawEmail?: string): Promi
   const email = normalizeEmail(rawEmail);
   if (!email) return { registered: false, invited: false, error: 'Hồ sơ không có địa chỉ email hợp lệ' };
   try {
-    const users = await base44.asServiceRole.entities.User.filter({ email }, { limit: 1 });
-    if (users?.items?.length) return { registered: true, invited: false };
+    const users = await base44.asServiceRole.entities.User.filter({ email }, '-created_date', 1, 0);
+    if (users?.length) return { registered: true, invited: false };
   } catch (e) {}
   try {
     await base44.users.inviteUser(email, 'user');
