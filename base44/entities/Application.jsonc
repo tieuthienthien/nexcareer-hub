@@ -24,6 +24,10 @@
     "phone": {
       "type": "string"
     },
+    "english_certificate": {
+      "type": "string",
+      "description": "Ch\u1ee9ng ch\u1ec9 ti\u1ebfng Anh (VD: IELTS 7.0, TOEIC 850)"
+    },
     "cv_file_uri": {
       "type": "string",
       "description": "URI file CV (ri\u00eang t\u01b0)"
@@ -32,13 +36,24 @@
       "type": "string",
       "description": "Link CV g\u1ed1c do ngu\u1ed3n ngo\u00e0i cung c\u1ea5p"
     },
+    "certificate_uris": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Danh s\u00e1ch URI file ch\u1ee9ng ch\u1ec9 k\u00e8m theo (ri\u00eang t\u01b0)"
+    },
+    "github_url": {
+      "type": "string",
+      "description": "Link GitHub / d\u1ef1 \u00e1n \u0111\u00e3 l\u00e0m"
+    },
     "portfolio_url": {
       "type": "string",
       "description": "Link portfolio"
     },
     "cover_letter": {
       "type": "string",
-      "description": "Th\u01b0 \u1ee9ng tuy\u1ec3n"
+      "description": "Th\u01b0 \u1ee9ng tuy\u1ec3n / th\u01b0 gi\u1edbi thi\u1ec7u"
     },
     "cv_source": {
       "type": "string",

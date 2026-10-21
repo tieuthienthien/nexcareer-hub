@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Search, ExternalLink, Download, Mail, Phone, Link2, Loader2, Filter, Sparkles, FileCode, Video, CheckCircle2, XCircle, ArrowRight, RefreshCw } from "lucide-react";
+import { Search, ExternalLink, Download, Mail, Phone, Link2, Github, Award, Paperclip, Loader2, Filter, Sparkles, FileCode, Video, CheckCircle2, XCircle, ArrowRight, RefreshCw } from "lucide-react";
 import { applicationStatusLabel, applicationStatusColor, getStageInfo } from "@/lib/jobUtils";
 
 const roundFilters = [
@@ -192,6 +192,18 @@ export default function HrApplications() {
                   <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-muted-foreground" /> {selected.email}</div>
                   <div className="flex items-center gap-2"><Phone className="h-4 w-4 text-muted-foreground" /> {selected.phone || "—"}</div>
                   {selected.portfolio_url && <a href={selected.portfolio_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Link2 className="h-4 w-4" /> Portfolio <ExternalLink className="h-3 w-3" /></a>}
+                  {selected.github_url && <a href={selected.github_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Github className="h-4 w-4" /> GitHub / dự án <ExternalLink className="h-3 w-3" /></a>}
+                  {selected.english_certificate && <div className="col-span-2 flex items-center gap-2"><Award className="h-4 w-4 text-muted-foreground" /> {selected.english_certificate}</div>}
+                  {(selected.certificate_uris || []).length > 0 && (
+                    <div className="col-span-2 flex flex-wrap items-center gap-2">
+                      <span className="text-xs text-muted-foreground">Chứng chỉ kèm theo:</span>
+                      {selected.certificate_uris.map((uri, i) => (
+                        <button key={`${uri}-${i}`} type="button" onClick={() => viewFile(uri)} className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-xs text-primary hover:bg-muted">
+                          <Paperclip className="h-3 w-3" /> Tệp {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Vòng 1 */}

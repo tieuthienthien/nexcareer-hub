@@ -123,7 +123,14 @@ export default async function (req) {
         job_title: job ? job.title : (jobTitle || 'Chưa ghép được tin tuyển dụng'),
         company: COMPANY_NAME,
         cv_source: SOURCE,
-        cv_source_url: firstValue(item, ['cv_source_url', 'cv_url', 'cvUrl', 'cv_file_url', 'cv_link', 'resume_url']),
+        cv_source_url: firstValue(item, ['cv_source_url', 'cv_url', 'cvUrl', 'cv_file_url', 'cv_link', 'resume_url']) ||
+          firstValue(candidate, ['cv_source_url', 'cv_url', 'cvUrl', 'cv_file_url', 'cv_link']),
+        english_certificate: firstValue(candidate, ['english_certificate', 'englishCertificate', 'certificate']) ||
+          firstValue(item, ['english_certificate', 'englishCertificate', 'certificate']),
+        github_url: firstValue(candidate, ['github_url', 'githubUrl', 'github']) ||
+          firstValue(item, ['github_url', 'githubUrl', 'github']),
+        certificate_uris: firstValue(candidate, ['certificate_uris', 'certificates']) ||
+          firstValue(item, ['certificate_uris', 'certificates']),
         external_id: String(sourceId),
         external_source: SOURCE,
         needs_review: flags.length > 0
@@ -138,6 +145,11 @@ export default async function (req) {
           email: contact.email,
           phone: contact.phone || match.phone,
           cv_source_url: contact.cv_source_url || match.cv_source_url,
+          ...(contact.english_certificate ? { english_certificate: contact.english_certificate } : {}),
+          ...(contact.github_url ? { github_url: contact.github_url } : {}),
+          ...(Array.isArray(contact.certificate_uris) && contact.certificate_uris.length
+            ? { certificate_uris: contact.certificate_uris }
+            : {}),
           job_id: contact.job_id,
           job_title: contact.job_title,
           needs_review: contact.needs_review,
