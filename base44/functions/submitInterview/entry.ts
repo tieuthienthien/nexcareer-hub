@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 import { buildEmail, appOrigin } from "../../shared/stageEmails.ts";
+import { canAccessApplication } from "../../shared/applicationAccess.ts";
 
 export default async function(req: Request): Promise<Response> {
   try {
@@ -13,7 +14,7 @@ export default async function(req: Request): Promise<Response> {
 
     const app = await base44.entities.Application.get(applicationId);
     if (!app) return Response.json({ error: 'Không tìm thấy hồ sơ' }, { status: 404 });
-    if (app.created_by_id !== user.id) return Response.json({ error: 'Không có quyền' }, { status: 403 });
+    if (!canAccessApplication(app, user)) return Response.json({ error: 'Không có quyền' }, { status: 403 });
     if (app.status !== 'interview_invited') return Response.json({ error: 'Bạn chưa được mời phỏng vấn' }, { status: 400 });
 
     const submittedAt = new Date().toISOString();

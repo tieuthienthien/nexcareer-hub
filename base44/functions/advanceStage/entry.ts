@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { buildEmail, appOrigin } from "../../shared/stageEmails.ts";
+import { provisionCandidateAccount } from "../../shared/candidateAccount.ts";
 
 const ACTIONS: Record<string, { status: string; email?: string; finalResult?: string }> = {
   approve_round1: { status: 'cv_passed', email: 'round1_pass' },
@@ -43,6 +44,16 @@ export default async function (req: Request): Promise<Response> {
 
     const updated = await base44.asServiceRole.entities.Application.update(applicationId, updateData);
 
+    // Đậu vòng 1: đảm bảo ứng viên có tài khoản NexCareer Hub + hồ sơ kèm CV đã nộp
+    let account = null;
+    if (action === 'approve_round1') {
+      try {
+        account = await provisionCandidateAccount(base44, app);
+      } catch (e) {
+        account = null;
+      }
+    }
+
     if (next.email) {
       const origin = appOrigin(req);
       const mail = buildEmail(next.email, {
@@ -54,6 +65,7 @@ export default async function (req: Request): Promise<Response> {
         finalResult: next.finalResult,
         note,
         scheduleUrl: `/lich-phong-van/${app.id}`,
+        accountEmail: account?.email || undefined,
         origin
       });
       try {

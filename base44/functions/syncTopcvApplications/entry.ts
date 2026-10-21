@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { secrets } from 'base44:runtime';
+import { provisionCandidateAccount } from "../../shared/candidateAccount.ts";
 
 const APPLICATIONS_URL = 'https://topcvxme.base44.app/functions/nexoraApplications';
 const COMPANY_URL = 'https://topcvxme.base44.app/functions/nexoraCompany';
@@ -193,8 +194,22 @@ export default async function (req) {
       }
     }
 
-    if (toCreate.length) await base44.asServiceRole.entities.Application.bulkCreate(toCreate);
+    let createdRecords = [];
+    if (toCreate.length) createdRecords = (await base44.asServiceRole.entities.Application.bulkCreate(toCreate)) || [];
     if (toUpdate.length) await base44.asServiceRole.entities.Application.bulkUpdate(toUpdate);
+
+    // Mỗi hồ sơ mới: tạo sẵn hồ sơ ứng viên (kèm CV từ TopCV) + mời tài khoản NexCareer Hub
+    const accounts = { invited: 0, profiles: 0 };
+    const list = (Array.isArray(createdRecords) ? createdRecords : []).slice(0, 50);
+    for (let i = 0; i < list.length; i += 5) {
+      const batch = list.slice(i, i + 5);
+      const results = await Promise.allSettled(batch.map((app) => provisionCandidateAccount(base44, app)));
+      results.forEach((r) => {
+        if (r.status !== 'fulfilled') return;
+        if (r.value.invited) accounts.invited += 1;
+        if (r.value.profileReady) accounts.profiles += 1;
+      });
+    }
 
     return Response.json({
       ok: true,
@@ -203,6 +218,7 @@ export default async function (req) {
       created: toCreate.length,
       updated: toUpdate.length,
       needsReview,
+      accounts,
       syncedAt: new Date().toISOString()
     });
   } catch (error) {

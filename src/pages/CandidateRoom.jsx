@@ -28,7 +28,8 @@ export default function CandidateRoom() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await base44.entities.CandidateProfile.filter({}, { limit: 1 });
+        let res = await base44.entities.CandidateProfile.filter({ email: user?.email }, { limit: 1 });
+        if (!res.items?.length) res = await base44.entities.CandidateProfile.filter({}, { limit: 1 });
         const p = res.items?.[0];
         setProfile(p || null);
         if (p) setForm({
@@ -107,7 +108,7 @@ export default function CandidateRoom() {
   }
 
   const completion = profile
-    ? Math.round(((!!profile.full_name + !!profile.phone + !!profile.headline + !!profile.bio + !!profile.cv_file_uri + !!profile.portfolio_url + (profile.skills?.length > 0)) / 7) * 100)
+    ? Math.round(((!!profile.full_name + !!profile.phone + !!profile.headline + !!profile.bio + (!!profile.cv_file_uri || !!profile.cv_source_url) + !!profile.portfolio_url + (profile.skills?.length > 0)) / 7) * 100)
     : 0;
 
   return (
@@ -207,12 +208,25 @@ export default function CandidateRoom() {
                       </div>
                     </div>
                   ) : (
-                    <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-border py-10 transition-colors hover:border-primary hover:bg-primary/5">
-                      {uploadingCv ? <Loader2 className="h-8 w-8 animate-spin text-primary" /> : <Upload className="h-8 w-8 text-muted-foreground" />}
-                      <span className="mt-3 text-sm font-500">{uploadingCv ? "Đang tải..." : "Tải lên CV"}</span>
-                      <span className="mt-1 text-xs text-muted-foreground">Nhấn để chọn file</span>
-                      <input type="file" className="hidden" accept=".pdf,.doc,.docx" onChange={uploadCv} />
-                    </label>
+                    <div className="space-y-3">
+                      {profile?.cv_source_url && (
+                        <div className="rounded-xl border border-border bg-muted/30 p-4">
+                          <div className="flex items-center gap-3">
+                            <FileText className="h-8 w-8 text-primary" />
+                            <div className="flex-1 text-sm font-500">CV bạn đã nộp trên TopCV</div>
+                          </div>
+                          <Button asChild size="sm" variant="outline" className="mt-3 gap-2">
+                            <a href={profile.cv_source_url} target="_blank" rel="noreferrer"><ExternalLink className="h-4 w-4" /> Mở CV đã nộp</a>
+                          </Button>
+                        </div>
+                      )}
+                      <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-border py-10 transition-colors hover:border-primary hover:bg-primary/5">
+                        {uploadingCv ? <Loader2 className="h-8 w-8 animate-spin text-primary" /> : <Upload className="h-8 w-8 text-muted-foreground" />}
+                        <span className="mt-3 text-sm font-500">{uploadingCv ? "Đang tải..." : "Tải lên CV"}</span>
+                        <span className="mt-1 text-xs text-muted-foreground">Nhấn để chọn file</span>
+                        <input type="file" className="hidden" accept=".pdf,.doc,.docx" onChange={uploadCv} />
+                      </label>
+                    </div>
                   )}
                 </div>
               </div>

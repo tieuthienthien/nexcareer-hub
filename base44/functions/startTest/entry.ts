@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
+import { canAccessApplication } from "../../shared/applicationAccess.ts";
 
 export default async function(req: Request): Promise<Response> {
   try {
@@ -12,7 +13,7 @@ export default async function(req: Request): Promise<Response> {
 
     const app = await base44.entities.Application.get(applicationId);
     if (!app) return Response.json({ error: 'Không tìm thấy hồ sơ' }, { status: 404 });
-    if (app.created_by_id !== user.id) return Response.json({ error: 'Không có quyền' }, { status: 403 });
+    if (!canAccessApplication(app, user)) return Response.json({ error: 'Không có quyền' }, { status: 403 });
     if (app.status !== 'test_invited') return Response.json({ error: 'Bạn chưa được mời làm bài thi' }, { status: 400 });
 
     let startedAt = app.test_started_at;

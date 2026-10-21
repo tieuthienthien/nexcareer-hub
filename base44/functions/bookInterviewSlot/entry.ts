@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { buildEmail, appOrigin } from "../../shared/stageEmails.ts";
+import { canAccessApplication } from "../../shared/applicationAccess.ts";
 
 const TZ_OFFSET = '+07:00';
 
@@ -30,7 +31,7 @@ export default async function (req: Request): Promise<Response> {
 
     const app = await base44.asServiceRole.entities.Application.get(applicationId);
     if (!app) return Response.json({ error: 'Không tìm thấy hồ sơ' }, { status: 404 });
-    if (app.created_by_id !== user.id && user.role !== 'admin') return Response.json({ error: 'Không có quyền' }, { status: 403 });
+    if (!canAccessApplication(app, user, true)) return Response.json({ error: 'Không có quyền' }, { status: 403 });
 
     const canSchedule = ['test_passed', 'interview_invited', 'scheduled'].includes(app.status);
     if (!canSchedule) {
@@ -125,7 +126,7 @@ export default async function (req: Request): Promise<Response> {
       slot_id: slot.id,
       job_id: app.job_id,
       job_title: app.job_title,
-      candidate_id: app.created_by_id,
+      candidate_id: app.created_by_id || user.id,
       candidate_name: app.full_name,
       candidate_email: app.email,
       interviewer_name: slot.interviewer_name || '',

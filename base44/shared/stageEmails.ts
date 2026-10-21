@@ -43,6 +43,7 @@ export type EmailContext = {
   finalResult?: string;
   note?: string;
   missing?: string[];
+  accountEmail?: string;
 };
 
 export function buildEmail(stage: string, ctx: EmailContext): { subject: string; html: string } {
@@ -69,11 +70,18 @@ export function buildEmail(stage: string, ctx: EmailContext): { subject: string;
         subject: `Đã nhận hồ sơ ứng tuyển — ${job}`,
         html: shell("Đã nhận hồ sơ ứng tuyển", `<p>Xin chào <b>${name}</b>,</p><p>Hệ thống đã nhận hồ sơ ứng tuyển của bạn cho vị trí <b>${job}</b>${jc}. Kết quả sẽ được thông báo trong vòng 7 ngày.</p>${scoreBlock}${link(origin, "/candidate-room", "Mở Candidate Room")}`)
       };
-    case "round1_pass":
+    case "round1_pass": {
+      const accountBlock = ctx.accountEmail
+        ? `<div style="margin:16px 0;padding:14px 16px;background:#f9f6fd;border:1px solid #e7dcfb;border-radius:10px;">
+            <p style="margin:0 0 6px;"><b>Tài khoản NexCareer Hub của bạn:</b> ${ctx.accountEmail}</p>
+            <p style="margin:0;color:#475569;font-size:13px;">Tài khoản đã được tạo sẵn với chính email bạn dùng nộp hồ sơ trên TopCV, và CV đã nộp đã có trong tài khoản. Lần đầu đăng nhập, hãy mở email mời để đặt mật khẩu, hoặc chọn “Đăng nhập bằng Google” với email này. Nếu quên mật khẩu, dùng mục “Quên mật khẩu”.</p>
+          </div>`
+        : "";
       return {
         subject: `Chúc mừng! Bạn đã đậu vòng 1 — ${job}`,
-        html: shell("Kết quả vòng 1: ĐẬU", `<p>Chào <b>${name}</b>,</p><p>Chúc mừng bạn đã vượt qua vòng sàng lọc CV cho vị trí <b>${job}</b>${jc}.${scoreBlock}</p><p>Bước tiếp theo: <b>bài thi online vòng 2</b> (tối đa 60 phút, đồng hồ đếm ngược và tự nộp khi hết giờ). Bạn vào phòng thi ngay trong Candidate Room.</p>${link(origin, "/candidate-room", "Vào làm bài thi vòng 2")}`)
+        html: shell("Kết quả vòng 1: ĐẬU", `<p>Chào <b>${name}</b>,</p><p>Chúc mừng bạn đã vượt qua vòng sàng lọc CV cho vị trí <b>${job}</b>${jc}.${scoreBlock}</p>${accountBlock}<p>Bước tiếp theo: <b>bài thi online vòng 2</b> trên NexCareer Hub (tối đa 60 phút, đồng hồ đếm ngược và tự nộp khi hết giờ). Đăng nhập bằng tài khoản ở trên để vào phòng thi.</p>${link(origin, "/login?returnTo=/candidate-room", "Đăng nhập & làm bài vòng 2")}`)
       };
+    }
     case "round1_fail":
       return {
         subject: `Kết quả vòng 1 — ${job}`,

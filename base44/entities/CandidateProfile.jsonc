@@ -24,6 +24,10 @@
       "type": "string",
       "description": "URI file CV (ri\u00eang t\u01b0)"
     },
+    "cv_source_url": {
+      "type": "string",
+      "description": "Link CV \u0111\u00e3 n\u1ed9p tr\u00ean h\u1ec7 th\u1ed1ng ngu\u1ed3n (TopCV), hi\u1ec3n th\u1ecb s\u1eb5n trong t\u00e0i kho\u1ea3n \u1ee9ng vi\u00ean"
+    },
     "portfolio_url": {
       "type": "string",
       "description": "Link portfolio"
@@ -54,6 +58,9 @@
           "created_by_id": "{{user.id}}"
         },
         {
+          "data.email": "{{user.email}}"
+        },
+        {
           "user_condition": {
             "role": "admin"
           }
@@ -67,6 +74,9 @@
       "$or": [
         {
           "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.email": "{{user.email}}"
         },
         {
           "user_condition": {
