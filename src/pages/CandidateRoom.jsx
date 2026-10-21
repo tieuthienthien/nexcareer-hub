@@ -29,7 +29,7 @@ export default function CandidateRoom() {
     (async () => {
       try {
         let res = await base44.entities.CandidateProfile.filter({ email: user?.email }, { limit: 1 });
-        if (!res.items?.length) res = await base44.entities.CandidateProfile.filter({}, { limit: 1 });
+        if (!res.items?.length) res = await base44.entities.CandidateProfile.filter({ created_by_id: user?.id }, { limit: 1 });
         const p = res.items?.[0];
         setProfile(p || null);
         if (p) setForm({
@@ -41,7 +41,10 @@ export default function CandidateRoom() {
         else setForm((f) => ({ ...f, full_name: user?.full_name || "", email: user?.email || "" }));
       } catch (e) {}
       try {
-        const apps = await base44.entities.Application.filter({}, { sort: "-created_date", limit: 50 });
+        const apps = await base44.entities.Application.filter(
+          { $or: [{ created_by_id: user?.id }, { email: user?.email }] },
+          { sort: "-created_date", limit: 50 }
+        );
         setApplications(apps.items || []);
       } catch (e) {}
       setLoading(false);
