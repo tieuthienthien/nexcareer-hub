@@ -21,6 +21,11 @@ import HrChatbot from '@/pages/hr/HrChatbot';
 import HrCompare from '@/pages/hr/HrCompare';
 import HrFeedback from '@/pages/hr/HrFeedback';
 import SupportCenter from '@/pages/SupportCenter';
+import Courses from '@/pages/Courses';
+import CourseDetail from '@/pages/CourseDetail';
+import CourseLesson from '@/pages/CourseLesson';
+import MyCertificates from '@/pages/MyCertificates';
+import VerifyCertificate from '@/pages/VerifyCertificate';
 import AssessmentTest from '@/pages/AssessmentTest';
 import AssessmentInterview from '@/pages/AssessmentInterview';
 import Login from '@/pages/Login';
@@ -63,10 +68,15 @@ const AuthenticatedApp = () => {
         <Route path="/" element={<Home />} />
         <Route path="/viec-lam" element={<Jobs />} />
         <Route path="/viec-lam/:id" element={<JobDetail />} />
+        <Route path="/khoa-hoc" element={<Courses />} />
+        <Route path="/khoa-hoc/:slug" element={<CourseDetail />} />
+        <Route path="/khoa-hoc/:slug/bai-hoc/:lessonId" element={<CourseLesson />} />
+        <Route path="/xac-thuc-chung-chi" element={<VerifyCertificate />} />
         <Route path="/lien-he" element={<Contact />} />
         <Route path="/ho-tro" element={<SupportCenter />} />
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/candidate-room" element={<CandidateRoom />} />
+          <Route path="/chung-chi" element={<MyCertificates />} />
         </Route>
       </Route>
 

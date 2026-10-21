@@ -1,0 +1,118 @@
+{
+  "name": "Lesson",
+  "type": "object",
+  "properties": {
+    "course_id": {
+      "type": "string"
+    },
+    "chapter_index": {
+      "type": "number",
+      "description": "Th\u1ee9 t\u1ef1 ch\u01b0\u01a1ng (b\u1eaft \u0111\u1ea7u t\u1eeb 1)"
+    },
+    "chapter_title": {
+      "type": "string"
+    },
+    "order_index": {
+      "type": "number",
+      "description": "Th\u1ee9 t\u1ef1 hi\u1ec3n th\u1ecb trong kh\u00f3a"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "reading",
+        "video",
+        "quiz"
+      ],
+      "default": "reading"
+    },
+    "title": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string",
+      "description": "N\u1ed9i dung b\u00e0i gi\u1ea3ng"
+    },
+    "code_example": {
+      "type": "string",
+      "description": "V\u00ed d\u1ee5 code ng\u1eafn"
+    },
+    "video_url": {
+      "type": "string"
+    },
+    "video_caption": {
+      "type": "string"
+    },
+    "duration_min": {
+      "type": "number",
+      "default": 10
+    },
+    "questions": {
+      "type": "array",
+      "description": "C\u00e2u h\u1ecfi cu\u1ed1i ch\u01b0\u01a1ng (ch\u1ec9 d\u00f9ng cho type = quiz)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "short",
+              "mcq"
+            ]
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "answer": {
+            "type": "string",
+            "description": "\u0110\u00e1p \u00e1n m\u1eabu / \u0111\u00e1p \u00e1n \u0111\u00fang"
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "T\u1eeb kh\u00f3a ch\u1ea5p nh\u1eadn \u0111\u01b0\u1ee3c"
+          },
+          "points": {
+            "type": "number"
+          },
+          "explanation": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "course_id",
+    "title",
+    "type"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

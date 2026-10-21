@@ -1,0 +1,79 @@
+{
+  "name": "Course",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "T\u00ean kh\u00f3a h\u1ecdc"
+    },
+    "slug": {
+      "type": "string",
+      "description": "\u0110\u1ecbnh danh d\u00f9ng tr\u00ean URL"
+    },
+    "category": {
+      "type": "string",
+      "description": "Ng\u00e0nh ngh\u1ec1"
+    },
+    "summary": {
+      "type": "string",
+      "description": "M\u00f4 t\u1ea3 ng\u1eafn hi\u1ec3n th\u1ecb tr\u00ean th\u1ebb"
+    },
+    "description": {
+      "type": "string"
+    },
+    "thumbnail_url": {
+      "type": "string"
+    },
+    "level": {
+      "type": "string",
+      "enum": [
+        "co-ban",
+        "trung-cap",
+        "nang-cao"
+      ],
+      "default": "co-ban"
+    },
+    "duration_min": {
+      "type": "number",
+      "default": 0,
+      "description": "T\u1ed5ng th\u1eddi l\u01b0\u1ee3ng \u01b0\u1edbc t\u00ednh (ph\u00fat)"
+    },
+    "outcomes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "B\u1ea1n s\u1ebd l\u00e0m \u0111\u01b0\u1ee3c g\u00ec sau kh\u00f3a h\u1ecdc"
+    },
+    "published": {
+      "type": "boolean",
+      "default": true
+    },
+    "order": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "title",
+    "slug"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

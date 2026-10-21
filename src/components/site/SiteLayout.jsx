@@ -3,6 +3,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import ChatbotWidget from "@/components/chatbot/ChatbotWidget";
 import StarRainClick from "@/components/StarRainClick";
+import ReferralCapture from "@/components/ReferralCapture";
 
 export default function SiteLayout() {
   return (
@@ -17,6 +18,7 @@ export default function SiteLayout() {
       </div>
       <ChatbotWidget />
       <StarRainClick />
+      <ReferralCapture />
     </div>
   );
 }

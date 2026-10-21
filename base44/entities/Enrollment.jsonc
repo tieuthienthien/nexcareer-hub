@@ -1,0 +1,106 @@
+{
+  "name": "Enrollment",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "course_id": {
+      "type": "string"
+    },
+    "course_title": {
+      "type": "string"
+    },
+    "unlocked_via": {
+      "type": "string",
+      "enum": [
+        "free",
+        "referral"
+      ],
+      "default": "free"
+    },
+    "completed_lesson_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "chapter_scores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "chapter_index": {
+            "type": "number"
+          },
+          "lesson_id": {
+            "type": "string"
+          },
+          "percent": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "final_score": {
+      "type": "number",
+      "default": 0
+    },
+    "quiz_attempts": {
+      "type": "number",
+      "default": 0
+    },
+    "certificate_code": {
+      "type": "string"
+    },
+    "last_activity_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "course_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

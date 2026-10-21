@@ -1,0 +1,69 @@
+{
+  "name": "Referral",
+  "type": "object",
+  "properties": {
+    "inviter_id": {
+      "type": "string"
+    },
+    "inviter_email": {
+      "type": "string"
+    },
+    "invitee_id": {
+      "type": "string",
+      "description": "M\u1ed7i ng\u01b0\u1eddi \u0111\u01b0\u1ee3c m\u1eddi ch\u1ec9 t\u00ednh 1 l\u1ea7n"
+    },
+    "invitee_email": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string",
+      "description": "M\u00e3 gi\u1edbi thi\u1ec7u \u0111\u00e3 d\u00f9ng"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "credited"
+      ],
+      "default": "credited"
+    },
+    "credited_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "inviter_id",
+    "invitee_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.inviter_id": "{{user.id}}"
+        },
+        {
+          "data.invitee_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

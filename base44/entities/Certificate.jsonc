@@ -1,0 +1,63 @@
+{
+  "name": "Certificate",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "course_id": {
+      "type": "string"
+    },
+    "course_title": {
+      "type": "string"
+    },
+    "score": {
+      "type": "number",
+      "description": "\u0110i\u1ec3m cu\u1ed1i kh\u00f3a tr\u00ean thang 100"
+    },
+    "code": {
+      "type": "string",
+      "description": "M\u00e3 ch\u1ee9ng ch\u1ec9 duy nh\u1ea5t d\u00f9ng \u0111\u1ec3 x\u00e1c th\u1ef1c c\u00f4ng khai"
+    },
+    "issued_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "course_id",
+    "code"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
