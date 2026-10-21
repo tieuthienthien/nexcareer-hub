@@ -110,6 +110,14 @@
       "type": "boolean",
       "default": false
     },
+    "external_id": {
+      "type": "string",
+      "description": "M\u00e3 tin g\u1ed1c tr\u00ean h\u1ec7 th\u1ed1ng ngu\u1ed3n (d\u00f9ng cho \u0111\u1ed3ng b\u1ed9 t\u1ef1 \u0111\u1ed9ng, tr\u00e1nh t\u1ea1o tr\u00f9ng)"
+    },
+    "external_source": {
+      "type": "string",
+      "description": "Ngu\u1ed3n \u0111\u1ed3ng b\u1ed9 c\u1ee7a tin tuy\u1ec3n d\u1ee5ng (VD: topcvxme)"
+    },
     "test_type": {
       "type": "string",
       "enum": [

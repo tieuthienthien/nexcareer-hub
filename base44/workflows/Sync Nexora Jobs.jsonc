@@ -1,0 +1,45 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 2 * * *",
+      "one_time_date": null,
+      "timezone": "Asia/Saigon",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "name": "\u0110\u1ed3ng b\u1ed9 tin tuy\u1ec3n d\u1ee5ng Nexora",
+  "description": "M\u1ed7i ng\u00e0y l\u1ea5y tin tuy\u1ec3n d\u1ee5ng c\u1ee7a NEXORA TECHNOLOGY t\u1eeb topcvxme v\u00e0 c\u1eadp nh\u1eadt v\u00e0o NexCareer Hub",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "sync_nexora_jobs",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "sync_jobs": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "syncNexoraJobs",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "\u0110\u1ed3ng b\u1ed9 tin Nexora",
+            "description": "L\u1ea5y tin t\u1eeb topcvxme"
+          }
+        }
+      }
+    ]
+  }
+}
