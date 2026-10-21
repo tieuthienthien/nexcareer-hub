@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Search, ExternalLink, Download, Mail, Phone, Link2, Loader2, Filter, Sparkles, FileCode, Video, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
+import { Search, ExternalLink, Download, Mail, Phone, Link2, Loader2, Filter, Sparkles, FileCode, Video, CheckCircle2, XCircle, ArrowRight, RefreshCw } from "lucide-react";
 import { applicationStatusLabel, applicationStatusColor, getStageInfo } from "@/lib/jobUtils";
 
 const roundFilters = [
@@ -33,6 +33,8 @@ export default function HrApplications() {
   const [finalNotes, setFinalNotes] = useState("");
   const [round1Reason, setRound1Reason] = useState("");
   const [job, setJob] = useState(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -48,6 +50,26 @@ export default function HrApplications() {
   };
 
   useEffect(() => { load(); }, [round, q]);
+
+  const syncTopcv = async () => {
+    setSyncing(true);
+    setSyncMsg("");
+    try {
+      const res = await base44.functions.invoke("syncTopcvApplications", {});
+      const data = res.data || res;
+      if (data.error) {
+        setSyncMsg(data.error);
+      } else if (data.ready === false) {
+        setSyncMsg(data.message || "Nguồn TopCV chưa cung cấp dữ liệu hồ sơ.");
+      } else {
+        setSyncMsg(`Đã nhận ${data.total} hồ sơ · tạo mới ${data.created} · cập nhật ${data.updated}${data.skipped ? ` · bỏ qua ${data.skipped}` : ""}`);
+        await load();
+      }
+    } catch (e) {
+      setSyncMsg(e.response?.data?.error || e.message || "Không đồng bộ được hồ sơ.");
+    }
+    setSyncing(false);
+  };
 
   const open = async (a) => {
     setSelected(a);
@@ -98,10 +120,20 @@ export default function HrApplications() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-2xl font-700">Quản lý ứng viên</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Sàng lọc, chấm thi và phỏng vấn qua 3 vòng</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="font-heading text-2xl font-700">Quản lý ứng viên</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Sàng lọc, chấm thi và phỏng vấn qua 3 vòng</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={syncTopcv} disabled={syncing} className="gap-2">
+          {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+          Đồng bộ hồ sơ từ TopCV
+        </Button>
       </div>
+
+      {syncMsg && (
+        <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">{syncMsg}</div>
+      )}
 
       <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 sm:flex-row">
         <div className="relative flex-1">
@@ -159,6 +191,12 @@ export default function HrApplications() {
                 {/* Vòng 1 */}
                 <Section icon={Sparkles} title="Vòng 1 — Sàng lọc CV" accent="primary">
                   {selected.cv_file_uri && <Button variant="outline" size="sm" onClick={() => viewFile(selected.cv_file_uri)} className="gap-2"><Download className="h-4 w-4" /> Xem CV</Button>}
+                  {!selected.cv_file_uri && selected.cv_source_url && (
+                    <a href={selected.cv_source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm text-primary hover:underline"><Download className="h-4 w-4" /> Xem CV nguồn <ExternalLink className="h-3 w-3" /></a>
+                  )}
+                  {selected.external_source && (
+                    <div className="mt-2 text-xs text-muted-foreground">Đồng bộ từ {selected.external_source}{selected.last_synced_at ? ` · ${new Date(selected.last_synced_at).toLocaleString("vi-VN")}` : ""}</div>
+                  )}
                   {selected.cv_match_score != null && <div className="mt-2 text-sm">Điểm khớp AI: <b className="text-primary">{selected.cv_match_score}/100</b> <span className="text-xs text-muted-foreground">(AI tham khảo — HR quyết định cuối)</span></div>}
                   {selected.cv_ai_analysis && <p className="mt-2 rounded-lg bg-muted/40 p-3 text-sm">{selected.cv_ai_analysis}</p>}
                   {selected.cv_strengths && (
