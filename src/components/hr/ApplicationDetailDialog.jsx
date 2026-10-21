@@ -76,6 +76,23 @@ export default function ApplicationDetailDialog({ application, open, onOpenChang
     }
   };
 
+  const sendCalendarInvite = async () => {
+    setBusy("calendar");
+    setError("");
+    try {
+      const res = await base44.functions.invoke("interviewCalendar", { action: "sync", booking_id: booking.id });
+      const data = res.data || res;
+      if (data.error) throw new Error(data.error);
+      if ((data.failures || []).length > 0) throw new Error(data.failures[0]);
+      const fresh = await base44.entities.InterviewBooking.get(booking.id);
+      setBooking(fresh);
+    } catch (e) {
+      setError(e.response?.data?.error || e.message || "Không gửi được lời mời qua Google Calendar.");
+    } finally {
+      setBusy("");
+    }
+  };
+
   const rescore = async () => {
     setBusy("score");
     setError("");
@@ -263,6 +280,18 @@ export default function ApplicationDetailDialog({ application, open, onOpenChang
                     <span className="inline-flex items-center gap-1">{booking.mode === "onsite" ? <MapPin className="h-3.5 w-3.5" /> : <Video className="h-3.5 w-3.5" />} {booking.mode === "onsite" ? booking.location || "Văn phòng" : booking.meeting_link || "Online"}</span>
                     {booking.interviewer_name && <span className="inline-flex items-center gap-1"><User className="h-3.5 w-3.5" /> {booking.interviewer_name}</span>}
                     <span>Đổi lịch: {booking.rescheduled_count || 0} lần</span>
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    {booking.google_event_link ? (
+                      <a href={booking.google_event_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-600 text-emerald-700 hover:underline">
+                        <CalendarClock className="h-3.5 w-3.5" /> Lời mời trên Google Calendar <ExternalLink className="h-3 w-3" />
+                      </a>
+                    ) : (
+                      <Button size="sm" variant="outline" className="gap-2" onClick={sendCalendarInvite} disabled={!!busy}>
+                        {busy === "calendar" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalendarClock className="h-4 w-4" />} Gửi lời mời qua Google Calendar
+                      </Button>
+                    )}
+                    <span className="text-[11px] text-muted-foreground">Ứng viên nhận email mời kèm tệp lịch từ Google.</span>
                   </div>
                 </div>
               ) : (

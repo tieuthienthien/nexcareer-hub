@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Plus, Pencil, Trash2, Lock, Unlock, CalendarDays, Video, MapPin, Users } from "lucide-react";
 import SlotDialog from "@/components/hr/SlotDialog";
 import InterviewCalendar from "@/components/hr/InterviewCalendar";
+import GoogleCalendarCard from "@/components/hr/GoogleCalendarCard";
 import { formatSlot } from "@/lib/interviewUtils";
 
 export default function HrSchedule() {
@@ -113,6 +114,8 @@ export default function HrSchedule() {
 
       {error && <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800" onClick={() => setError("")}>{error}</div>}
 
+      <GoogleCalendarCard onSynced={load} />
+
       <Tabs defaultValue="calendar">
         <TabsList className="grid w-full max-w-sm grid-cols-2">
           <TabsTrigger value="calendar" className="gap-2"><CalendarDays className="h-4 w-4" /> Lịch tổng hợp</TabsTrigger>
@@ -148,6 +151,13 @@ export default function HrSchedule() {
                         <span className="inline-flex items-center gap-1">{b.mode === "onsite" ? <MapPin className="h-3.5 w-3.5" /> : <Video className="h-3.5 w-3.5" />} {b.mode === "onsite" ? b.location || "Văn phòng" : b.meeting_link || "Online"}</span>
                         {b.interviewer_name && <span>· PV: {b.interviewer_name}</span>}
                         {b.rescheduled_count > 0 && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-amber-800">Đã đổi lịch</span>}
+                        {b.google_event_link ? (
+                          <a href={b.google_event_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 font-600 text-emerald-700">
+                            <CalendarDays className="h-3.5 w-3.5" /> Trên Google Calendar
+                          </a>
+                        ) : (
+                          <span className="rounded-full bg-muted px-2 py-0.5">Chưa gửi lời mời</span>
+                        )}
                       </div>
                     </div>
                   ))}
