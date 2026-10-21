@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Search, ExternalLink, Download, Mail, Phone, Link2, Github, Award, Paperclip, Loader2, Filter, Sparkles, FileCode, Video, CheckCircle2, XCircle, ArrowRight, RefreshCw } from "lucide-react";
+import { Search, ExternalLink, Download, Mail, Phone, Link2, Github, Award, Eye, Loader2, Filter, Sparkles, FileCode, Video, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
 import { applicationStatusLabel, applicationStatusColor, getStageInfo } from "@/lib/jobUtils";
+import InlineFileViewer from "@/components/hr/InlineFileViewer";
 
 const roundFilters = [
   { value: "all", label: "Tất cả" },
@@ -41,7 +42,7 @@ export default function HrApplications() {
   const [job, setJob] = useState(null);
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState("");
-  const [fileMsg, setFileMsg] = useState("");
+  const [viewer, setViewer] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -80,6 +81,7 @@ export default function HrApplications() {
 
   const open = async (a) => {
     setSelected(a);
+    setViewer(null);
     setFinalNotes(a.final_notes || "");
     setRound1Reason(a.hr_decision_reason || "");
     setAnswers([]);
@@ -118,14 +120,9 @@ export default function HrApplications() {
     setBusy(false);
   };
 
-  const viewFile = async (uri) => {
-    setFileMsg("");
-    try {
-      const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({ file_uri: uri });
-      window.open(signed_url, "_blank");
-    } catch (e) {
-      setFileMsg(`Không mở được tệp "${fileNameOf(uri)}": tệp đang lưu riêng trong hệ thống TopCV nên chưa xem trực tiếp tại đây được.`);
-    }
+  const preview = (uri) => {
+    if (!uri) return;
+    setViewer({ uri, label: fileNameOf(uri) });
   };
 
   return (
@@ -193,8 +190,8 @@ export default function HrApplications() {
               </DialogHeader>
 
               <div className="space-y-5 py-2">
-                {fileMsg && (
-                  <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">{fileMsg}</div>
+                {viewer && (
+                  <InlineFileViewer fileUri={viewer.uri} label={viewer.label} onClose={() => setViewer(null)} />
                 )}
                 {selected.needs_review && (
                   <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
@@ -211,8 +208,8 @@ export default function HrApplications() {
                     <div className="col-span-2 flex flex-wrap items-center gap-2">
                       <span className="text-xs text-muted-foreground">Chứng chỉ kèm theo:</span>
                       {selected.certificate_uris.map((uri, i) => (
-                        <button key={`${uri}-${i}`} type="button" onClick={() => viewFile(uri)} className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-xs text-primary hover:bg-muted">
-                          <Paperclip className="h-3 w-3" /> {fileNameOf(uri)}
+                        <button key={`${uri}-${i}`} type="button" onClick={() => preview(uri)} className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-xs text-primary hover:bg-muted">
+                          <Eye className="h-3 w-3" /> {fileNameOf(uri)}
                         </button>
                       ))}
                     </div>
@@ -221,7 +218,7 @@ export default function HrApplications() {
 
                 {/* Vòng 1 */}
                 <Section icon={Sparkles} title="Vòng 1 — Sàng lọc CV" accent="primary">
-                  {selected.cv_file_uri && <Button variant="outline" size="sm" onClick={() => viewFile(selected.cv_file_uri)} className="gap-2"><Download className="h-4 w-4" /> Xem CV</Button>}
+                  {selected.cv_file_uri && <Button variant="outline" size="sm" onClick={() => preview(selected.cv_file_uri)} className="gap-2"><Download className="h-4 w-4" /> Xem CV</Button>}
                   {!selected.cv_file_uri && selected.cv_source_url && (
                     <a href={selected.cv_source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm text-primary hover:underline"><Download className="h-4 w-4" /> Xem CV nguồn <ExternalLink className="h-3 w-3" /></a>
                   )}
@@ -301,7 +298,7 @@ export default function HrApplications() {
                         {answers.map((an) => (
                           <div key={an.id} className="rounded-lg border border-border p-3">
                             <div className="text-xs font-600">Câu {an.question_index + 1}: {an.question_text}</div>
-                            <Button variant="outline" size="sm" className="mt-2 gap-2" onClick={() => viewFile(an.video_uri)}><Video className="h-4 w-4" /> Xem video</Button>
+                            <Button variant="outline" size="sm" className="mt-2 gap-2" onClick={() => preview(an.video_uri)}><Video className="h-4 w-4" /> Xem video</Button>
                             {an.transcript && <p className="mt-2 rounded bg-muted/40 p-2 text-xs">{an.transcript}</p>}
                           </div>
                         ))}
