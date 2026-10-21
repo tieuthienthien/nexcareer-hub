@@ -29,6 +29,7 @@ export default function ApplicationDetailDialog({ application, open, onOpenChang
   const [reason, setReason] = useState("");
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
+  const [mailWarning, setMailWarning] = useState("");
 
   useEffect(() => {
     setApp(application);
@@ -58,6 +59,7 @@ export default function ApplicationDetailDialog({ application, open, onOpenChang
   const advance = async (action, extra = {}) => {
     setBusy(action);
     setError("");
+    setMailWarning("");
     try {
       const res = await base44.functions.invoke("advanceStage", {
         application_id: app.id,
@@ -69,6 +71,7 @@ export default function ApplicationDetailDialog({ application, open, onOpenChang
       if (data.error) throw new Error(data.error);
       setApp(data.application);
       onUpdated?.(data.application);
+      if (data.email_error) setMailWarning(`Đã cập nhật hồ sơ nhưng chưa gửi được email: ${data.email_error}`);
     } catch (e) {
       setError(e.response?.data?.error || e.message || "Không cập nhật được.");
     } finally {
@@ -128,6 +131,7 @@ export default function ApplicationDetailDialog({ application, open, onOpenChang
         </DialogHeader>
 
         {error && <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
+        {mailWarning && <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">{mailWarning}</div>}
 
         <div className="space-y-4 py-1">
           {viewer && <InlineFileViewer fileUri={viewer.uri} label={viewer.label} onClose={() => setViewer(null)} />}

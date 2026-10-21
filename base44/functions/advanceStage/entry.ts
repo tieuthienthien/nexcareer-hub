@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { buildEmail, appOrigin } from "../../shared/stageEmails.ts";
-import { provisionCandidateAccount } from "../../shared/candidateAccount.ts";
+import { provisionCandidateAccount, ensureCandidateUser, normalizeEmail } from "../../shared/candidateAccount.ts";
 
 const ACTIONS: Record<string, { status: string; email?: string; finalResult?: string }> = {
   approve_round1: { status: 'cv_passed', email: 'round1_pass' },
@@ -54,26 +54,38 @@ export default async function (req: Request): Promise<Response> {
       }
     }
 
+    let emailSent = false;
+    let emailError = '';
+
     if (next.email) {
-      const origin = appOrigin(req);
-      const mail = buildEmail(next.email, {
-        candidateName: app.full_name,
-        jobTitle: app.job_title,
-        company: app.company,
-        matchScore: next.email === 'round1_pass' || next.email === 'round1_fail' ? app.cv_match_score : null,
-        missing: app.cv_required_missing || [],
-        finalResult: next.finalResult,
-        note,
-        scheduleUrl: `/lich-phong-van/${app.id}`,
-        accountEmail: account?.email || undefined,
-        origin
-      });
-      try {
-        await base44.asServiceRole.integrations.Core.SendEmail({ to: app.email, subject: mail.subject, html: mail.html });
-      } catch (e) {}
+      // SendEmail chỉ tới được người đã có tài khoản trong app → tạo/mời tài khoản trước khi gửi
+      const ensured = await ensureCandidateUser(base44, app.email);
+      if (!ensured.registered) {
+        emailError = ensured.error || 'Chưa gửi được email cho ứng viên';
+      } else {
+        const origin = appOrigin(req);
+        const mail = buildEmail(next.email, {
+          candidateName: app.full_name,
+          jobTitle: app.job_title,
+          company: app.company,
+          matchScore: next.email === 'round1_pass' || next.email === 'round1_fail' ? app.cv_match_score : null,
+          missing: app.cv_required_missing || [],
+          finalResult: next.finalResult,
+          note,
+          scheduleUrl: `/lich-phong-van/${app.id}`,
+          accountEmail: account?.email || normalizeEmail(app.email) || undefined,
+          origin
+        });
+        try {
+          await base44.asServiceRole.integrations.Core.SendEmail({ to: normalizeEmail(app.email)!, subject: mail.subject, html: mail.html });
+          emailSent = true;
+        } catch (e: any) {
+          emailError = e?.message || 'Không gửi được email cho ứng viên';
+        }
+      }
     }
 
-    return Response.json({ ok: true, status: next.status, application: updated });
+    return Response.json({ ok: true, status: next.status, application: updated, email_sent: emailSent, email_error: emailError || undefined });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
