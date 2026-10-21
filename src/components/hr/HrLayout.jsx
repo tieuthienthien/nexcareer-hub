@@ -1,14 +1,16 @@
 import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Building2, ArrowLeft, LogOut, LayoutDashboard, FileText, Users, MessageCircle, GitCompare, MessageSquare } from "lucide-react";
+import { Building2, ArrowLeft, LogOut, LayoutDashboard, FileText, Users, MessageCircle, GitCompare, MessageSquare, Sparkles, CalendarClock } from "lucide-react";
 import { Image } from "@/components/ui/image";
 import StarRainClick from "@/components/StarRainClick";
 
 const hrNav = [
   { label: "Tổng quan", path: "/hr-studio", icon: LayoutDashboard, end: true },
   { label: "Việc làm", path: "/hr-studio/jobs", icon: FileText },
+  { label: "Tạo JD", path: "/hr-studio/jd", icon: Sparkles },
   { label: "Ứng viên", path: "/hr-studio/applications", icon: Users },
+  { label: "Lịch phỏng vấn", path: "/hr-studio/schedule", icon: CalendarClock },
   { label: "So sánh", path: "/hr-studio/compare", icon: GitCompare },
   { label: "Chatbot", path: "/hr-studio/chatbot", icon: MessageCircle },
   { label: "Phản hồi", path: "/hr-studio/feedback", icon: MessageSquare },

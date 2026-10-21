@@ -1,0 +1,176 @@
+{
+  "name": "ExamAttempt",
+  "type": "object",
+  "properties": {
+    "application_id": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "candidate_id": {
+      "type": "string"
+    },
+    "candidate_name": {
+      "type": "string"
+    },
+    "candidate_email": {
+      "type": "string"
+    },
+    "group": {
+      "type": "string"
+    },
+    "duration_min": {
+      "type": "number",
+      "default": 60
+    },
+    "questions": {
+      "type": "array",
+      "description": "B\u1ea3n ch\u1ee5p \u0111\u1ec1 thi \u0111\u00e3 giao cho \u1ee9ng vi\u00ean",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "type": "string"
+          },
+          "order": {
+            "type": "number"
+          },
+          "difficulty": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "media_type": {
+            "type": "string"
+          },
+          "media_url": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "points": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "answers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "graded": {
+      "type": "array",
+      "description": "K\u1ebft qu\u1ea3 ch\u1ea5m t\u1eebng c\u00e2u",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          },
+          "correct": {
+            "type": "string"
+          },
+          "ok": {
+            "type": "boolean"
+          },
+          "points": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          },
+          "feedback": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "submitted_at": {
+      "type": "string"
+    },
+    "auto_submitted": {
+      "type": "boolean",
+      "default": false
+    },
+    "score": {
+      "type": "number",
+      "description": "\u0110i\u1ec3m AI t\u1ed5ng h\u1ee3p tr\u00ean thang 100"
+    },
+    "ai_analysis": {
+      "type": "string"
+    },
+    "auto_score": {
+      "type": "number",
+      "description": "\u0110i\u1ec3m ph\u1ea7n tr\u1eafc nghi\u1ec7m (m\u00e1y ch\u1ea5m)"
+    }
+  },
+  "required": [
+    "application_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.candidate_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

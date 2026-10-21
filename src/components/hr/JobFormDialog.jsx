@@ -14,6 +14,7 @@ const empty = {
   salary_min: "", salary_max: "", salary_visible: true, category: "", experience_level: "mid",
   description: "", requirements: "", benefits: "", skillsText: "", vacancy: 1, deadline: "",
   status: "published", featured: false,
+  exam_group: "lap-trinh", exam_question_count: 10, exam_duration_min: 60,
   test_type: "none", test_duration_min: 15, test_prompt: "", test_char_limit: 2000,
   test_language: "", test_starter_code: "", interviewQuestionsText: "",
 };
@@ -34,6 +35,9 @@ export default function JobFormDialog({ job, open, onOpenChange, onSaved }) {
         salary_max: job.salary_max ?? "",
         skillsText: (job.skills || []).join(", "),
         deadline: job.deadline ? job.deadline.slice(0, 10) : "",
+        exam_group: job.exam_group || "lap-trinh",
+        exam_question_count: job.exam_question_count || 10,
+        exam_duration_min: job.exam_duration_min || 60,
         test_type: job.test_type || "none",
         test_duration_min: job.test_duration_min || 15,
         test_prompt: job.test_prompt || "",
@@ -65,6 +69,8 @@ export default function JobFormDialog({ job, open, onOpenChange, onSaved }) {
         skills: form.skillsText.split(",").map((s) => s.trim()).filter(Boolean),
         vacancy: Number(form.vacancy) || 1, deadline: form.deadline || null,
         status: form.status, featured: form.featured,
+        exam_group: form.exam_group, exam_question_count: Number(form.exam_question_count) || 10,
+        exam_duration_min: Math.min(60, Number(form.exam_duration_min) || 60),
         test_type: form.test_type, test_duration_min: Number(form.test_duration_min) || 15,
         test_prompt: form.test_prompt, test_char_limit: Number(form.test_char_limit) || 2000,
         test_language: form.test_language, test_starter_code: form.test_starter_code,
@@ -143,34 +149,29 @@ export default function JobFormDialog({ job, open, onOpenChange, onSaved }) {
           <div className="space-y-2 sm:col-span-2"><Label>Quyền lợi</Label><Textarea rows={3} value={form.benefits} onChange={(e) => set("benefits", e.target.value)} /></div>
 
           <div className="sm:col-span-2 mt-2 border-t border-border pt-4">
-            <h3 className="font-heading text-sm font-700">Cấu hình vòng 2 — Bài thi</h3>
+            <h3 className="font-heading text-sm font-700">Cấu hình vòng 2 — Bài thi online</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Đề lấy từ ngân hàng đề theo nhóm, độ khó tăng dần, tổng thời gian tối đa 60 phút.</p>
             <div className="mt-3 grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
-                <Label>Loại bài</Label>
-                <Select value={form.test_type} onValueChange={(v) => set("test_type", v)}>
+                <Label>Nhóm đề</Label>
+                <Select value={form.exam_group} onValueChange={(v) => set("exam_group", v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Không có bài thi</SelectItem>
-                    <SelectItem value="situational">Tình huống</SelectItem>
-                    <SelectItem value="technical">Kỹ thuật (code)</SelectItem>
+                    <SelectItem value="lap-trinh">Lập trình</SelectItem>
+                    <SelectItem value="ux-ui">UX/UI</SelectItem>
+                    <SelectItem value="iot">IoT</SelectItem>
+                    <SelectItem value="hr">HR</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2"><Label>Thời gian (phút)</Label><Input type="number" value={form.test_duration_min} onChange={(e) => set("test_duration_min", e.target.value)} /></div>
-              {form.test_type === "situational" && <div className="space-y-2"><Label>Giới hạn ký tự</Label><Input type="number" value={form.test_char_limit} onChange={(e) => set("test_char_limit", e.target.value)} /></div>}
-              {form.test_type === "technical" && <div className="space-y-2"><Label>Ngôn ngữ code</Label><Input value={form.test_language} onChange={(e) => set("test_language", e.target.value)} placeholder="javascript, python..." /></div>}
+              <div className="space-y-2"><Label>Số câu hỏi</Label><Input type="number" min={1} max={30} value={form.exam_question_count} onChange={(e) => set("exam_question_count", e.target.value)} /></div>
+              <div className="space-y-2"><Label>Thời gian (phút, tối đa 60)</Label><Input type="number" min={5} max={60} value={form.exam_duration_min} onChange={(e) => set("exam_duration_min", e.target.value)} /></div>
             </div>
-            {form.test_type !== "none" && (
-              <>
-                <div className="mt-3 space-y-2"><Label>Đề bài / kịch bản tình huống</Label><Textarea rows={4} value={form.test_prompt} onChange={(e) => set("test_prompt", e.target.value)} placeholder="Mô tả đề bài hoặc tình huống cho ứng viên..." /></div>
-                {form.test_type === "technical" && <div className="mt-3 space-y-2"><Label>Code mẫu (nếu có)</Label><Textarea rows={4} value={form.test_starter_code} onChange={(e) => set("test_starter_code", e.target.value)} className="font-mono text-sm" placeholder="// code khởi tạo..." /></div>}
-              </>
-            )}
           </div>
 
           <div className="sm:col-span-2 border-t border-border pt-4">
-            <h3 className="font-heading text-sm font-700">Cấu hình vòng 3 — Phỏng vấn video</h3>
-            <div className="mt-3 space-y-2"><Label>Câu hỏi phỏng vấn (mỗi câu 1 dòng)</Label><Textarea rows={4} value={form.interviewQuestionsText} onChange={(e) => set("interviewQuestionsText", e.target.value)} placeholder={"Giới thiệu bản thân?\nDự án khó nhất bạn từng làm?"} /></div>
+            <h3 className="font-heading text-sm font-700">Vòng 3 — Đặt lịch phỏng vấn</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Ứng viên đậu vòng 2 sẽ tự chọn khung giờ trong HR Studio → Lịch phỏng vấn.</p>
           </div>
         </div>
         <DialogFooter>

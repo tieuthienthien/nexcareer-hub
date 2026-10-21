@@ -95,7 +95,9 @@
         "test_passed",
         "test_rejected",
         "interview_invited",
+        "scheduled",
         "interview_submitted",
+        "final_review",
         "hired",
         "rejected"
       ],
@@ -105,9 +107,13 @@
       "type": "string",
       "description": "Ghi ch\u00fa n\u1ed9i b\u1ed9 c\u1ee7a HR"
     },
+    "confirmation_sent_at": {
+      "type": "string",
+      "description": "Th\u1eddi \u0111i\u1ec3m g\u1eedi email x\u00e1c nh\u1eadn \u0111\u00e3 nh\u1eadn h\u1ed3 s\u01a1"
+    },
     "cv_match_score": {
       "type": "number",
-      "description": "\u0110i\u1ec3m ph\u00f9 h\u1ee3p CV theo AI (0-100)"
+      "description": "\u0110i\u1ec3m ph\u00f9 h\u1ee3p CV theo barem (0-100)"
     },
     "cv_ai_analysis": {
       "type": "string",
@@ -125,13 +131,79 @@
       "type": "string",
       "description": "T\u00edn hi\u1ec7u ch\u1ea5t l\u01b0\u1ee3ng / \u0111\u00e1nh gi\u00e1 t\u00ednh x\u00e1c th\u1ef1c c\u1ee7a CV"
     },
+    "cv_advice": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "reject",
+        "borderline"
+      ],
+      "description": "\u0110\u1ec1 xu\u1ea5t c\u1ee7a AI (HR quy\u1ebft \u0111\u1ecbnh cu\u1ed1i)"
+    },
+    "cv_rubric": {
+      "type": "array",
+      "description": "B\u1ea3ng \u0111\u1ed1i chi\u1ebfu nh\u00e3n barem v\u1edbi CV",
+      "items": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "band": {
+            "type": "string"
+          },
+          "requirement": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "number"
+          },
+          "matched": {
+            "type": "boolean"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "cv_required_missing": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Nh\u00e3n b\u1eaft bu\u1ed9c ch\u01b0a \u0111\u00e1p \u1ee9ng"
+    },
+    "cv_certificates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Ch\u1ee9ng ch\u1ec9 h\u1ee3p l\u1ec7 ghi nh\u1eadn \u0111\u01b0\u1ee3c, g\u1ed3m ch\u1ee9ng ch\u1ec9 do Nexora c\u1ea5p"
+    },
     "hr_decision_reason": {
       "type": "string",
       "description": "L\u00fd do HR duy\u1ec7t/t\u1eeb ch\u1ed1i \u1edf v\u00f2ng 1"
     },
+    "round1_decided_at": {
+      "type": "string"
+    },
+    "round2_decided_at": {
+      "type": "string"
+    },
+    "exam_attempt_id": {
+      "type": "string",
+      "description": "B\u00e0i thi v\u00f2ng 2 c\u1ee7a \u1ee9ng vi\u00ean"
+    },
     "test_answer": {
       "type": "string",
-      "description": "B\u00e0i l\u00e0m v\u00f2ng 2 (text/code)"
+      "description": "B\u00e0i l\u00e0m v\u00f2ng 2 d\u1ea1ng v\u0103n b\u1ea3n (c\u1ea5u h\u00ecnh c\u0169)"
     },
     "test_started_at": {
       "type": "string",
@@ -153,9 +225,16 @@
       "type": "string",
       "description": "Nh\u1eadn x\u00e9t AI v\u00f2ng thi"
     },
+    "interview_booking_id": {
+      "type": "string"
+    },
+    "interview_at": {
+      "type": "string",
+      "description": "Th\u1eddi \u0111i\u1ec3m ph\u1ecfng v\u1ea5n \u0111\u00e3 \u0111\u1eb7t (ISO)"
+    },
     "interview_submitted_at": {
       "type": "string",
-      "description": "Th\u1eddi \u0111i\u1ec3m ho\u00e0n th\u00e0nh ph\u1ecfng v\u1ea5n (ISO)"
+      "description": "Th\u1eddi \u0111i\u1ec3m ho\u00e0n t\u1ea5t ph\u1ecfng v\u1ea5n (ISO)"
     },
     "interview_ai_analysis": {
       "type": "string",
@@ -165,9 +244,30 @@
       "type": "number",
       "description": "\u0110i\u1ec3m AI ph\u1ecfng v\u1ea5n (0-100)"
     },
+    "final_result": {
+      "type": "string",
+      "enum": [
+        "hired",
+        "rejected",
+        "review"
+      ],
+      "description": "K\u1ebft qu\u1ea3 cu\u1ed1i sau ph\u1ecfng v\u1ea5n"
+    },
+    "final_result_note": {
+      "type": "string",
+      "description": "Ghi ch\u00fa k\u1ebft qu\u1ea3 cu\u1ed1i"
+    },
     "final_notes": {
       "type": "string",
       "description": "Ghi ch\u00fa quy\u1ebft \u0111\u1ecbnh cu\u1ed1i c\u1ee7a h\u1ed9i \u0111\u1ed3ng"
+    },
+    "schedule_nudge_sent_at": {
+      "type": "string",
+      "description": "\u0110\u00e3 nh\u1eafc \u1ee9ng vi\u00ean ch\u1ecdn l\u1ecbch ph\u1ecfng v\u1ea5n"
+    },
+    "schedule_hr_alerted_at": {
+      "type": "string",
+      "description": "\u0110\u00e3 b\u00e1o HR v\u1ec1 h\u1ed3 s\u01a1 qu\u00e1 h\u1ea1n ch\u1ecdn l\u1ecbch"
     }
   },
   "required": [

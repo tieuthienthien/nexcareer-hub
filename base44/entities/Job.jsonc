@@ -118,6 +118,206 @@
       "type": "string",
       "description": "Ngu\u1ed3n \u0111\u1ed3ng b\u1ed9 c\u1ee7a tin tuy\u1ec3n d\u1ee5ng (VD: topcvxme)"
     },
+    "rubric": {
+      "type": "object",
+      "description": "Ph\u1ea7n th\u00f4 c\u1ee7a JD \u2014 c\u0169ng l\u00e0 barem ch\u1ea5m \u0111i\u1ec3m v\u00f2ng 1",
+      "properties": {
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "band": {
+                "type": "string"
+              },
+              "requirement": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "preferred"
+                ],
+                "default": "required"
+              },
+              "weight": {
+                "type": "number",
+                "default": 1
+              }
+            }
+          }
+        },
+        "certificates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "band": {
+                "type": "string"
+              },
+              "requirement": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "preferred"
+                ],
+                "default": "required"
+              },
+              "weight": {
+                "type": "number",
+                "default": 1
+              }
+            }
+          }
+        },
+        "experience": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "band": {
+                "type": "string"
+              },
+              "requirement": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "preferred"
+                ],
+                "default": "required"
+              },
+              "weight": {
+                "type": "number",
+                "default": 1
+              }
+            }
+          }
+        },
+        "level": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "band": {
+                "type": "string"
+              },
+              "requirement": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "preferred"
+                ],
+                "default": "required"
+              },
+              "weight": {
+                "type": "number",
+                "default": 1
+              }
+            }
+          }
+        },
+        "work_type": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "band": {
+                "type": "string"
+              },
+              "requirement": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "preferred"
+                ],
+                "default": "required"
+              },
+              "weight": {
+                "type": "number",
+                "default": 1
+              }
+            }
+          }
+        },
+        "salary": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "band": {
+                "type": "string"
+              },
+              "requirement": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "preferred"
+                ],
+                "default": "required"
+              },
+              "weight": {
+                "type": "number",
+                "default": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "jd_generated": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "requirements": {
+          "type": "string"
+        },
+        "benefits": {
+          "type": "string"
+        },
+        "generated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "exam_group": {
+      "type": "string",
+      "enum": [
+        "lap-trinh",
+        "ux-ui",
+        "iot",
+        "hr"
+      ],
+      "default": "lap-trinh",
+      "description": "Nh\u00f3m \u0111\u1ec1 thi v\u00f2ng 2"
+    },
+    "exam_question_count": {
+      "type": "number",
+      "default": 10,
+      "description": "S\u1ed1 c\u00e2u h\u1ecfi v\u00f2ng 2"
+    },
+    "exam_duration_min": {
+      "type": "number",
+      "default": 60,
+      "description": "Th\u1eddi gian l\u00e0m b\u00e0i v\u00f2ng 2 (t\u1ed1i \u0111a 60 ph\u00fat)"
+    },
     "test_type": {
       "type": "string",
       "enum": [
@@ -126,16 +326,16 @@
         "technical"
       ],
       "default": "none",
-      "description": "Lo\u1ea1i b\u00e0i thi v\u00f2ng 2"
+      "description": "Lo\u1ea1i b\u00e0i thi v\u00f2ng 2 (c\u1ea5u h\u00ecnh c\u0169)"
     },
     "test_duration_min": {
       "type": "number",
       "default": 15,
-      "description": "Th\u1eddi gian l\u00e0m b\u00e0i thi (ph\u00fat)"
+      "description": "Th\u1eddi gian l\u00e0m b\u00e0i thi (ph\u00fat, c\u1ea5u h\u00ecnh c\u0169)"
     },
     "test_prompt": {
       "type": "string",
-      "description": "\u0110\u1ec1 b\u00e0i / k\u1ecbch b\u1ea3n t\u00ecnh hu\u1ed1ng v\u00f2ng 2"
+      "description": "\u0110\u1ec1 b\u00e0i / k\u1ecbch b\u1ea3n t\u00ecnh hu\u1ed1ng v\u00f2ng 2 (c\u1ea5u h\u00ecnh c\u0169)"
     },
     "test_char_limit": {
       "type": "number",

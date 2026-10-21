@@ -1,0 +1,93 @@
+{
+  "name": "InterviewSlot",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "description": "V\u1ecb tr\u00ed tuy\u1ec3n d\u1ee5ng"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "description": "Ng\u00e0y ph\u1ecfng v\u1ea5n (YYYY-MM-DD)"
+    },
+    "start_time": {
+      "type": "string",
+      "description": "Gi\u1edd b\u1eaft \u0111\u1ea7u (HH:mm)"
+    },
+    "duration_min": {
+      "type": "number",
+      "default": 45
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "online",
+        "onsite"
+      ],
+      "default": "online"
+    },
+    "location": {
+      "type": "string",
+      "description": "\u0110\u1ecba \u0111i\u1ec3m (n\u1ebfu ph\u1ecfng v\u1ea5n t\u1ea1i v\u0103n ph\u00f2ng)"
+    },
+    "meeting_link": {
+      "type": "string",
+      "description": "Link h\u1ecdp (n\u1ebfu ph\u1ecfng v\u1ea5n online)"
+    },
+    "interviewer_name": {
+      "type": "string"
+    },
+    "interviewer_email": {
+      "type": "string"
+    },
+    "max_candidates": {
+      "type": "number",
+      "default": 1
+    },
+    "booked_count": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "closed"
+      ],
+      "default": "open"
+    },
+    "note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id",
+    "date",
+    "start_time"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

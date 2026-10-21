@@ -20,18 +20,21 @@ export const experienceLabel = {
   manager: "Manager",
 };
 
+// Quy trình 2 vòng + đặt lịch phỏng vấn
 export const applicationStatusLabel = {
-  cv_screening: "Đang sàng lọc CV",
-  cv_passed: "Đạt sàng lọc CV",
-  cv_rejected: "Trượt sàng lọc CV",
-  test_invited: "Mời làm bài thi",
-  test_submitted: "Đã nộp bài thi",
-  test_passed: "Đạt bài thi",
-  test_rejected: "Trượt bài thi",
-  interview_invited: "Mời phỏng vấn",
+  cv_screening: "Chờ chấm CV",
+  cv_passed: "Đậu vòng 1",
+  cv_rejected: "Rớt vòng 1",
+  test_invited: "Chờ làm bài thi",
+  test_submitted: "Đang chờ chấm",
+  test_passed: "Đậu vòng 2 · Chờ chọn lịch",
+  test_rejected: "Rớt vòng 2",
+  interview_invited: "Chờ chọn lịch",
+  scheduled: "Đã đặt lịch phỏng vấn",
   interview_submitted: "Đã phỏng vấn",
-  hired: "Đã trúng tuyển",
-  rejected: "Không đạt",
+  final_review: "Cần xem xét thêm",
+  hired: "Nhận việc",
+  rejected: "Không nhận",
 };
 
 export const applicationStatusColor = {
@@ -43,16 +46,33 @@ export const applicationStatusColor = {
   test_passed: "bg-emerald-100 text-emerald-700",
   test_rejected: "bg-rose-100 text-rose-700",
   interview_invited: "bg-violet-100 text-violet-700",
-  interview_submitted: "bg-indigo-100 text-indigo-700",
+  scheduled: "bg-indigo-100 text-indigo-700",
+  interview_submitted: "bg-cyan-100 text-cyan-700",
+  final_review: "bg-amber-100 text-amber-800",
   hired: "bg-primary/15 text-primary",
   rejected: "bg-rose-100 text-rose-700",
 };
 
-// Quy ước 3 vòng. Mỗi status -> { round, state }
+export const STATUS_OPTIONS = [
+  { value: "all", label: "Tất cả trạng thái" },
+  { value: "cv_screening", label: "Chờ chấm CV" },
+  { value: "cv_passed", label: "Đậu vòng 1" },
+  { value: "cv_rejected", label: "Rớt vòng 1" },
+  { value: "test_invited", label: "Chờ làm bài thi" },
+  { value: "test_submitted", label: "Đang chờ chấm" },
+  { value: "test_passed", label: "Đậu vòng 2 · Chờ chọn lịch" },
+  { value: "test_rejected", label: "Rớt vòng 2" },
+  { value: "scheduled", label: "Đã đặt lịch" },
+  { value: "interview_submitted", label: "Đã phỏng vấn" },
+  { value: "final_review", label: "Cần xem xét thêm" },
+  { value: "hired", label: "Nhận việc" },
+  { value: "rejected", label: "Không nhận" },
+];
+
 export const ROUNDS = [
-  { id: 1, title: "Sàng lọc hồ sơ", desc: "AI quét CV & HR duyệt" },
-  { id: 2, title: "Bài thi kỹ thuật / tình huống", desc: "Làm bài trong phòng thi giới hạn" },
-  { id: 3, title: "Phỏng vấn video AI", desc: "Ghi hình & hội đồng đánh giá" },
+  { id: 1, title: "Vòng 1 — Chấm CV tự động", desc: "AI đối chiếu barem, HR quyết định" },
+  { id: 2, title: "Vòng 2 — Bài thi online", desc: "Tối đa 60 phút, tự nộp khi hết giờ" },
+  { id: 3, title: "Đặt lịch & phỏng vấn", desc: "Ứng viên chọn khung giờ, HR chốt kết quả" },
 ];
 
 export function getStageInfo(status) {
@@ -65,7 +85,9 @@ export function getStageInfo(status) {
     test_passed: { round: 2, state: "passed" },
     test_rejected: { round: 2, state: "rejected" },
     interview_invited: { round: 3, state: "active" },
+    scheduled: { round: 3, state: "active" },
     interview_submitted: { round: 3, state: "active" },
+    final_review: { round: 3, state: "active" },
     hired: { round: 3, state: "passed" },
     rejected: { round: 3, state: "rejected" },
   };

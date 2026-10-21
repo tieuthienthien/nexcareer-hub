@@ -17,6 +17,9 @@ import Contact from '@/pages/Contact';
 import HrDashboard from '@/pages/hr/HrDashboard';
 import HrJobs from '@/pages/hr/HrJobs';
 import HrApplications from '@/pages/hr/HrApplications';
+import HrJdBuilder from '@/pages/hr/HrJdBuilder';
+import HrSchedule from '@/pages/hr/HrSchedule';
+import InterviewSchedule from '@/pages/InterviewSchedule';
 import HrChatbot from '@/pages/hr/HrChatbot';
 import HrCompare from '@/pages/hr/HrCompare';
 import HrFeedback from '@/pages/hr/HrFeedback';
@@ -77,6 +80,7 @@ const AuthenticatedApp = () => {
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/candidate-room" element={<CandidateRoom />} />
           <Route path="/chung-chi" element={<MyCertificates />} />
+          <Route path="/lich-phong-van/:applicationId" element={<InterviewSchedule />} />
         </Route>
       </Route>
 
@@ -89,7 +93,9 @@ const AuthenticatedApp = () => {
         <Route path="/hr-studio" element={<HrLayout />}>
           <Route index element={<HrDashboard />} />
           <Route path="jobs" element={<HrJobs />} />
+          <Route path="jd" element={<HrJdBuilder />} />
           <Route path="applications" element={<HrApplications />} />
+          <Route path="schedule" element={<HrSchedule />} />
           <Route path="compare" element={<HrCompare />} />
           <Route path="chatbot" element={<HrChatbot />} />
           <Route path="feedback" element={<HrFeedback />} />

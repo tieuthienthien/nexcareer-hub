@@ -1,231 +1,244 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ShieldCheck, Clock, AlertTriangle, Lock, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Loader2, Clock, AlertTriangle, Lock, CheckCircle2, ArrowLeft, ChevronLeft, ChevronRight, Send } from "lucide-react";
+import ExamNavigator from "@/components/exam/ExamNavigator";
+import ExamQuestionPanel from "@/components/exam/ExamQuestionPanel";
+import ExamAnswerArea from "@/components/exam/ExamAnswerArea";
 
 export default function AssessmentTest() {
   const { applicationId } = useParams();
-  const navigate = useNavigate();
   const [app, setApp] = useState(null);
-  const [job, setJob] = useState(null);
   const [phase, setPhase] = useState("loading"); // loading | intro | running | submitted | error
   const [error, setError] = useState("");
-  const [config, setConfig] = useState(null);
-  const [answer, setAnswer] = useState("");
+  const [questions, setQuestions] = useState([]);
+  const [answers, setAnswers] = useState({});
+  const [current, setCurrent] = useState(0);
+  const [duration, setDuration] = useState(60);
   const [remaining, setRemaining] = useState(0);
-  const [warnings, setWarnings] = useState(0);
-  const [fullscreenOn, setFullscreenOn] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [auto, setAuto] = useState(false);
-  const [score, setScore] = useState(null);
+  const [result, setResult] = useState(null);
+
   const endAtRef = useRef(0);
   const submittedRef = useRef(false);
-  const answerRef = useRef("");
+  const answersRef = useRef({});
+
+  useEffect(() => { answersRef.current = answers; }, [answers]);
 
   useEffect(() => {
     (async () => {
       try {
         const a = await base44.entities.Application.get(applicationId);
         setApp(a);
-        if (a.status !== "test_invited") { setPhase("error"); setError("Bạn chưa được mời làm bài thi hoặc đã nộp."); return; }
-        const j = await base44.entities.Job.get(a.job_id);
-        setJob(j);
-        if (j?.test_starter_code) { setAnswer(j.test_starter_code); answerRef.current = j.test_starter_code; }
+        if (a.exam_attempt_id) {
+          try {
+            const attempt = await base44.entities.ExamAttempt.get(a.exam_attempt_id);
+            if (attempt?.submitted_at) {
+              setResult({ score: attempt.score, analysis: attempt.ai_analysis, auto: attempt.auto_submitted });
+              setPhase("submitted");
+              return;
+            }
+            if (attempt) {
+              setQuestions(attempt.questions || []);
+              setDuration(attempt.duration_min || 60);
+              const map = {};
+              for (const ans of attempt.answers || []) map[ans.question_id] = ans.answer || "";
+              setAnswers(map);
+              endAtRef.current = new Date(attempt.started_at).getTime() + (attempt.duration_min || 60) * 60000;
+              setPhase("running");
+              return;
+            }
+          } catch (e) {}
+        }
+        if (!["cv_passed", "test_invited"].includes(a.status)) {
+          setError("Bạn chưa được mời làm bài thi vòng 2 hoặc đã hoàn thành bài thi.");
+          setPhase("error");
+          return;
+        }
         setPhase("intro");
       } catch (e) {
-        setPhase("error"); setError(e.message || "Không tải được bài thi.");
+        setError(e.response?.data?.error || e.message || "Không tải được bài thi.");
+        setPhase("error");
       }
     })();
   }, [applicationId]);
 
-  // Kiosk guards while running
-  useEffect(() => {
-    if (phase !== "running") return;
-    const block = (e) => { e.preventDefault(); setWarnings((w) => w + 1); };
-    const onVis = () => { if (document.hidden) setWarnings((w) => w + 1); };
-    const onFs = () => setFullscreenOn(!!document.fullscreenElement);
-    document.addEventListener("copy", block);
-    document.addEventListener("paste", block);
-    document.addEventListener("cut", block);
-    document.addEventListener("contextmenu", block);
-    document.addEventListener("visibilitychange", onVis);
-    document.addEventListener("fullscreenchange", onFs);
-    return () => {
-      document.removeEventListener("copy", block);
-      document.removeEventListener("paste", block);
-      document.removeEventListener("cut", block);
-      document.removeEventListener("contextmenu", block);
-      document.removeEventListener("visibilitychange", onVis);
-      document.removeEventListener("fullscreenchange", onFs);
-    };
-  }, [phase]);
+  const submitExam = async (isAuto = false) => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const payload = questions.map((q) => ({ question_id: q.question_id, answer: answersRef.current[q.question_id] || "" }));
+      const res = await base44.functions.invoke("submitExam", { application_id: applicationId, answers: payload });
+      const data = res.data || res;
+      if (data.error) throw new Error(data.error);
+      setResult({ score: data.score, analysis: data.analysis, auto: data.auto_submitted || isAuto });
+      setAuto(!!(data.auto_submitted || isAuto));
+      setPhase("submitted");
+    } catch (e) {
+      setError(e.response?.data?.error || e.message || "Nộp bài thất bại.");
+      submittedRef.current = false;
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-  // Timer
+  const doAutoSubmit = () => {
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+    submitExam(true);
+  };
+
+  // Đồng hồ đếm ngược + tự nộp khi hết giờ
   useEffect(() => {
     if (phase !== "running") return;
     const tick = () => {
       const rem = Math.max(0, Math.round((endAtRef.current - Date.now()) / 1000));
       setRemaining(rem);
-      if (rem <= 0 && !submittedRef.current) {
-        submittedRef.current = true;
-        setAuto(true);
-        doSubmit(true);
-      }
+      if (rem <= 0) doAutoSubmit();
     };
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [phase]);
+  }, [phase, questions.length]);
 
   const start = async () => {
+    setStarting(true);
+    setError("");
     try {
-      const el = document.documentElement;
-      if (el.requestFullscreen) { try { await el.requestFullscreen(); } catch (e) {} }
-      const res = await base44.functions.invoke("startTest", { application_id: applicationId });
+      const res = await base44.functions.invoke("startExam", { application_id: applicationId });
       const data = res.data || res;
-      setConfig(data);
-      endAtRef.current = new Date(data.test_started_at).getTime() + (data.duration_min || 15) * 60 * 1000;
+      if (data.error) throw new Error(data.error);
+      setQuestions(data.questions || []);
+      setDuration(data.duration_min || 60);
+      endAtRef.current = new Date(data.started_at).getTime() + (data.duration_min || 60) * 60000;
+      const map = {};
+      for (const ans of data.answers || []) map[ans.question_id] = ans.answer || "";
+      setAnswers(map);
+      setCurrent(0);
+      submittedRef.current = false;
       setPhase("running");
     } catch (e) {
       setError(e.response?.data?.error || e.message || "Không bắt đầu được bài thi.");
-      setPhase("error");
-    }
-  };
-
-  const doSubmit = async (isAuto = false) => {
-    if (submitting) return;
-    setSubmitting(true);
-    try {
-      const res = await base44.functions.invoke("submitTest", { application_id: applicationId, answer: answerRef.current });
-      const data = res.data || res;
-      setAuto(!!data.auto_submitted || isAuto);
-      setScore(data.score);
-      setPhase("submitted");
-      try { if (document.fullscreenElement) await document.exitFullscreen(); } catch (e) {}
-    } catch (e) {
-      setError(e.response?.data?.error || e.message || "Nộp bài thất bại.");
-      setSubmitting(false);
-      if (!isAuto) submittedRef.current = false;
+    } finally {
+      setStarting(false);
     }
   };
 
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
   const ss = String(remaining % 60).padStart(2, "0");
-  const charLimit = config?.test_char_limit || job?.test_char_limit || 2000;
-  const isTechnical = (config?.test_type || job?.test_type) === "technical";
-  const prompt = config?.test_prompt || job?.test_prompt;
+  const answeredCount = questions.filter((q) => String(answers[q.question_id] || "").trim()).length;
 
-  if (phase === "loading") return <Center><Loader2 className="h-8 w-8 animate-spin text-primary" /></Center>;
+  if (phase === "loading") {
+    return <div className="grid min-h-[70vh] place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  }
 
-  if (phase === "error") return (
-    <Center>
-      <AlertTriangle className="h-10 w-10 text-rose-500" />
-      <h2 className="mt-4 text-lg font-700">{error}</h2>
-      <Button asChild className="mt-5"><Link to="/candidate-room">Về Dashboard</Link></Button>
-    </Center>
-  );
-
-  if (phase === "submitted") return (
-    <Center>
-      <div className="grid h-16 w-16 place-items-center rounded-full bg-emerald-100 text-emerald-600"><CheckCircle2 className="h-9 w-9" /></div>
-      <h2 className="mt-5 text-xl font-700">Đã nộp bài thành công!</h2>
-      <p className="mt-2 text-sm text-muted-foreground">{auto ? "Hết giờ — hệ thống tự động nộp bài." : "Bài làm đã được ghi nhận."}</p>
-      {score != null && <p className="mt-1 text-sm">Điểm AI tham khảo: <b>{score}/100</b></p>}
-      <Button asChild className="mt-6"><Link to="/candidate-room">Về Dashboard cá nhân</Link></Button>
-    </Center>
-  );
-
-  if (phase === "intro") return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
-      <Button asChild variant="ghost" size="sm" className="mb-4 gap-2"><Link to="/candidate-room"><ArrowLeft className="h-4 w-4" /> Quay lại</Link></Button>
-      <div className="rounded-3xl border border-border bg-card p-7 shadow-sm">
-        <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-600 text-primary"><Lock className="h-3.5 w-3.5" /> Phòng thi vòng 2</div>
-        <h1 className="mt-4 font-heading text-2xl font-700">{job?.title}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{app?.company}</p>
-
-        <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
-          <Info label="Loại bài" value={job?.test_type === "technical" ? "Kỹ thuật (code)" : "Tình huống"} />
-          <Info label="Thời gian" value={`${job?.test_duration_min || 15} phút`} />
-          <Info label="Hình thức" value="Trực tuyến" />
-          <Info label="Lượt nộp" value="1 lần duy nhất" />
+  if (phase === "error") {
+    return (
+      <div className="grid min-h-[70vh] place-items-center px-4 text-center">
+        <div>
+          <AlertTriangle className="mx-auto h-10 w-10 text-rose-500" />
+          <h2 className="mt-4 max-w-md text-lg font-700">{error}</h2>
+          <Button asChild className="mt-5"><Link to="/candidate-room">Về Candidate Room</Link></Button>
         </div>
-
-        <div className="mt-5 rounded-xl bg-amber-50 p-4 text-sm text-amber-800">
-          <div className="flex items-center gap-2 font-600"><ShieldCheck className="h-4 w-4" /> Quy tắc phòng thi</div>
-          <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>Bài thi chạy ở chế độ toàn màn hình. Hệ thống ghi nhận nếu bạn thoát toàn màn hình, chuyển tab hoặc copy/paste.</li>
-            <li>Đồng hồ được tính theo máy chủ; hết giờ hệ thống tự nộp bài.</li>
-            <li>Sau khi nộp, bạn không thể chỉnh sửa. Trình duyệt không thể ngăn tuyệt đối việc dùng thiết bị khác — vui lòng tự giác.</li>
-          </ul>
-        </div>
-
-        <Button size="lg" className="mt-6 w-full" onClick={start}>Tôi đã hiểu — Bắt đầu làm bài</Button>
       </div>
-    </div>
-  );
+    );
+  }
 
-  // running
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-slate-50">
-      <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3 sm:px-6">
-        <div className="min-w-0">
-          <div className="truncate text-sm font-600">{job?.title} · {app?.company}</div>
-          <div className="text-[11px] text-muted-foreground">{isTechnical ? "Bài kỹ thuật" : "Bài tình huống"}</div>
+  if (phase === "submitted") {
+    return (
+      <div className="grid min-h-[70vh] place-items-center px-4 text-center">
+        <div className="max-w-md">
+          <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-emerald-100 text-emerald-600"><CheckCircle2 className="h-9 w-9" /></div>
+          <h2 className="mt-5 text-xl font-700">Đã nộp bài thành công!</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {result?.auto || auto ? "Hết giờ — hệ thống tự động nộp bài." : "Bài làm đã được ghi nhận."} HR sẽ xem và thông báo kết quả vòng 2 qua email.
+          </p>
+          <Button asChild className="mt-6"><Link to="/candidate-room">Về Candidate Room</Link></Button>
         </div>
-        <div className="flex items-center gap-3">
-          {!fullscreenOn && <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-600 text-amber-700"><AlertTriangle className="h-3 w-3" /> Đã thoát toàn màn hình</span>}
-          {warnings > 0 && <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-600 text-rose-700"><AlertTriangle className="h-3 w-3" /> {warnings} cảnh báo</span>}
-          <div className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-700 ${remaining < 60 ? "bg-rose-100 text-rose-700" : "bg-primary/10 text-primary"}`}><Clock className="h-4 w-4" /> {mm}:{ss}</div>
+      </div>
+    );
+  }
+
+  if (phase === "intro") {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-10">
+        <Button asChild variant="ghost" size="sm" className="mb-4 gap-2"><Link to="/candidate-room"><ArrowLeft className="h-4 w-4" /> Quay lại</Link></Button>
+        <div className="rounded-3xl border border-border bg-card p-7 shadow-sm">
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-600 text-primary"><Lock className="h-3.5 w-3.5" /> Phòng thi vòng 2</div>
+          <h1 className="mt-4 font-heading text-2xl font-700">{app?.job_title}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{app?.company}</p>
+
+          <div className="mt-5 rounded-xl bg-amber-50 p-4 text-sm text-amber-800">
+            <div className="flex items-center gap-2 font-600"><Clock className="h-4 w-4" /> Quy định phòng thi</div>
+            <ul className="mt-2 list-disc space-y-1 pl-5">
+              <li>Bài thi tối đa 60 phút, có đồng hồ đếm ngược và <b>tự động nộp khi hết giờ</b>.</li>
+              <li>Đề gồm trắc nghiệm, câu hỏi ngắn và bài viết code; độ khó tăng dần.</li>
+              <li>Bạn có thể chuyển qua lại giữa các câu bằng thanh điều hướng phía trên.</li>
+              <li>Chỉ được làm 1 lần. Hãy kiểm tra kỹ trước khi bấm nộp.</li>
+            </ul>
+          </div>
+
+          {error && <div className="mt-3 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
+
+          <Button size="lg" className="mt-6 w-full gap-2" onClick={start} disabled={starting}>
+            {starting ? <><Loader2 className="h-4 w-4 animate-spin" /> Đang mở đề...</> : "Bắt đầu làm bài"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const question = questions[current];
+
+  return (
+    <div className="flex min-h-screen flex-col bg-slate-50">
+      <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
+          <div className="min-w-0">
+            <div className="truncate text-sm font-700">{app?.job_title}</div>
+            <div className="text-[11px] text-muted-foreground">Vòng 2 · Bài thi online · {answeredCount}/{questions.length} câu đã trả lời</div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-700 ${remaining < 300 ? "bg-rose-100 text-rose-700" : "bg-primary/10 text-primary"}`}>
+              <Clock className="h-4 w-4" /> {mm}:{ss}
+            </div>
+            <Button size="sm" onClick={() => { submittedRef.current = true; submitExam(false); }} disabled={submitting} className="gap-2">
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Nộp bài
+            </Button>
+          </div>
+        </div>
+        <div className="mx-auto max-w-7xl overflow-x-auto px-4 pb-2 sm:px-6">
+          <ExamNavigator questions={questions} answers={answers} current={current} onSelect={setCurrent} />
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-        <div className="mx-auto max-w-3xl">
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <h2 className="font-heading text-base font-700">Đề bài</h2>
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">{prompt || "Đề bài đang cập nhật."}</p>
-          </div>
-
-          <div className="mt-4 rounded-2xl border border-border bg-card p-5">
-            <div className="flex items-center justify-between">
-              <h2 className="font-heading text-base font-700">{isTechnical ? "Trình soạn code" : "Câu trả lời"}</h2>
-              {!isTechnical && <span className="text-xs text-muted-foreground">{answer.length}/{charLimit} ký tự</span>}
-            </div>
-            <Textarea
-              rows={isTechnical ? 18 : 10}
-              value={answer}
-              onChange={(e) => {
-                if (!isTechnical && e.target.value.length > charLimit) return;
-                setAnswer(e.target.value);
-                answerRef.current = e.target.value;
-              }}
-              placeholder={isTechnical ? "Viết code của bạn vào đây..." : "Nhập câu trả lời..."}
-              className={`mt-3 ${isTechnical ? "font-mono text-sm" : ""}`}
-              onCopy={(e) => e.preventDefault()}
-              onPaste={(e) => e.preventDefault()}
-              onCut={(e) => e.preventDefault()}
-            />
-          </div>
+      <main className="mx-auto grid w-full max-w-7xl flex-1 gap-4 px-4 py-4 sm:px-6 lg:grid-cols-2">
+        <div className="min-h-[420px]">
+          <ExamQuestionPanel question={question} index={current} total={questions.length} />
+        </div>
+        <div className="min-h-[420px]">
+          <ExamAnswerArea
+            question={question}
+            value={answers[question?.question_id] || ""}
+            onChange={(v) => setAnswers((prev) => ({ ...prev, [question.question_id]: v }))}
+          />
         </div>
       </main>
 
-      <footer className="border-t border-border bg-card px-4 py-3 sm:px-6">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <p className="text-xs text-muted-foreground">Sau khi nộp bạn không thể sửa lại.</p>
-          <Button onClick={() => doSubmit(false)} disabled={submitting} className="gap-2">
-            {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Đang nộp...</> : "Nộp bài"}
+      <footer className="sticky bottom-0 border-t border-border bg-card px-4 py-2.5 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <Button variant="outline" size="sm" onClick={() => setCurrent((c) => Math.max(0, c - 1))} disabled={current === 0} className="gap-1.5">
+            <ChevronLeft className="h-4 w-4" /> Câu trước
+          </Button>
+          <span className="text-xs text-muted-foreground">Câu {current + 1}/{questions.length}{question?.difficulty ? ` · ${question.difficulty === "hard" ? "Khó" : question.difficulty === "medium" ? "Trung bình" : "Cơ bản"}` : ""}</span>
+          <Button size="sm" onClick={() => setCurrent((c) => Math.min(questions.length - 1, c + 1))} disabled={current >= questions.length - 1} className="gap-1.5">
+            Câu tiếp <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </footer>
     </div>
   );
-}
-
-function Center({ children }) {
-  return <div className="grid min-h-[70vh] place-items-center px-4 text-center">{children}</div>;
-}
-function Info({ label, value }) {
-  return <div className="rounded-lg bg-muted/40 px-3 py-2"><div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div><div className="text-sm font-600">{value}</div></div>;
 }

@@ -1,0 +1,45 @@
+{
+  "name": "Nh\u1eafc l\u1ecbch ph\u1ecfng v\u1ea5n v\u00e0 h\u1ed3 s\u01a1 qu\u00e1 h\u1ea1n",
+  "description": "M\u1ed7i gi\u1edd ki\u1ec3m tra: nh\u1eafc \u1ee9ng vi\u00ean tr\u01b0\u1edbc 24 gi\u1edd v\u00e0 tr\u01b0\u1edbc 1 gi\u1edd, nh\u1eafc ch\u1ecdn l\u1ecbch sau 3 ng\u00e0y, b\u00e1o HR sau 7 ng\u00e0y",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 * * * *",
+      "one_time_date": null,
+      "timezone": "Asia/Saigon",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "interview_reminders",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "send_reminders": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "interviewReminders",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "G\u1eedi nh\u1eafc l\u1ecbch ph\u1ecfng v\u1ea5n",
+            "description": "Nh\u1eafc 24h/1h, nh\u1eafc ch\u1ecdn l\u1ecbch, b\u00e1o HR"
+          }
+        }
+      }
+    ]
+  }
+}
