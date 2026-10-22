@@ -7,7 +7,35 @@ import { Loader2, Plus, Pencil, Trash2, Lock, Unlock, CalendarDays, Video, MapPi
 import SlotDialog from "@/components/hr/SlotDialog";
 import InterviewCalendar from "@/components/hr/InterviewCalendar";
 import GoogleCalendarCard from "@/components/hr/GoogleCalendarCard";
+import CalendarLinks from "@/components/hr/CalendarLinks";
 import { formatSlot } from "@/lib/interviewUtils";
+
+const bookingEvent = (b) => ({
+  title: `Phỏng vấn: ${b.candidate_name || "Ứng viên"}${b.job_title ? ` — ${b.job_title}` : ""}`,
+  details: [
+    b.candidate_email && `Ứng viên: ${b.candidate_email}`,
+    b.interviewer_name && `Người phỏng vấn: ${b.interviewer_name}`,
+    b.mode === "onsite" ? "Hình thức: Tại văn phòng" : "Hình thức: Online",
+    b.meeting_link && `Link họp: ${b.meeting_link}`,
+  ].filter(Boolean).join("\n"),
+  place: b.mode === "onsite" ? b.location || "" : b.meeting_link || "",
+  date: b.date,
+  time: b.start_time,
+  duration: b.duration_min || 45,
+});
+
+const slotEvent = (s) => ({
+  title: `Phỏng vấn: ${s.job_title || "Nexora Technology"}`,
+  details: [
+    s.interviewer_name && `Người phỏng vấn: ${s.interviewer_name}`,
+    `Khung giờ mở cho ứng viên đặt (${s.max_candidates || 1} chỗ)`,
+    s.mode === "onsite" ? "Hình thức: Tại văn phòng" : "Hình thức: Online",
+  ].filter(Boolean).join("\n"),
+  place: s.mode === "onsite" ? s.location || "" : s.meeting_link || "",
+  date: s.date,
+  time: s.start_time,
+  duration: s.duration_min || 45,
+});
 
 export default function HrSchedule() {
   const [jobs, setJobs] = useState([]);
@@ -158,6 +186,7 @@ export default function HrSchedule() {
                         ) : (
                           <span className="rounded-full bg-muted px-2 py-0.5">Chưa gửi lời mời</span>
                         )}
+                        <CalendarLinks event={bookingEvent(b)} />
                       </div>
                     </div>
                   ))}
@@ -197,6 +226,7 @@ export default function HrSchedule() {
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
+                          <CalendarLinks event={slotEvent(s)} className="mr-1" />
                           <Button size="sm" variant="ghost" disabled={locked} onClick={() => { setEditing(s); setDialogOpen(true); }} className="gap-1.5" title={locked ? "Đã có người đặt — không sửa được" : "Sửa"}>
                             <Pencil className="h-3.5 w-3.5" /> Sửa
                           </Button>
