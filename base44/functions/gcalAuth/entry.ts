@@ -11,7 +11,26 @@ import {
   normalizeEmail,
 } from "../../shared/googleOAuth.ts";
 
+const REDIRECT_PATH = "/hr-studio/schedule";
 const REDIRECT_PATTERN = /^https?:\/\/[^/]+\/hr-studio\/schedule$/;
+
+// Luôn dùng đúng origin người dùng đang mở app, tránh lưu sai Redirect URI.
+function resolveRedirect(req: Request, requested: string, fallback: string) {
+  const clean = String(requested || "").trim();
+  if (REDIRECT_PATTERN.test(clean)) return clean;
+  const origin = req.headers.get("origin") || "";
+  let base = /^https?:\/\//.test(origin) ? origin : "";
+  if (!base) {
+    const referer = req.headers.get("referer") || "";
+    try {
+      base = referer ? new URL(referer).origin : "";
+    } catch {
+      base = "";
+    }
+  }
+  if (/^https?:\/\//.test(base)) return `${base.replace(/\/$/, "")}${REDIRECT_PATH}`;
+  return String(fallback || "").trim();
+}
 
 function statusOf(setting: any, token: any) {
   return {
@@ -42,11 +61,11 @@ export default async function (req: Request): Promise<Response> {
     if (action === "save") {
       const clientId = String(body?.client_id || "").trim();
       const clientSecret = String(body?.client_secret || "").trim() || setting?.google_client_secret || "";
-      const redirectUri = String(body?.redirect_uri || setting?.redirect_uri || "").trim();
+      const redirectUri = resolveRedirect(req, body?.redirect_uri, setting?.redirect_uri || "");
       if (!clientId) return Response.json({ error: "Thiếu Client ID" }, { status: 400 });
       if (!clientSecret) return Response.json({ error: "Thiếu Client Secret" }, { status: 400 });
-      if (!REDIRECT_PATTERN.test(redirectUri)) {
-        return Response.json({ error: "Redirect URI không hợp lệ" }, { status: 400 });
+      if (!redirectUri) {
+        return Response.json({ error: "Không xác định được Redirect URI" }, { status: 400 });
       }
       const saved = await saveSetting(base44, {
         google_client_id: clientId,
@@ -61,8 +80,7 @@ export default async function (req: Request): Promise<Response> {
       if (!setting?.google_client_id || !setting?.google_client_secret) {
         return Response.json({ error: "Chưa lưu Client ID/Secret" }, { status: 400 });
       }
-      const requested = String(body?.redirect_uri || "").trim();
-      const redirectUri = REDIRECT_PATTERN.test(requested) ? requested : setting.redirect_uri;
+      const redirectUri = resolveRedirect(req, body?.redirect_uri, setting.redirect_uri || "");
       if (redirectUri !== setting.redirect_uri) await saveSetting(base44, { redirect_uri: redirectUri });
       const url = buildAuthUrl({
         clientId: setting.google_client_id,

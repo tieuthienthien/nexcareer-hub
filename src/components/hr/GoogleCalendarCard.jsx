@@ -66,6 +66,9 @@ export default function GoogleCalendarCard({ onSynced }) {
     setBusy("callback");
     try {
       await invoke({ action: "callback", code });
+      const status = await invoke({ action: "status" });
+      applyStatus(status);
+      setShowForm(false);
       await loadCalendar();
     } catch (e) {
       setError(e.message || "Không hoàn tất được kết nối Google.");
@@ -174,8 +177,8 @@ export default function GoogleCalendarCard({ onSynced }) {
                 : connected
                   ? `Đang kết nối ${googleEmail} — lịch phỏng vấn được tạo trên lịch của bạn và ứng viên nhận lời mời qua email.`
                   : configured
-                    ? "Đã có Client ID/Secret — bấm kết nối để cấp quyền Google Calendar cho tài khoản HR của bạn."
-                    : "Nhập Google OAuth Client ID/Secret để bật tạo lời mời phỏng vấn trên Google Calendar."}
+                    ? `Đã lưu cấu hình Google (${clientId ? `Client ID …${clientId.slice(-14)}` : "Client ID/Secret"}) — bấm Kết nối Google Calendar để cấp quyền.`
+                    : "Nhập Google OAuth Client ID/Secret một lần để bật tạo lời mời phỏng vấn trên Google Calendar."}
             </p>
           </div>
         </div>
@@ -199,7 +202,7 @@ export default function GoogleCalendarCard({ onSynced }) {
               </Button>
               <Button size="sm" variant="ghost" className="gap-2 text-muted-foreground" onClick={() => setShowForm((v) => !v)} disabled={!!busy}>
                 <Settings2 className="h-3.5 w-3.5" />
-                Client ID/Secret
+                Đổi cấu hình
               </Button>
             </>
           ) : null}
@@ -208,7 +211,7 @@ export default function GoogleCalendarCard({ onSynced }) {
 
       {error && <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800">{error}</div>}
 
-      {(showForm || !configured) && (
+      {!connected && (showForm || !configured) && (
         <GoogleCredentialForm
           clientId={clientId}
           redirectUri={redirectUri}
@@ -218,6 +221,7 @@ export default function GoogleCalendarCard({ onSynced }) {
             setShowForm(false);
           }}
           onCancel={configured ? () => setShowForm(false) : null}
+          onConnect={handleConnect}
         />
       )}
 

@@ -5,14 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Check, Copy, Loader2 } from "lucide-react";
 
-export default function GoogleCredentialForm({ clientId, redirectUri, configured, onSaved, onCancel }) {
+export default function GoogleCredentialForm({ clientId, redirectUri, configured, onSaved, onCancel, onConnect }) {
   const [id, setId] = useState(clientId || "");
   const [secret, setSecret] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const save = async () => {
+  const save = async (connectAfter) => {
     setBusy(true);
     setError("");
     try {
@@ -23,10 +23,11 @@ export default function GoogleCredentialForm({ clientId, redirectUri, configured
         redirect_uri: redirectUri,
       }))?.data || {};
       setSecret("");
+      setBusy(false);
       onSaved?.(data);
+      if (connectAfter) await onConnect?.();
     } catch (e) {
       setError(e.message || "Không lưu được Client ID/Secret.");
-    } finally {
       setBusy(false);
     }
   };
@@ -84,9 +85,9 @@ export default function GoogleCredentialForm({ clientId, redirectUri, configured
       {error && <div className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800">{error}</div>}
 
       <div className="mt-3 flex items-center gap-2">
-        <Button size="sm" onClick={save} disabled={busy}>
+        <Button size="sm" onClick={() => save(!configured)} disabled={busy}>
           {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
-          Lưu cấu hình
+          {configured ? "Lưu thay đổi" : "Lưu & kết nối Google"}
         </Button>
         {configured && onCancel && (
           <Button size="sm" variant="ghost" onClick={onCancel} disabled={busy}>Hủy</Button>
