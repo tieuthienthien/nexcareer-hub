@@ -1,0 +1,46 @@
+{
+  "name": "CalendarSetting",
+  "type": "object",
+  "properties": {
+    "google_client_id": {
+      "type": "string",
+      "description": "Google OAuth Client ID do HR nh\u1eadp"
+    },
+    "google_client_secret": {
+      "type": "string",
+      "description": "Google OAuth Client Secret \u2014 ch\u1ec9 h\u00e0m backend \u0111\u1ecdc, kh\u00f4ng tr\u1ea3 v\u1ec1 giao di\u1ec7n"
+    },
+    "redirect_uri": {
+      "type": "string",
+      "description": "Redirect URI \u0111\u00e3 \u0111\u0103ng k\u00fd tr\u00ean Google Cloud Console"
+    },
+    "updated_by_email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "google_client_id"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

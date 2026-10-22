@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
+import { accessTokenFor } from '../../shared/googleOAuth.ts';
 
-const CONNECTOR_ID = "6ad8a9f25d7949301dc25629";
 const TZ = "Asia/Ho_Chi_Minh";
 const EVENTS_URL = "https://www.googleapis.com/calendar/v3/calendars/primary/events";
 
@@ -109,8 +109,7 @@ export default async function (req: Request): Promise<Response> {
 
     let accessToken = '';
     try {
-      const conn = await base44.asServiceRole.connectors.getCurrentAppUserConnection(CONNECTOR_ID);
-      accessToken = conn?.accessToken || '';
+      accessToken = await accessTokenFor(base44, user.email);
     } catch (e) {
       accessToken = '';
     }

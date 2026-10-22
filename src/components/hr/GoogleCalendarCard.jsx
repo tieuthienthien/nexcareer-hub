@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { CalendarCheck, CalendarClock, CheckCircle2, Loader2, RefreshCw, Unlink } from "lucide-react";
+import { CalendarCheck, CalendarClock, CheckCircle2, Loader2, RefreshCw, Settings2, Unlink } from "lucide-react";
+import GoogleCredentialForm from "@/components/hr/GoogleCredentialForm";
 
-const CONNECTOR_ID = "6ad8a9f25d7949301dc25629";
+const REDIRECT_PATH = "/hr-studio/schedule";
+const STATE_KEY = "gcal_oauth_state";
 
 function formatEventTime(value) {
   if (!value) return "";
@@ -21,59 +23,96 @@ function formatEventTime(value) {
 }
 
 export default function GoogleCalendarCard({ onSynced }) {
-  const [connected, setConnected] = useState(false);
-  const [email, setEmail] = useState("");
-  const [pending, setPending] = useState(0);
-  const [events, setEvents] = useState([]);
+  const redirectUri = `${window.location.origin}${REDIRECT_PATH}`;
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
+  const [configured, setConfigured] = useState(false);
+  const [clientId, setClientId] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [connected, setConnected] = useState(false);
+  const [googleEmail, setGoogleEmail] = useState("");
+  const [pending, setPending] = useState(0);
+  const [events, setEvents] = useState([]);
 
-  const apply = (data) => {
-    setConnected(!!data?.connected);
-    setEmail(data?.my_email || "");
-    setPending(data?.pending || 0);
-    setEvents(data?.events || []);
+  const invoke = async (payload) => (await base44.functions.invoke("gcalAuth", payload))?.data || {};
+
+  const applyStatus = (data) => {
+    setConfigured(!!data.configured);
+    setClientId(data.client_id || "");
+    setGoogleEmail(data.google_email || "");
+    setShowForm(!data.configured);
   };
 
-  const load = async () => {
-    setLoading(true);
+  const loadCalendar = async () => {
     try {
-      let data = (await base44.functions.invoke("interviewCalendar", { action: "status" }))?.data || {};
-      if (data.connected && (data.pending || 0) > 0) {
-        const synced = (await base44.functions.invoke("interviewCalendar", { action: "sync" }))?.data || {};
-        if (synced.synced > 0) onSynced?.();
-        data = synced;
-      }
-      apply(data);
+      const data = (await base44.functions.invoke("interviewCalendar", { action: "status" }))?.data || {};
+      setConnected(!!data.connected);
+      setPending(data.pending || 0);
+      setEvents(data.events || []);
     } catch (e) {
       setConnected(false);
-      setError(e.message || "Không kiểm tra được kết nối Google Calendar.");
-    } finally {
-      setLoading(false);
+      setError(e.message || "Không tải được sự kiện Google Calendar.");
     }
   };
 
+  const handleCallback = async (code, state) => {
+    const expected = sessionStorage.getItem(STATE_KEY);
+    sessionStorage.removeItem(STATE_KEY);
+    if (expected && state !== expected) {
+      setError("Phiên kết nối Google không khớp. Vui lòng bấm kết nối lại.");
+      return;
+    }
+    setBusy("callback");
+    try {
+      await invoke({ action: "callback", code });
+      await loadCalendar();
+    } catch (e) {
+      setError(e.message || "Không hoàn tất được kết nối Google.");
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const cleanUrl = () => {
+    const params = new URLSearchParams(window.location.search);
+    ["code", "state", "scope", "authuser", "prompt", "iss", "hd"].forEach((k) => params.delete(k));
+    const query = params.toString();
+    window.history.replaceState({}, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
+  };
+
   useEffect(() => {
-    base44.auth.isAuthenticated().then((authed) => {
-      if (authed) load();
-      else setLoading(false);
-    });
+    (async () => {
+      try {
+        const authed = await base44.auth.isAuthenticated();
+        if (!authed) return;
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+        const state = params.get("state");
+        if (code) {
+          cleanUrl();
+          await handleCallback(code, state);
+        }
+        const status = await invoke({ action: "status" });
+        applyStatus(status);
+        await loadCalendar();
+      } catch (e) {
+        setError(e.message || "Không kiểm tra được kết nối Google Calendar.");
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   const handleConnect = async () => {
     setBusy("connect");
     setError("");
     try {
-      const url = await base44.connectors.connectAppUser(CONNECTOR_ID);
-      const popup = window.open(url, "_blank");
-      const timer = setInterval(() => {
-        if (!popup || popup.closed) {
-          clearInterval(timer);
-          setBusy("");
-          load();
-        }
-      }, 500);
+      const state = `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+      sessionStorage.setItem(STATE_KEY, state);
+      const data = await invoke({ action: "start", state, redirect_uri: redirectUri });
+      if (!data.url) throw new Error(data.error || "Không tạo được liên kết kết nối Google.");
+      window.location.href = data.url;
     } catch (e) {
       setError(e.message || "Không mở được trang kết nối Google.");
       setBusy("");
@@ -85,7 +124,9 @@ export default function GoogleCalendarCard({ onSynced }) {
     setError("");
     try {
       const data = (await base44.functions.invoke("interviewCalendar", { action: "sync" }))?.data || {};
-      apply(data);
+      setConnected(!!data.connected);
+      setPending(data.pending || 0);
+      setEvents(data.events || []);
       if (data.synced > 0) onSynced?.();
       if ((data.failures || []).length > 0) setError(`Không đồng bộ được: ${data.failures.join(", ")}`);
     } catch (e) {
@@ -98,10 +139,11 @@ export default function GoogleCalendarCard({ onSynced }) {
   const handleDisconnect = async () => {
     setBusy("disconnect");
     try {
-      await base44.connectors.disconnectAppUser(CONNECTOR_ID);
+      await invoke({ action: "disconnect" });
       setConnected(false);
       setEvents([]);
       setPending(0);
+      setGoogleEmail("");
     } catch (e) {
       setError(e.message || "Không ngắt được kết nối.");
     } finally {
@@ -127,9 +169,13 @@ export default function GoogleCalendarCard({ onSynced }) {
           <div>
             <h3 className="text-sm font-700">Google Calendar của tôi</h3>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {connected
-                ? `Đang kết nối ${email} — lịch phỏng vấn được tạo trên lịch của bạn và ứng viên nhận lời mời qua email.`
-                : "Kết nối Google Calendar để tự động tạo lời mời phỏng vấn cho các ứng viên bạn phụ trách."}
+              {busy === "callback"
+                ? "Đang hoàn tất kết nối với Google..."
+                : connected
+                  ? `Đang kết nối ${googleEmail} — lịch phỏng vấn được tạo trên lịch của bạn và ứng viên nhận lời mời qua email.`
+                  : configured
+                    ? "Đã có Client ID/Secret — bấm kết nối để cấp quyền Google Calendar cho tài khoản HR của bạn."
+                    : "Nhập Google OAuth Client ID/Secret để bật tạo lời mời phỏng vấn trên Google Calendar."}
             </p>
           </div>
         </div>
@@ -145,16 +191,35 @@ export default function GoogleCalendarCard({ onSynced }) {
                 Ngắt kết nối
               </Button>
             </>
-          ) : (
-            <Button size="sm" className="gap-2" onClick={handleConnect} disabled={!!busy}>
-              {busy === "connect" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CalendarCheck className="h-3.5 w-3.5" />}
-              Kết nối Google Calendar
-            </Button>
-          )}
+          ) : configured ? (
+            <>
+              <Button size="sm" className="gap-2" onClick={handleConnect} disabled={!!busy}>
+                {busy === "connect" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CalendarCheck className="h-3.5 w-3.5" />}
+                Kết nối Google Calendar
+              </Button>
+              <Button size="sm" variant="ghost" className="gap-2 text-muted-foreground" onClick={() => setShowForm((v) => !v)} disabled={!!busy}>
+                <Settings2 className="h-3.5 w-3.5" />
+                Client ID/Secret
+              </Button>
+            </>
+          ) : null}
         </div>
       </div>
 
       {error && <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800">{error}</div>}
+
+      {(showForm || !configured) && (
+        <GoogleCredentialForm
+          clientId={clientId}
+          redirectUri={redirectUri}
+          configured={configured}
+          onSaved={(data) => {
+            applyStatus(data);
+            setShowForm(false);
+          }}
+          onCancel={configured ? () => setShowForm(false) : null}
+        />
+      )}
 
       {connected && (
         <div className="mt-3 space-y-3">
