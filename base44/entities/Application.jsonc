@@ -24,6 +24,14 @@
     "phone": {
       "type": "string"
     },
+    "candidate_code": {
+      "type": "string",
+      "description": "M\u00e3 \u1ee9ng vi\u00ean t\u1ef1 sinh (VD: NC-8F2A19)"
+    },
+    "department": {
+      "type": "string",
+      "description": "Ph\u00f2ng ban c\u1ee7a v\u1ecb tr\u00ed \u1ee9ng tuy\u1ec3n"
+    },
     "english_certificate": {
       "type": "string",
       "description": "Ch\u1ee9ng ch\u1ec9 ti\u1ebfng Anh (VD: IELTS 7.0, TOEIC 850)"
@@ -103,9 +111,125 @@
       ],
       "default": "cv_screening"
     },
+    "rms_status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "cv_approved",
+        "pending_manager",
+        "interviewed",
+        "pass",
+        "fail"
+      ],
+      "default": "new",
+      "description": "Tr\u1ea1ng th\u00e1i quy tr\u00ecnh tuy\u1ec3n d\u1ee5ng t\u1ef1 \u0111\u1ed9ng (Recruitment Management System)"
+    },
+    "years_experience": {
+      "type": "number",
+      "description": "S\u1ed1 n\u0103m kinh nghi\u1ec7m"
+    },
+    "education_level": {
+      "type": "string",
+      "description": "B\u1eb1ng c\u1ea5p / h\u1ecdc v\u1ea5n cao nh\u1ea5t"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "K\u1ef9 n\u0103ng ch\u00ednh tr\u00edch t\u1eeb CV"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "T\u1eeb kh\u00f3a ph\u1ee5c v\u1ee5 t\u00ecm ki\u1ebfm / l\u1ecdc h\u1ed3 s\u01a1"
+    },
     "notes": {
       "type": "string",
       "description": "Ghi ch\u00fa n\u1ed9i b\u1ed9 c\u1ee7a HR"
+    },
+    "hr_note": {
+      "type": "string",
+      "description": "Ghi ch\u00fa nhanh c\u1ee7a HR tr\u00ean b\u1ea3ng h\u1ed3 s\u01a1"
+    },
+    "manager_note": {
+      "type": "string",
+      "description": "Ghi ch\u00fa c\u1ee7a Line Manager"
+    },
+    "manager_evaluation": {
+      "type": "string",
+      "description": "\u0110\u00e1nh gi\u00e1 c\u1ee7a Line Manager sau ph\u1ecfng v\u1ea5n"
+    },
+    "assigned_manager_email": {
+      "type": "string",
+      "description": "Email Line Manager ph\u1ee5 tr\u00e1ch v\u1ecb tr\u00ed n\u00e0y"
+    },
+    "manager_opened_at": {
+      "type": "string",
+      "description": "Th\u1eddi \u0111i\u1ec3m Line Manager m\u1edf xem h\u1ed3 s\u01a1 (ISO)"
+    },
+    "manager_decision": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail"
+      ],
+      "description": "Quy\u1ebft \u0111\u1ecbnh c\u1ee7a Line Manager"
+    },
+    "decision_at": {
+      "type": "string",
+      "description": "Th\u1eddi \u0111i\u1ec3m Line Manager ra quy\u1ebft \u0111\u1ecbnh (ISO)"
+    },
+    "interview_slot": {
+      "type": "string",
+      "description": "Khung gi\u1edd ph\u1ecfng v\u1ea5n \u1ee9ng vi\u00ean \u0111\u00e3 ch\u1ecdn"
+    },
+    "interview_confirmed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Line Manager \u0111\u00e3 ch\u1ea5p thu\u1eadn l\u1ecbch ph\u1ecfng v\u1ea5n"
+    },
+    "step1_done": {
+      "type": "boolean",
+      "default": true,
+      "description": "B\u01b0\u1edbc 1: H\u1ec7 th\u1ed1ng \u0111\u00e3 nh\u1eadn CV"
+    },
+    "step1_at": {
+      "type": "string"
+    },
+    "step2_done": {
+      "type": "boolean",
+      "default": false,
+      "description": "B\u01b0\u1edbc 2: HR duy\u1ec7t CV v\u00e0 g\u1eedi mail m\u1eddi ph\u1ecfng v\u1ea5n"
+    },
+    "step2_at": {
+      "type": "string"
+    },
+    "step3_done": {
+      "type": "boolean",
+      "default": false,
+      "description": "B\u01b0\u1edbc 3: Line Manager \u0111\u00e3 m\u1edf xem h\u1ed3 s\u01a1"
+    },
+    "step3_at": {
+      "type": "string"
+    },
+    "step4_done": {
+      "type": "boolean",
+      "default": false,
+      "description": "B\u01b0\u1edbc 4: Line Manager ch\u1ea5p thu\u1eadn l\u1ecbch ph\u1ecfng v\u1ea5n"
+    },
+    "step4_at": {
+      "type": "string"
+    },
+    "step5_done": {
+      "type": "boolean",
+      "default": false,
+      "description": "B\u01b0\u1edbc 5: \u0110\u00e3 c\u00f3 k\u1ebft qu\u1ea3 Pass/Fail"
+    },
+    "step5_at": {
+      "type": "string"
     },
     "confirmation_sent_at": {
       "type": "string",
@@ -283,6 +407,9 @@
         },
         {
           "data.email": "{{user.email}}"
+        },
+        {
+          "data.assigned_manager_email": "{{user.email}}"
         },
         {
           "user_condition": {

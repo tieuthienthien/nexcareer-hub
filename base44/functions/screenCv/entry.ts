@@ -58,6 +58,7 @@ export default async function (req: Request): Promise<Response> {
 
     // 1) Trích xuất nội dung CV
     let cvText = '';
+    let cvMeta: any = null;
     if (app.cv_file_uri) {
       try {
         const { signed_url } = await base44.asServiceRole.integrations.Core.CreateFileSignedUrl({ file_uri: app.cv_file_uri, expires_in: 600 });
@@ -76,6 +77,7 @@ export default async function (req: Request): Promise<Response> {
             }
           }
         });
+        cvMeta = extracted?.output || null;
         cvText = JSON.stringify(extracted?.output || {});
       } catch (e) {
         cvText = '';
@@ -185,7 +187,21 @@ Trả JSON: items (mảng {label, matched, evidence}), analysis (2-3 câu), stre
     const requiredMissing = compared.filter((i) => i.requirement === 'required' && !i.matched).map((i) => `${i.label}${i.band ? ` (${i.band})` : ''}`);
     const advice = requiredMissing.length ? 'reject' : score >= 70 ? 'pass' : 'borderline';
 
+    const metaFields: any = {};
+    if (cvMeta) {
+      if (typeof cvMeta.experience_years === 'number') metaFields.years_experience = cvMeta.experience_years;
+      else if (app.years_experience != null) metaFields.years_experience = app.years_experience;
+      if (cvMeta.education) metaFields.education_level = String(cvMeta.education).slice(0, 200);
+      if (Array.isArray(cvMeta.skills) && cvMeta.skills.length) metaFields.skills = cvMeta.skills.slice(0, 20).map((s: any) => String(s).slice(0, 80));
+      const keywords = [
+        ...(Array.isArray(cvMeta.skills) ? cvMeta.skills : []),
+        ...(Array.isArray(cvMeta.certificates) ? cvMeta.certificates : [])
+      ].slice(0, 25).map((s: any) => String(s).slice(0, 80));
+      if (keywords.length) metaFields.keywords = keywords;
+    }
+
     const updated = await base44.asServiceRole.entities.Application.update(applicationId, {
+      ...metaFields,
       cv_match_score: score,
       cv_ai_analysis: llm?.analysis || '',
       cv_strengths: llm?.strengths || '',

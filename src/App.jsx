@@ -17,6 +17,8 @@ import Contact from '@/pages/Contact';
 import HrDashboard from '@/pages/hr/HrDashboard';
 import HrJobs from '@/pages/hr/HrJobs';
 import HrApplications from '@/pages/hr/HrApplications';
+import HrPipeline from '@/pages/hr/HrPipeline';
+import ManagerWorkspace from '@/pages/hr/ManagerWorkspace';
 import HrJdBuilder from '@/pages/hr/HrJdBuilder';
 import HrSchedule from '@/pages/hr/HrSchedule';
 import HrCourses from '@/pages/hr/HrCourses';
@@ -96,6 +98,8 @@ const AuthenticatedApp = () => {
           <Route path="jobs" element={<HrJobs />} />
           <Route path="jd" element={<HrJdBuilder />} />
           <Route path="applications" element={<HrApplications />} />
+          <Route path="pipeline" element={<HrPipeline />} />
+          <Route path="manager" element={<ManagerWorkspace />} />
           <Route path="schedule" element={<HrSchedule />} />
           <Route path="courses" element={<HrCourses />} />
           <Route path="compare" element={<HrCompare />} />

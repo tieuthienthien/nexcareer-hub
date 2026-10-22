@@ -101,6 +101,10 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
         cover_letter: form.cover_letter,
         cv_source: "nexcareer",
         status: "cv_screening",
+        rms_status: "new",
+        candidate_code: `NC-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+        step1_done: true,
+        step1_at: new Date().toISOString(),
       });
       setDone(true);
       onApplied?.();

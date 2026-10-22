@@ -6,6 +6,7 @@ import { Briefcase, Users, FileText, TrendingUp, ArrowRight, ClipboardList, User
 import { applicationStatusLabel, applicationStatusColor } from "@/lib/jobUtils";
 import FunnelChart from "@/components/hr/FunnelChart";
 import ApplicationsTrend from "@/components/hr/ApplicationsTrend";
+import RmsKpis from "@/components/hr/rms/RmsKpis";
 
 const pipeline = [
   { icon: ClipboardList, title: "Tiếp nhận hồ sơ", desc: "Ứng viên nộp CV qua hệ thống, hồ sơ tự động lưu vào kho ứng viên." },
@@ -40,28 +41,9 @@ export default function HrDashboard() {
     })();
   }, []);
 
-  const cards = [
-    { label: "Việc làm đang tuyển", value: stats.jobs, icon: Briefcase, color: "from-indigo-500 to-violet-500" },
-    { label: "Tổng ứng viên", value: stats.apps, icon: Users, color: "from-sky-500 to-blue-500" },
-    { label: "Đang phỏng vấn", value: (stats.byStatus.interview_invited || 0) + (stats.byStatus.interview_submitted || 0), icon: UserCheck, color: "from-amber-500 to-orange-500" },
-    { label: "Đã nhận việc", value: stats.byStatus.hired || 0, icon: Award, color: "from-emerald-500 to-teal-500" },
-  ];
-
   return (
     <div className="space-y-8">
-      {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map((c) => (
-          <div key={c.label} className="relative overflow-hidden rounded-2xl border border-border bg-card p-5">
-            <div className={`absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br ${c.color} opacity-15 blur-xl`} />
-            <div className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br ${c.color} text-white shadow-md`}>
-              <c.icon className="h-5 w-5" />
-            </div>
-            <div className="mt-4 font-heading text-3xl font-800">{loading ? "—" : c.value}</div>
-            <div className="mt-0.5 text-xs font-500 text-muted-foreground">{c.label}</div>
-          </div>
-        ))}
-      </div>
+      <RmsKpis />
 
       {/* Analytics: funnel + trend */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

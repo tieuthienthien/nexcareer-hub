@@ -1,0 +1,82 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "message": {
+      "type": "string",
+      "description": "N\u1ed9i dung th\u00f4ng b\u00e1o hi\u1ec3n th\u1ecb trong HR Chatbot"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "offer_ready",
+        "rejection_ready",
+        "reschedule_request",
+        "system"
+      ],
+      "default": "system"
+    },
+    "application_id": {
+      "type": "string",
+      "description": "H\u1ed3 s\u01a1 \u1ee9ng tuy\u1ec3n li\u00ean quan"
+    },
+    "candidate_id": {
+      "type": "string"
+    },
+    "candidate_name": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "manager_name": {
+      "type": "string"
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail"
+      ],
+      "description": "Quy\u1ebft \u0111\u1ecbnh c\u1ee7a Line Manager"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false
+    },
+    "action_done": {
+      "type": "boolean",
+      "default": false,
+      "description": "HR \u0111\u00e3 x\u1eed l\u00fd th\u00f4ng b\u00e1o n\u00e0y"
+    },
+    "created_at": {
+      "type": "string",
+      "description": "Th\u1eddi \u0111i\u1ec3m t\u1ea1o th\u00f4ng b\u00e1o (ISO)"
+    }
+  },
+  "required": [
+    "message"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

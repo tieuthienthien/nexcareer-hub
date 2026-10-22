@@ -1,25 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Loader2, Filter, RefreshCw, Sparkles } from "lucide-react";
-import { applicationStatusLabel, applicationStatusColor, STATUS_OPTIONS } from "@/lib/jobUtils";
+import { Loader2, RefreshCw, Sparkles } from "lucide-react";
 import ApplicationDetailDialog from "@/components/hr/ApplicationDetailDialog";
+import CandidateFilters from "@/components/hr/rms/CandidateFilters";
+import CandidateTable from "@/components/hr/rms/CandidateTable";
+import CandidateQuickDialog from "@/components/hr/rms/CandidateQuickDialog";
+import EmailComposeDialog from "@/components/hr/rms/EmailComposeDialog";
+import { matchesKeyword, matchesYears } from "@/lib/rms";
 
-const SORTS = [
-  { value: "newest", label: "Mới nhất" },
-  { value: "score_desc", label: "Điểm CV cao → thấp" },
-  { value: "score_asc", label: "Điểm CV thấp → cao" },
-];
+const emptyFilters = { keyword: "", position: "all", status: "all", years: "all", education: "all" };
 
 export default function HrApplications() {
+  const navigate = useNavigate();
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [q, setQ] = useState("");
-  const [status, setStatus] = useState("all");
-  const [sort, setSort] = useState("newest");
+  const [filters, setFilters] = useState(emptyFilters);
+  const [positions, setPositions] = useState([]);
+  const [educations, setEducations] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [quick, setQuick] = useState(null);
+  const [compose, setCompose] = useState(null);
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState("");
   const [scoring, setScoring] = useState("");
@@ -29,14 +31,12 @@ export default function HrApplications() {
     setLoading(true);
     try {
       const query = {};
-      if (q.trim()) query.full_name = { $regex: q.trim(), $options: "i" };
-      if (status !== "all") query.status = status;
-      const opts = sort === "score_desc"
-        ? { sort: "-cv_match_score", limit: 100 }
-        : sort === "score_asc"
-        ? { sort: "cv_match_score", limit: 100 }
-        : { sort: "-created_date", limit: 100 };
-      const res = await base44.entities.Application.filter(query, opts);
+      if (filters.position !== "all") query.job_title = filters.position;
+      if (filters.status !== "all") {
+        if (filters.status === "new") query.$or = [{ rms_status: "new" }, { rms_status: { $exists: false } }];
+        else query.rms_status = filters.status;
+      }
+      const res = await base44.entities.Application.filter(query, { sort: "-created_date", limit: 300 });
       setApps(res.items || []);
     } catch (e) {
       setApps([]);
@@ -45,7 +45,31 @@ export default function HrApplications() {
     }
   };
 
-  useEffect(() => { load(); }, [status, sort, q]);
+  useEffect(() => { load(); }, [filters.position, filters.status]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [pos, edu] = await Promise.all([
+          base44.entities.Application.list({ distinct: "job_title" }),
+          base44.entities.Application.list({ distinct: "education_level" }),
+        ]);
+        setPositions((pos.items || []).filter(Boolean));
+        setEducations((edu.items || []).filter(Boolean));
+      } catch (e) {}
+    })();
+  }, []);
+
+  const visible = useMemo(
+    () =>
+      apps.filter(
+        (a) =>
+          matchesKeyword(a, filters.keyword) &&
+          matchesYears(a, filters.years) &&
+          (filters.education === "all" || a.education_level === filters.education)
+      ),
+    [apps, filters.keyword, filters.years, filters.education]
+  );
 
   const syncTopcv = async () => {
     setSyncing(true);
@@ -67,7 +91,7 @@ export default function HrApplications() {
   };
 
   const scorePending = async () => {
-    const pending = apps.filter((a) => a.status === "cv_screening").slice(0, 10);
+    const pending = visible.filter((a) => !a.rms_status || a.rms_status === "new").slice(0, 10);
     if (!pending.length) { setSyncMsg("Không có hồ sơ nào đang chờ chấm CV."); return; }
     setScoring("batch");
     setScoreProgress({ done: 0, total: pending.length });
@@ -82,17 +106,12 @@ export default function HrApplications() {
     await load();
   };
 
-  const handleUpdated = (updated) => {
-    setApps((prev) => prev.map((x) => (x.id === updated.id ? updated : x)));
-    setSelected(updated);
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="font-heading text-2xl font-700">Quản lý ứng viên</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Vòng 1 chấm CV theo barem · Vòng 2 bài thi online · Đặt lịch phỏng vấn</p>
+          <h1 className="font-heading text-2xl font-700">Quản lý hồ sơ ứng viên</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Bảng dữ liệu đầy đủ · lọc theo vị trí, kỹ năng, kinh nghiệm, bằng cấp và trạng thái.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={scorePending} disabled={!!scoring} className="gap-2">
@@ -107,56 +126,56 @@ export default function HrApplications() {
 
       {syncMsg && <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">{syncMsg}</div>}
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 lg:flex-row">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm theo tên ứng viên..." className="h-10 border-0 bg-muted/40 pl-9 shadow-none" />
-        </div>
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="h-10 lg:w-60 gap-2"><Filter className="h-4 w-4" /><SelectValue /></SelectTrigger>
-          <SelectContent>{STATUS_OPTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent>
-        </Select>
-        <Select value={sort} onValueChange={setSort}>
-          <SelectTrigger className="h-10 lg:w-52"><SelectValue /></SelectTrigger>
-          <SelectContent>{SORTS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent>
-        </Select>
-      </div>
+      <CandidateFilters
+        filters={filters}
+        onChange={setFilters}
+        positions={positions}
+        educations={educations}
+        onClear={() => setFilters(emptyFilters)}
+      />
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-card">
-        {loading ? (
-          <div className="space-y-2 p-4">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-16 animate-pulse rounded-xl bg-muted" />)}</div>
-        ) : apps.length === 0 ? (
-          <div className="py-16 text-center text-sm text-muted-foreground">Chưa có ứng viên nào.</div>
-        ) : (
-          apps.map((a) => (
-            <button key={a.id} onClick={() => setSelected(a)} className="flex w-full flex-col gap-3 border-b border-border/60 p-4 text-left last:border-0 hover:bg-muted/30 sm:flex-row sm:items-center">
-              <div className="flex min-w-0 flex-1 items-center gap-3">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/15 text-sm font-700 text-primary">{(a.full_name || "?")[0].toUpperCase()}</div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-600">{a.full_name}</div>
-                  <div className="truncate text-xs text-muted-foreground">{a.job_title} · {a.company}</div>
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-700 text-primary">
-                  {a.cv_match_score != null ? `${a.cv_match_score}/100` : "Chưa chấm"}
-                </span>
-                {a.test_score != null && <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-700 text-sky-700">Thi {a.test_score}</span>}
-                {a.interview_at && <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[11px] font-600 text-indigo-700">Đã đặt lịch</span>}
-                {a.needs_review && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-600 text-amber-700">Cần rà soát</span>}
-                <span className="text-xs text-muted-foreground">{new Date(a.created_date).toLocaleDateString("vi-VN")}</span>
-                <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-600 ${applicationStatusColor[a.status]}`}>{applicationStatusLabel[a.status]}</span>
-              </div>
-            </button>
-          ))
-        )}
-      </div>
+      {loading ? (
+        <div className="space-y-2 rounded-2xl border border-border bg-card p-4">
+          {Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-12 animate-pulse rounded-xl bg-muted" />)}
+        </div>
+      ) : (
+        <CandidateTable
+          apps={visible}
+          onViewDetail={(a) => setSelected(a)}
+          onCompose={(list) => setCompose(list)}
+          onOpenPipeline={(a) => navigate(`/hr-studio/pipeline?candidate=${a.id}`)}
+          onEdit={(a) => setQuick({ app: a, mode: "edit" })}
+          onNote={(a) => setQuick({ app: a, mode: "note" })}
+        />
+      )}
 
       <ApplicationDetailDialog
         application={selected}
         open={!!selected}
         onOpenChange={(o) => !o && setSelected(null)}
-        onUpdated={handleUpdated}
+        onUpdated={(updated) => {
+          setApps((prev) => prev.map((x) => (x.id === updated.id ? updated : x)));
+          setSelected(updated);
+        }}
+      />
+
+      <CandidateQuickDialog
+        app={quick?.app}
+        mode={quick?.mode || "edit"}
+        open={!!quick}
+        onOpenChange={(v) => !v && setQuick(null)}
+        onSaved={() => load()}
+      />
+
+      <EmailComposeDialog
+        open={!!compose}
+        onOpenChange={(v) => !v && setCompose(null)}
+        apps={compose || []}
+        mode="interview"
+        onSent={({ warnings }) => {
+          setSyncMsg(warnings?.length ? `Đã duyệt CV. Lưu ý: ${warnings.join(" ")}` : "Đã duyệt CV và gửi mail mời phỏng vấn.");
+          load();
+        }}
       />
     </div>
   );
