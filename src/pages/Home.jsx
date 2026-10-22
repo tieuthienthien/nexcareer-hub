@@ -6,6 +6,7 @@ import GalaxyButton from "@/components/ui/galaxy-button";
 import { Input } from "@/components/ui/input";
 import { Search, Building2, User, ArrowRight, Sparkles, Users, Briefcase, Award, CheckCircle2, Code2, Target, Heart } from "lucide-react";
 import JobCard from "@/components/job/JobCard";
+import { useSiteContent } from "@/components/design/SiteDesignProvider";
 
 const categories = [
   { name: "Kỹ thuật phần mềm", icon: Code2 },
@@ -16,6 +17,7 @@ const categories = [
 
 export default function Home() {
   const navigate = useNavigate();
+  const c = useSiteContent("home");
   const [keyword, setKeyword] = useState("");
   const [featured, setFeatured] = useState([]);
   const [totalJobs, setTotalJobs] = useState(0);
@@ -51,14 +53,16 @@ export default function Home() {
         <div className="absolute -bottom-20 right-0 h-72 w-[30rem] rounded-full bg-pastel-pink/15 blur-3xl" />
         <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 lg:px-8 lg:pt-28">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-600 text-primary">
-              <Sparkles className="h-3.5 w-3.5" /> Cổng tuyển dụng của Nexora Technology
-            </div>
+            {c.hero_badge && (
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-600 text-primary">
+                <Sparkles className="h-3.5 w-3.5" /> {c.hero_badge}
+              </div>
+            )}
             <h1 className="mt-6 font-heading text-4xl font-800 leading-[1.1] tracking-tight text-balance sm:text-5xl lg:text-6xl">
-              Gia nhập <span className="text-galaxy">Nexora Technology</span> cùng NexCareer Hub
+              <span className="text-galaxy">{c.hero_title}</span>
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Các vị trí đang mở tại Nexora Technology — công ty phần mềm tại TP. Hồ Chí Minh. Ứng tuyển dễ, theo dõi hồ sơ minh bạch qua 3 vòng đánh giá.
+              {c.hero_subtitle}
             </p>
           </div>
 
@@ -69,12 +73,12 @@ export default function Home() {
                 <Input
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
-                  placeholder="Vị trí, từ khóa..."
+                  placeholder={c.search_placeholder}
                   className="h-14 border-0 bg-transparent pl-12 text-base shadow-none focus-visible:ring-0"
                 />
               </div>
               <GalaxyButton type="submit" size="lg" className="btn-galaxy h-14 px-8 text-base font-700 sm:w-auto">
-                <Search className="mr-2 h-5 w-5" /> Tìm việc
+                <Search className="mr-2 h-5 w-5" /> {c.search_cta}
               </GalaxyButton>
             </div>
           </form>
@@ -103,12 +107,12 @@ export default function Home() {
               <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-600">
                 <User className="h-3.5 w-3.5" /> Dành cho ứng viên
               </div>
-              <h2 className="mt-5 font-heading text-3xl font-800">Candidate Room</h2>
+              <h2 className="mt-5 font-heading text-3xl font-800">{c.candidate_title}</h2>
               <p className="mt-3 max-w-md text-sm leading-relaxed text-white/85">
-                Quản lý hồ sơ cá nhân, tải lên CV & portfolio, theo dõi tình trạng ứng tuyển mọi lúc, mọi nơi.
+                {c.candidate_desc}
               </p>
               <GalaxyButton asChild size="lg" className="btn-galaxy mt-6">
-                <Link to="/candidate-room">Khám phá ngay <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link to="/candidate-room">{c.candidate_cta} <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </GalaxyButton>
             </div>
           </div>
@@ -124,12 +128,12 @@ export default function Home() {
               <div className="inline-flex items-center gap-2 rounded-full bg-accent/15 px-3 py-1 text-xs font-600 text-accent">
                 <Building2 className="h-3.5 w-3.5" /> Dành cho HR
               </div>
-              <h2 className="mt-5 font-heading text-3xl font-800 text-galaxy">HR Studio</h2>
+              <h2 className="mt-5 font-heading text-3xl font-800 text-galaxy">{c.hr_title}</h2>
               <p className="mt-3 text-sm leading-relaxed text-foreground/75">
-                Dành cho bộ phận Nhân sự Nexora: đăng vị trí, sàng lọc và theo dõi ứng viên trong một studio.
+                {c.hr_desc}
               </p>
               <GalaxyButton asChild size="lg" variant="outline" className="btn-galaxy-ghost mt-6 gap-2">
-                <Link to="/hr-studio">Khám phá ngay <ArrowRight className="h-4 w-4" /></Link>
+                <Link to="/hr-studio">{c.hr_cta} <ArrowRight className="h-4 w-4" /></Link>
               </GalaxyButton>
             </div>
           </div>
@@ -140,8 +144,8 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between">
           <div>
-            <h2 className="font-heading text-2xl font-700 sm:text-3xl">Việc làm nổi bật</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Các vị trí đang tuyển tại Nexora Technology</p>
+            <h2 className="font-heading text-2xl font-700 sm:text-3xl">{c.jobs_title}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">{c.jobs_subtitle}</p>
           </div>
           <Button asChild variant="ghost" className="gap-2">
             <Link to="/viec-lam">Xem tất cả <ArrowRight className="h-4 w-4" /></Link>
@@ -163,19 +167,19 @@ export default function Home() {
       {/* Categories */}
       <section className="bg-muted/30 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-center font-heading text-2xl font-700 sm:text-3xl">Khám phá theo phòng ban</h2>
-          <p className="mt-2 text-center text-sm text-muted-foreground">Các phòng ban đang tuyển tại Nexora</p>
+          <h2 className="text-center font-heading text-2xl font-700 sm:text-3xl">{c.categories_title}</h2>
+          <p className="mt-2 text-center text-sm text-muted-foreground">{c.categories_subtitle}</p>
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {categories.map((c) => (
+            {categories.map((cat) => (
               <Link
-                key={c.name}
-                to={`/viec-lam?category=${encodeURIComponent(c.name)}`}
+                key={cat.name}
+                to={`/viec-lam?category=${encodeURIComponent(cat.name)}`}
                 className="group flex flex-col items-center rounded-2xl border border-border bg-card p-5 text-center transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
               >
                 <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
-                  <c.icon className="h-6 w-6" />
+                  <cat.icon className="h-6 w-6" />
                 </div>
-                <div className="mt-3 text-xs font-600 leading-tight">{c.name}</div>
+                <div className="mt-3 text-xs font-600 leading-tight">{cat.name}</div>
               </Link>
             ))}
           </div>
@@ -186,20 +190,16 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-600 text-accent">
-              Về Nexora Technology
-            </div>
+            {c.about_badge && (
+              <div className="inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-600 text-accent">
+                {c.about_badge}
+              </div>
+            )}
             <h2 className="mt-5 font-heading text-3xl font-800 leading-tight">
-              Công ty phần mềm sinh năm 2025, tại Sài Gòn
+              {c.about_title}
             </h2>
-            <p className="mt-5 leading-relaxed text-foreground/80">
-              Nexora Technology là đối tác phát triển phần mềm theo yêu cầu — từ web, mobile đến IoT và chuyển đổi hệ thống cũ.
-              Chúng tôi là đội ngũ kỹ sư, thiết kế và quản lý sản phẩm cùng chung triết lý: làm ít hơn, làm tốt hơn.
-            </p>
-            <p className="mt-4 leading-relaxed text-foreground/80">
-              NexCareer Hub là cổng tuyển dụng nội bộ của Nexora — <span className="font-600 text-foreground">Candidate Room</span> cho
-              ứng viên và <span className="font-600 text-foreground">HR Studio</span> cho bộ phận Nhân sự, giúp Nexora tìm đúng người, đúng việc.
-            </p>
+            <p className="mt-5 leading-relaxed text-foreground/80">{c.about_desc}</p>
+            <p className="mt-4 leading-relaxed text-foreground/80">{c.about_desc2}</p>
             <ul className="mt-6 space-y-3">
               {[
                 "Ứng tuyển minh bạch, theo dõi trạng thái theo thời gian thực",
@@ -237,8 +237,8 @@ export default function Home() {
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-foreground to-primary p-10 text-center text-white sm:p-16">
           <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-accent/30 blur-3xl" />
           <div className="relative mx-auto max-w-2xl">
-            <h2 className="font-heading text-3xl font-800 sm:text-4xl">Sẵn sàng bước tiếp theo?</h2>
-            <p className="mt-4 text-white/80">Ứng tuyển vào Nexora Technology hôm nay — minh bạch, nhanh chóng.</p>
+            <h2 className="font-heading text-3xl font-800 sm:text-4xl">{c.cta_title}</h2>
+            <p className="mt-4 text-white/80">{c.cta_subtitle}</p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <GalaxyButton asChild size="lg" className="btn-galaxy">
                 <Link to="/register">Tạo hồ sơ ứng viên <ArrowRight className="ml-2 h-4 w-4" /></Link>

@@ -1,0 +1,110 @@
+{
+  "name": "SiteDesign",
+  "type": "object",
+  "description": "C\u1ea5u h\u00ecnh giao di\u1ec7n website (b\u1ed9 m\u00e0u, font, ki\u1ec3u n\u1ec1n, n\u1ed9i dung c\u00e1c trang) do HR ch\u1ec9nh trong Design Studio. Ch\u1ec9 c\u00f3 1 b\u1ea3n ghi.",
+  "properties": {
+    "theme": {
+      "type": "object",
+      "description": "B\u1ed9 m\u00e0u v\u00e0 ki\u1ec3u ch\u1eef d\u00f9ng chung to\u00e0n \u1ee9ng d\u1ee5ng",
+      "properties": {
+        "background": {
+          "type": "string",
+          "description": "M\u00e0u n\u1ec1n (hex)"
+        },
+        "foreground": {
+          "type": "string",
+          "description": "M\u00e0u ch\u1eef ch\u00ednh (hex)"
+        },
+        "primary": {
+          "type": "string",
+          "description": "M\u00e0u ch\u00ednh (hex)"
+        },
+        "accent": {
+          "type": "string",
+          "description": "M\u00e0u nh\u1ea5n (hex)"
+        },
+        "radius": {
+          "type": "number",
+          "description": "Bo g\u00f3c (rem)"
+        },
+        "font_heading": {
+          "type": "string",
+          "enum": [
+            "be-vietnam",
+            "quicksand",
+            "system",
+            "serif"
+          ],
+          "default": "be-vietnam"
+        },
+        "font_body": {
+          "type": "string",
+          "enum": [
+            "be-vietnam",
+            "quicksand",
+            "system",
+            "serif"
+          ],
+          "default": "be-vietnam"
+        }
+      }
+    },
+    "background": {
+      "type": "object",
+      "description": "Ki\u1ec3u n\u1ec1n trang",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "galaxy",
+            "solid",
+            "gradient",
+            "image"
+          ],
+          "default": "galaxy"
+        },
+        "color_from": {
+          "type": "string",
+          "description": "M\u00e0u gradient b\u1eaft \u0111\u1ea7u"
+        },
+        "color_to": {
+          "type": "string",
+          "description": "M\u00e0u gradient k\u1ebft th\u00fac"
+        },
+        "image_url": {
+          "type": "string",
+          "description": "URL \u1ea3nh n\u1ec1n"
+        }
+      }
+    },
+    "content": {
+      "type": "object",
+      "description": "N\u1ed9i dung \u0111\u00e3 ch\u1ec9nh, d\u1ea1ng { home: { hero_title: '...' }, ... }"
+    },
+    "preset": {
+      "type": "string",
+      "description": "B\u1ed9 giao di\u1ec7n m\u1eabu \u0111ang d\u00f9ng"
+    },
+    "updated_by_email": {
+      "type": "string"
+    }
+  },
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

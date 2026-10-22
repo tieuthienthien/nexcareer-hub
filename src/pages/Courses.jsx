@@ -6,6 +6,7 @@ import CategoryCard from "@/components/course/CategoryCard";
 import ReferralPanel from "@/components/course/ReferralPanel";
 import { Button } from "@/components/ui/button";
 import { Award, ShieldCheck, Unlock, Users } from "lucide-react";
+import { useSiteContent } from "@/components/design/SiteDesignProvider";
 
 const IMG = "https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492";
 
@@ -43,6 +44,7 @@ const categories = [
 ];
 
 export default function Courses() {
+  const c = useSiteContent("courses");
   const { user, isAuthenticated } = useAuth();
   const [state, setState] = useState(null);
 
@@ -59,12 +61,10 @@ export default function Courses() {
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-2xl">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-600 text-primary">
-            <Award className="h-3.5 w-3.5" /> Học nghề cùng Nexora Technology
+            <Award className="h-3.5 w-3.5" /> {c.badge}
           </span>
-          <h1 className="mt-3 font-heading text-3xl font-800 tracking-tight sm:text-4xl">Khóa học</h1>
-          <p className="mt-2 text-muted-foreground">
-            Lộ trình học theo ngành nghề, có bài giảng, video case thực tế và bài kiểm tra chấm bằng AI. Hoàn thành từ 80/100 để nhận chứng chỉ.
-          </p>
+          <h1 className="mt-3 font-heading text-3xl font-800 tracking-tight sm:text-4xl">{c.title}</h1>
+          <p className="mt-2 text-muted-foreground">{c.subtitle}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline" className="gap-2">

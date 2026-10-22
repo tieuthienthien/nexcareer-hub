@@ -26,6 +26,8 @@ import InterviewSchedule from '@/pages/InterviewSchedule';
 import HrChatbot from '@/pages/hr/HrChatbot';
 import HrCompare from '@/pages/hr/HrCompare';
 import HrFeedback from '@/pages/hr/HrFeedback';
+import HrDesignStudio from '@/pages/hr/HrDesignStudio';
+import { SiteDesignProvider } from '@/components/design/SiteDesignProvider';
 import SupportCenter from '@/pages/SupportCenter';
 import Courses from '@/pages/Courses';
 import CourseDetail from '@/pages/CourseDetail';
@@ -105,6 +107,7 @@ const AuthenticatedApp = () => {
           <Route path="compare" element={<HrCompare />} />
           <Route path="chatbot" element={<HrChatbot />} />
           <Route path="feedback" element={<HrFeedback />} />
+          <Route path="design" element={<HrDesignStudio />} />
         </Route>
       </Route>
 
@@ -119,11 +122,13 @@ function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
+        <SiteDesignProvider>
         <Router>
           <ScrollToTop />
           <AuthenticatedApp />
         </Router>
         <Toaster />
+        </SiteDesignProvider>
       </QueryClientProvider>
     </AuthProvider>
   )
