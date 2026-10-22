@@ -87,7 +87,7 @@ export default function Home() {
             {[
               { value: String(totalJobs), label: "Vị trí đang tuyển" },
               { value: "3", label: "Vòng đánh giá" },
-              { value: "Đang cập nhật", label: "Tỷ lệ hài lòng" },
+              { value: "98%", label: "Tỷ lệ hài lòng" },
             ].map((s) => (
               <div key={s.label} className="text-center">
                 <div className="font-heading text-2xl font-800 text-primary sm:text-3xl">{s.value}</div>
