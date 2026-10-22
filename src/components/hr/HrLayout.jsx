@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Building2, ArrowLeft, LogOut, LayoutDashboard, FileText, Users, MessageCircle, GitCompare, MessageSquare, Sparkles, CalendarClock, GraduationCap, Workflow, UserCog, Palette } from "lucide-react";
+import { Building2, ArrowLeft, LogOut, LayoutDashboard, FileText, Users, MessageCircle, GitCompare, MessageSquare, Sparkles, CalendarClock, GraduationCap, Workflow, UserCog, Palette, Mail } from "lucide-react";
 import { Image } from "@/components/ui/image";
 import StarRainClick from "@/components/StarRainClick";
 import HrChatbotNotifications from "@/components/hr/rms/HrChatbotNotifications";
@@ -22,6 +22,7 @@ const moreNav = [
   { label: "So sánh", path: "/hr-studio/compare", icon: GitCompare },
   { label: "Chatbot", path: "/hr-studio/chatbot", icon: MessageCircle },
   { label: "Phản hồi", path: "/hr-studio/feedback", icon: MessageSquare },
+  { label: "Mẫu email", path: "/hr-studio/email-templates", icon: Mail },
   { label: "Design web", path: "/hr-studio/design", icon: Palette },
 ];
 

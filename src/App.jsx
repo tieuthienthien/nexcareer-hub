@@ -27,6 +27,7 @@ import HrChatbot from '@/pages/hr/HrChatbot';
 import HrCompare from '@/pages/hr/HrCompare';
 import HrFeedback from '@/pages/hr/HrFeedback';
 import HrDesignStudio from '@/pages/hr/HrDesignStudio';
+import HrEmailTemplates from '@/pages/hr/HrEmailTemplates';
 import { SiteDesignProvider } from '@/components/design/SiteDesignProvider';
 import SupportCenter from '@/pages/SupportCenter';
 import Courses from '@/pages/Courses';
@@ -107,6 +108,7 @@ const AuthenticatedApp = () => {
           <Route path="compare" element={<HrCompare />} />
           <Route path="chatbot" element={<HrChatbot />} />
           <Route path="feedback" element={<HrFeedback />} />
+          <Route path="email-templates" element={<HrEmailTemplates />} />
           <Route path="design" element={<HrDesignStudio />} />
         </Route>
       </Route>

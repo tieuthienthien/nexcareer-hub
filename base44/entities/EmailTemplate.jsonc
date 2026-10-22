@@ -1,0 +1,64 @@
+{
+  "name": "EmailTemplate",
+  "type": "object",
+  "description": "M\u1eabu email HR t\u1ef1 so\u1ea1n \u0111\u1ec3 g\u1eedi cho \u1ee9ng vi\u00ean trong HR Studio",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "T\u00ean m\u1eabu \u0111\u1ec3 HR nh\u1eadn bi\u1ebft"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "interview",
+        "offer",
+        "rejection",
+        "reminder",
+        "other"
+      ],
+      "default": "other"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Ti\u00eau \u0111\u1ec1 email, c\u00f3 th\u1ec3 ch\u1ee9a th\u1ebb {{job}}, {{name}}..."
+    },
+    "body": {
+      "type": "string",
+      "description": "N\u1ed9i dung email d\u1ea1ng v\u0103n b\u1ea3n, c\u00f3 th\u1ec3 ch\u1ee9a th\u1ebb t\u1ef1 \u0111i\u1ec1n"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "updated_by_email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "subject",
+    "body"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

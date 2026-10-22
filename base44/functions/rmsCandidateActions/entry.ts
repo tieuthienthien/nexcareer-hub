@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
-import { appOrigin, renderEmail, buildManagerBrief } from "../../shared/rmsEmails.ts";
+import { appOrigin, renderEmail, buildManagerBrief, mergeTags } from "../../shared/rmsEmails.ts";
 
 type ActionResult = {
   application_id: string;
@@ -63,6 +63,32 @@ export default async function (req: Request): Promise<Response> {
       const warnings: string[] = [];
       let emailSent = false;
       let managerEmailSent = false;
+
+      if (action === 'send_custom') {
+        const subject = String(body?.subject || '').trim();
+        const bodyText = String(body?.body || '').trim();
+        if (!subject || !bodyText) return Response.json({ error: 'Thiếu tiêu đề hoặc nội dung email' }, { status: 400 });
+        const title = String(body?.title || 'Thông tin từ bộ phận tuyển dụng').slice(0, 120);
+        const html = renderEmail(title, bodyText, withCode, origin);
+        try {
+          await base44.asServiceRole.integrations.Core.SendEmail({
+            to: app.email,
+            subject: mergeTags(subject, withCode),
+            html
+          });
+          emailSent = true;
+        } catch (e: any) {
+          warnings.push(`Không gửi được email tới ${app.email}: ${e?.message || 'lỗi không xác định'}`);
+        }
+        results.push({
+          application_id: id,
+          candidate: app.full_name || '',
+          email_sent: emailSent,
+          manager_email_sent: false,
+          warnings
+        });
+        continue;
+      }
 
       if (action === 'approve_cv' || action === 'send_offer' || action === 'send_rejection') {
         const subject = String(body?.subject || '').trim();
