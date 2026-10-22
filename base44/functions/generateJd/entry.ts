@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
+import { AI_MODEL } from '../../shared/aiModel.ts';
 
 const GROUP_LABEL: Record<string, string> = {
   skills: 'Kỹ năng',
@@ -36,6 +37,7 @@ export default async function (req: Request): Promise<Response> {
     if (!lines.length) return Response.json({ error: 'Chưa có nhãn nào trong phần thô của JD' }, { status: 400 });
 
     const llm = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      model: AI_MODEL,
       prompt: `Bạn là chuyên gia tuyển dụng của Nexora Technology. Viết JD (Job Description) tiếng Việt chuyên nghiệp, rõ ràng, dựa CHÍNH XÁC trên phần thô dưới đây. Không bịa thêm yêu cầu không có trong danh sách, không thêm số liệu lương ngoài phần thô.
 
 Vị trí: ${title}

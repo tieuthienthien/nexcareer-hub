@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { buildEmail, appOrigin } from "../../shared/stageEmails.ts";
+import { AI_MODEL } from "../../shared/aiModel.ts";
 
 type RubricItem = { group: string; label: string; band?: string; requirement: string; weight: number };
 
@@ -121,6 +122,7 @@ export default async function (req: Request): Promise<Response> {
     // 4) AI đối chiếu từng nhãn của barem với CV
     const rubricLines = rubric.map((r, i) => `${i + 1}. [${r.group}] ${r.label}${r.band ? ` (${r.band})` : ''} — ${r.requirement === 'required' ? 'Bắt buộc' : 'Ưu tiên'}`).join('\n');
     const llm = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      model: AI_MODEL,
       prompt: `Bạn là chuyên gia tuyển dụng của Nexora Technology. Đối chiếu từng nhãn trong BAREM với nội dung CV của ứng viên.
 
 BAREM của vị trí "${job?.title || app.job_title}":

@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
+import { AI_MODEL } from '../../shared/aiModel.ts';
 
 // ============ Tiện ích chuẩn hoá text ============
 function normalize(text) {
@@ -205,6 +206,7 @@ export default async function(req) {
     if (await isAiEnabled(base44)) {
       try {
         const aiRes = await base44.asServiceRole.integrations.Core.InvokeLLM({
+          model: AI_MODEL,
           prompt: buildAiPrompt(message),
         });
         const aiAnswer = (typeof aiRes === "string" ? aiRes : aiRes?.answer || aiRes?.text || "").trim();

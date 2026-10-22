@@ -5,6 +5,7 @@ import {
   latestByLesson,
   normalizeText
 } from '../../shared/courseProgress.ts';
+import { AI_MODEL } from '../../shared/aiModel.ts';
 
 const rubric = {
   type: 'object',
@@ -80,6 +81,7 @@ export default async function (req) {
       let graded = [];
       try {
         const ai = await base44.asServiceRole.integrations.Core.InvokeLLM({
+          model: AI_MODEL,
           prompt: [
             'Bạn là giảng viên chấm bài khóa "Lập trình viên" của NexCareer Hub.',
             'Chấm điểm từng câu trả lời NGẮN của học viên dựa trên đáp án mẫu và các từ khóa chấp nhận được.',

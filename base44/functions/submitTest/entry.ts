@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 import { buildEmail, appOrigin } from "../../shared/stageEmails.ts";
 import { authorizeApplicationAccess, accessDeniedMessage } from "../../shared/applicationAccess.ts";
+import { AI_MODEL } from "../../shared/aiModel.ts";
 
 export default async function(req: Request): Promise<Response> {
   try {
@@ -38,6 +39,7 @@ export default async function(req: Request): Promise<Response> {
     let analysis = "";
     try {
       const llm = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        model: AI_MODEL,
         prompt: `Bạn là hội đồng tuyển dụng Nexora. Chấm bài thi vòng 2 cho vị trí "${job?.title}".
 Loại bài: ${job?.test_type === "technical" ? "Kỹ thuật (code)" : "Tình huống"}.
 Đề bài: ${job?.test_prompt || ""}

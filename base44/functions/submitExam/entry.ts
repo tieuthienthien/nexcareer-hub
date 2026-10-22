@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { buildEmail, appOrigin } from "../../shared/stageEmails.ts";
 import { authorizeApplicationAccess, accessDeniedMessage } from "../../shared/applicationAccess.ts";
+import { AI_MODEL } from "../../shared/aiModel.ts";
 
 export default async function (req: Request): Promise<Response> {
   try {
@@ -68,6 +69,7 @@ export default async function (req: Request): Promise<Response> {
       try {
         const essayLines = essays.map((e, i) => `Câu ${i + 1} (${e.points} điểm) — ${e.prompt}\nBài làm: ${e.answer ? e.answer.slice(0, 4000) : '(bỏ trống)'}`).join('\n\n');
         const llm = await base44.asServiceRole.integrations.Core.InvokeLLM({
+          model: AI_MODEL,
           prompt: `Bạn là hội đồng tuyển dụng Nexora Technology. Chấm phần tự luận/code của bài thi vòng 2 cho vị trí "${app.job_title}".
 Thang điểm từng câu đã ghi rõ. Chấm công bằng, dựa trên tính đúng đắn, độ đầy đủ và tư duy; câu bỏ trống 0 điểm.
 

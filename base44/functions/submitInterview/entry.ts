@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 import { buildEmail, appOrigin } from "../../shared/stageEmails.ts";
 import { authorizeApplicationAccess, accessDeniedMessage } from "../../shared/applicationAccess.ts";
+import { AI_MODEL } from "../../shared/aiModel.ts";
 
 export default async function(req: Request): Promise<Response> {
   try {
@@ -50,6 +51,7 @@ export default async function(req: Request): Promise<Response> {
     try {
       const qaBlock = transcripts.map((x, i) => `Câu ${i + 1}: ${x.q}\nTrả lời: ${x.t || "(không có lời thoại rõ)"}`).join("\n\n");
       const llm = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        model: AI_MODEL,
         prompt: `Bạn là hội đồng tuyển dụng Nexora. Phân tích câu trả lời phỏng vấn video vòng 3 cho vị trí "${app.job_title}".
 Chỉ dựa trên lời thoại đã chuyển đổi. Đánh giá tính logic, sự tự tin thể hiện qua nội dung, mức độ ngắn gọn/rõ ràng.
 
