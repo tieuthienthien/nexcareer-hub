@@ -53,12 +53,19 @@ async function assignedBookings(base44: any, user: any) {
     { sort: 'date', limit: 100 }
   );
   const today = new Date().toISOString().slice(0, 10);
-  return (res.items || []).filter(
-    (b: any) =>
-      String(b.interviewer_email || '').toLowerCase() === email &&
-      String(b.date || '') >= today &&
-      (!b.google_event_id || (b.calendar_synced_at && b.updated_date && b.updated_date > b.calendar_synced_at))
-  );
+  // A booking counts as pending when it has no event yet, or when it was edited
+  // after the last successful sync (ignoring the few seconds the sync itself writes).
+  const TOUCH_TOLERANCE_MS = 60 * 1000;
+  return (res.items || []).filter((b: any) => {
+    if (String(b.interviewer_email || '').toLowerCase() !== email) return false;
+    if (String(b.date || '') < today) return false;
+    if (!b.google_event_id) return true;
+    if (!b.calendar_synced_at || !b.updated_date) return false;
+    const editedAt = new Date(b.updated_date).getTime();
+    const syncedAt = new Date(b.calendar_synced_at).getTime();
+    if (Number.isNaN(editedAt) || Number.isNaN(syncedAt)) return false;
+    return editedAt - syncedAt > TOUCH_TOLERANCE_MS;
+  });
 }
 
 async function statusPayload(base44: any, user: any, accessToken: string, extra: any = {}) {

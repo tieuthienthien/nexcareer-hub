@@ -21,8 +21,8 @@ export default function HrSchedule() {
   const [anchor, setAnchor] = useState(new Date());
   const [error, setError] = useState("");
 
-  const load = async () => {
-    setLoading(true);
+  const load = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const [jobsRes, slotsRes, bookingsRes] = await Promise.all([
         base44.entities.Job.filter({}, { sort: "-created_date", limit: 100 }),
@@ -114,7 +114,7 @@ export default function HrSchedule() {
 
       {error && <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800" onClick={() => setError("")}>{error}</div>}
 
-      <GoogleCalendarCard onSynced={load} />
+      <GoogleCalendarCard onSynced={() => load(true)} />
 
       <Tabs defaultValue="calendar">
         <TabsList className="grid w-full max-w-sm grid-cols-2">
