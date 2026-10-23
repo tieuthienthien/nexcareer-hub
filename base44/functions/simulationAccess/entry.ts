@@ -244,10 +244,14 @@ Không thêm điểm vượt mức tối đa. Chỉ trả JSON hợp lệ.`,
       });
 
       await base44.asServiceRole.entities.Application.update(invite.application_id, {
-        status: 'test_submitted',
+        status: passed ? 'test_passed' : 'test_rejected',
+        rms_status: passed ? 'pending_manager' : 'fail',
         test_submitted_at: now,
         test_score: totalScore,
-        test_ai_analysis: [ai?.strengths, ai?.improvements].filter(Boolean).join('\n\n')
+        test_ai_analysis: [ai?.strengths, ai?.improvements].filter(Boolean).join('\n\n'),
+        step2_done: true,
+        step2_at: now,
+        ...(passed ? {} : { round2_decided_at: now, hr_decision_reason: `Không đạt Job Simulation (${totalScore}/${passScore} điểm)` })
       }).catch(() => null);
 
       return Response.json({

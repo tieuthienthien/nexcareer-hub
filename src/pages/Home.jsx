@@ -203,7 +203,7 @@ export default function Home() {
             <ul className="mt-6 space-y-3">
               {[
                 "Ứng tuyển minh bạch, theo dõi trạng thái theo thời gian thực",
-                "Quy trình 3 vòng: sàng lọc CV, bài thi, phỏng vấn AI",
+                "Quy trình 3 vòng: sàng lọc CV, Job Simulation, phỏng vấn Line Manager",
                 "Bảo mật thông tin hồ sơ ứng viên được đặt lên hàng đầu",
               ].map((t) => (
                 <li key={t} className="flex items-start gap-3 text-sm">

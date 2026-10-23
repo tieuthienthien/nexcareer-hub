@@ -1,19 +1,35 @@
-// Phễu tuyển dụng cộng dồn: số ứng viên đạt tới mỗi mốc
+// Phễu tuyển dụng cộng dồn theo 5 bước của quy trình RMS.
+const STAGE_INDEX = {
+  cv_screening: 0,
+  cv_passed: 1,
+  cv_rejected: 0,
+  test_invited: 1,
+  test_submitted: 2,
+  test_passed: 3,
+  test_rejected: 1,
+  interview_invited: 3,
+  scheduled: 3,
+  interview_submitted: 3,
+  final_review: 3,
+  hired: 4,
+  rejected: 1,
+};
+
 export default function FunnelChart({ byStatus = {}, total = 0 }) {
-  const s = (k) => byStatus[k] || 0;
-  const reached_test =
-    s("test_invited") + s("test_submitted") + s("test_passed") + s("test_rejected") +
-    s("interview_invited") + s("interview_submitted") + s("hired");
-  const reached_interview =
-    s("interview_invited") + s("interview_submitted") + s("hired");
-  const hired = s("hired");
-  const rejected = s("cv_rejected") + s("test_rejected") + s("rejected");
+  const reached = [0, 0, 0, 0, 0];
+  Object.entries(byStatus).forEach(([status, count]) => {
+    const idx = STAGE_INDEX[status];
+    if (idx == null) return;
+    for (let i = 0; i <= idx; i += 1) reached[i] += count;
+  });
+  const rejected = (byStatus.cv_rejected || 0) + (byStatus.test_rejected || 0) + (byStatus.rejected || 0);
 
   const stages = [
     { label: "Nộp hồ sơ", value: total, color: "from-indigo-500 to-violet-500" },
-    { label: "Vào vòng thi", value: reached_test, color: "from-violet-500 to-fuchsia-500" },
-    { label: "Vòng phỏng vấn", value: reached_interview, color: "from-fuchsia-500 to-pink-500" },
-    { label: "Nhận việc", value: hired, color: "from-emerald-500 to-teal-500" },
+    { label: "Qua sàng lọc CV", value: reached[1], color: "from-violet-500 to-fuchsia-500" },
+    { label: "Hoàn thành Job Simulation", value: reached[2], color: "from-fuchsia-500 to-pink-500" },
+    { label: "Phỏng vấn Line Manager", value: reached[3], color: "from-pink-500 to-rose-500" },
+    { label: "Nhận việc", value: reached[4], color: "from-emerald-500 to-teal-500" },
   ];
 
   const max = Math.max(total, 1);
@@ -46,11 +62,11 @@ export default function FunnelChart({ byStatus = {}, total = 0 }) {
       <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-4">
         <div>
           <div className="text-xs text-muted-foreground">Tỷ lệ nhận việc (toàn phễu)</div>
-          <div className="mt-0.5 font-heading text-2xl font-800 text-emerald-600">{total ? Math.round((hired / total) * 100) : 0}%</div>
+          <div className="mt-0.5 font-heading text-2xl font-800 text-emerald-600">{total ? Math.round((reached[4] / total) * 100) : 0}%</div>
         </div>
         <div>
           <div className="text-xs text-muted-foreground">Tỷ lệ qua sàng lọc CV</div>
-          <div className="mt-0.5 font-heading text-2xl font-800 text-primary">{total ? Math.round((reached_test / total) * 100) : 0}%</div>
+          <div className="mt-0.5 font-heading text-2xl font-800 text-primary">{total ? Math.round((reached[1] / total) * 100) : 0}%</div>
         </div>
       </div>
     </div>

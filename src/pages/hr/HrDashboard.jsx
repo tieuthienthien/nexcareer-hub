@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -7,20 +7,27 @@ import { applicationStatusLabel, applicationStatusColor } from "@/lib/jobUtils";
 import FunnelChart from "@/components/hr/FunnelChart";
 import ApplicationsTrend from "@/components/hr/ApplicationsTrend";
 import RmsKpis from "@/components/hr/rms/RmsKpis";
+import { RMS_STATUS, legacyStage } from "@/lib/rms";
 
 const pipeline = [
-  { icon: ClipboardList, title: "Tiếp nhận hồ sơ", desc: "Ứng viên nộp CV qua hệ thống, hồ sơ tự động lưu vào kho ứng viên." },
-  { icon: FileText, title: "Sàng lọc & xét duyệt", desc: "HR đánh giá CV theo yêu cầu vị trí, phân loại phù hợp / cần xem thêm." },
-  { icon: UserCheck, title: "Mời phỏng vấn", desc: "Gửi lời mời phỏng vấn, xếp lịch và chuẩn bị câu hỏi theo vị trí." },
-  { icon: CalendarCheck, title: "Phỏng vấn & đánh giá", desc: "Phỏng vấn nhiều vòng, ghi nhận đánh giá và nhận xét cấu trúc." },
-  { icon: Award, title: "Đề nghị & nhận việc", desc: "Gửi offer, thương lượng và hoàn tất thủ tục nhận việc." },
+  { icon: ClipboardList, title: "Nhận hồ sơ", desc: "Ứng viên nộp CV qua hệ thống, hồ sơ tự lưu vào kho ứng viên." },
+  { icon: FileText, title: "AI sàng lọc & HR duyệt", desc: "AI chấm CV theo barem JD, HR duyệt và gửi lời mời Vòng 2." },
+  { icon: UserCheck, title: "Job Simulation", desc: "Ứng viên làm bài mô phỏng công việc thật, AI chấm điểm và gửi báo cáo." },
+  { icon: CalendarCheck, title: "Line Manager duyệt & phỏng vấn", desc: "Line Manager xem hồ sơ, chấp thuận lịch và đánh giá ứng viên." },
+  { icon: Award, title: "Kết quả Pass / Fail", desc: "HR chốt kết quả cuối và gửi thông báo cho ứng viên." },
 ];
-
-const statusOrder = ["cv_screening", "test_invited", "test_submitted", "interview_invited", "interview_submitted", "hired", "rejected"];
 
 export default function HrDashboard() {
   const [stats, setStats] = useState({ jobs: 0, apps: 0, byStatus: {} });
   const [recent, setRecent] = useState([]);
+  const rmsCounts = useMemo(() => {
+    const out = {};
+    Object.entries(stats.byStatus || {}).forEach(([status, count]) => {
+      const key = legacyStage({ status });
+      out[key] = (out[key] || 0) + count;
+    });
+    return out;
+  }, [stats.byStatus]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -100,18 +107,18 @@ export default function HrDashboard() {
         <div className="rounded-2xl border border-border bg-card p-6">
           <h2 className="font-heading text-lg font-700">Theo trạng thái</h2>
           <div className="mt-5 space-y-3">
-            {statusOrder.map((s) => {
-              const count = stats.byStatus[s] || 0;
+            {Object.entries(RMS_STATUS).map(([key, meta]) => {
+              const count = rmsCounts[key] || 0;
               const total = stats.apps || 1;
               const pct = Math.round((count / total) * 100);
               return (
-                <div key={s}>
+                <div key={key}>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="font-500">{applicationStatusLabel[s]}</span>
+                    <span className="font-500">{meta.label}</span>
                     <span className="font-600">{count}</span>
                   </div>
                   <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
-                    <div className={`h-full rounded-full ${s === "rejected" ? "bg-rose-400" : s === "hired" ? "bg-emerald-500" : "bg-primary"}`} style={{ width: `${pct}%` }} />
+                    <div className={`h-full rounded-full ${key === "fail" ? "bg-rose-400" : key === "pass" ? "bg-emerald-500" : "bg-primary"}`} style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );
