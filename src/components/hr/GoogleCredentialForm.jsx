@@ -82,6 +82,11 @@ export default function GoogleCredentialForm({ clientId, redirectUri, configured
         </div>
       </div>
 
+      <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+        Nếu Google báo lỗi <b>403 access_denied</b>: vào OAuth consent screen thêm email Google của bạn vào mục
+        <b> Test users</b>, hoặc chuyển app sang trạng thái <b>Published</b>.
+      </p>
+
       {error && <div className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800">{error}</div>}
 
       <div className="mt-3 flex items-center gap-2">

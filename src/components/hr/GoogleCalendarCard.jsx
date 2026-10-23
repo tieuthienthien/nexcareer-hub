@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { CalendarCheck, CalendarClock, CheckCircle2, Loader2, RefreshCw, Settings2, Unlink } from "lucide-react";
@@ -34,6 +34,7 @@ export default function GoogleCalendarCard({ onSynced }) {
   const [googleEmail, setGoogleEmail] = useState("");
   const [pending, setPending] = useState(0);
   const [events, setEvents] = useState([]);
+  const pollRef = useRef(null);
 
   const invoke = async (payload) => (await base44.functions.invoke("gcalAuth", payload))?.data || {};
 
@@ -84,6 +85,64 @@ export default function GoogleCalendarCard({ onSynced }) {
     window.history.replaceState({}, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
   };
 
+  const stopPolling = () => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  };
+
+  useEffect(() => stopPolling, []);
+
+  const finishConnect = async (data) => {
+    stopPolling();
+    applyStatus(data);
+    setShowForm(false);
+    await loadCalendar();
+    setBusy("");
+  };
+
+  // Chờ cửa sổ Google hoàn tất cấp quyền rồi tự cập nhật trạng thái kết nối.
+  const watchConnection = (win) => {
+    stopPolling();
+    const started = Date.now();
+    pollRef.current = setInterval(async () => {
+      let status = {};
+      try {
+        status = await invoke({ action: "status" });
+      } catch {
+        status = {};
+      }
+      if (status.connected) {
+        await finishConnect(status);
+        if (win && !win.closed) win.close();
+        return;
+      }
+      if (win && win.closed) {
+        stopPolling();
+        setTimeout(async () => {
+          let final = {};
+          try {
+            final = await invoke({ action: "status" });
+          } catch {
+            final = {};
+          }
+          if (final.connected) await finishConnect(final);
+          else {
+            setBusy("");
+            setError("Chưa hoàn tất kết nối Google. Hãy bấm Kết nối lại và chọn tài khoản khi cửa sổ Google mở ra.");
+          }
+        }, 1500);
+        return;
+      }
+      if (Date.now() - started > 180000) {
+        stopPolling();
+        setBusy("");
+        setError("Hết thời gian chờ cấp quyền Google. Vui lòng bấm Kết nối lại.");
+      }
+    }, 2500);
+  };
+
   useEffect(() => {
     (async () => {
       try {
@@ -115,7 +174,15 @@ export default function GoogleCalendarCard({ onSynced }) {
       sessionStorage.setItem(STATE_KEY, state);
       const data = await invoke({ action: "start", state, redirect_uri: redirectUri });
       if (!data.url) throw new Error(data.error || "Không tạo được liên kết kết nối Google.");
-      window.location.href = data.url;
+      const win = window.open(data.url, "gcal_connect", "width=600,height=760");
+      if (!win) {
+        setBusy("");
+        setError(
+          "Trình duyệt đang chặn cửa sổ Google. Hãy mở app ở tab riêng (nexcareerhubbyxme.base44.app), vào Lịch phỏng vấn và bấm Kết nối Google Calendar lại."
+        );
+        return;
+      }
+      watchConnection(win);
     } catch (e) {
       setError(e.message || "Không mở được trang kết nối Google.");
       setBusy("");
