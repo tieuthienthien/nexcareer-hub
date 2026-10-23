@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Send, Check, X, ExternalLink, AlertTriangle, Copy } from "lucide-react";
 import { formatDateTime, rmsStatus } from "@/lib/rms";
+import EmailComposeDialog from "@/components/hr/email/compose/EmailComposeDialog";
 
 const INVITE_LABEL = {
   sent: { label: "Đã gửi lời mời", cls: "bg-blue-100 text-blue-700" },
@@ -13,8 +14,9 @@ const INVITE_LABEL = {
   expired: { label: "Quá hạn", cls: "bg-rose-100 text-rose-700" },
 };
 
-export default function Round2Step({ app, invite, attempt, onDone }) {
+export default function Round2Step({ app, invite, attempt, booking, onDone }) {
   const [sims, setSims] = useState([]);
+  const [compose, setCompose] = useState(null);
   const [simId, setSimId] = useState("");
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
@@ -62,13 +64,20 @@ export default function Round2Step({ app, invite, attempt, onDone }) {
     }
   };
 
-  const decide = async (action) => {
+  // Cho qua / Loại ở Vòng 2 → cập nhật hồ sơ rồi mở trình soạn email đúng mẫu.
+  const startCompose = async (action) => {
     setBusy(action);
     setError("");
     try {
-      const res = await base44.functions.invoke("advanceStage", { application_id: app.id, action, note });
+      const res = await base44.functions.invoke("advanceStage", {
+        application_id: app.id,
+        action,
+        note,
+        skip_email: true,
+      });
       if (res.data?.error) throw new Error(res.data.error);
       setNote("");
+      setCompose({ templateKey: action === "approve_round2" ? "round2_pass" : "round2_fail", action });
       await onDone?.();
     } catch (e) {
       setError(e.response?.data?.error || e.message || "Không cập nhật được quyết định.");
@@ -184,10 +193,10 @@ export default function Round2Step({ app, invite, attempt, onDone }) {
         <div className="mt-3 space-y-2">
           <Textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ghi chú khi chuyển vòng 3 / loại (không bắt buộc)" className="text-sm" />
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={() => decide("approve_round2")} disabled={!!busy} className="gap-1.5">
+            <Button size="sm" onClick={() => startCompose("approve_round2")} disabled={!!busy} className="gap-1.5">
               {busy === "approve_round2" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />} Cho qua vòng 3
             </Button>
-            <Button size="sm" variant="outline" onClick={() => decide("reject_round2")} disabled={!!busy} className="gap-1.5 text-rose-600">
+            <Button size="sm" variant="outline" onClick={() => startCompose("reject_round2")} disabled={!!busy} className="gap-1.5 text-rose-600">
               {busy === "reject_round2" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />} Loại
             </Button>
           </div>
@@ -199,6 +208,18 @@ export default function Round2Step({ app, invite, attempt, onDone }) {
           {app?.status === "test_passed" || stage === "pending_manager" ? "HR đã cho qua Vòng 3." : "HR đã loại ở Vòng 2."}
         </p>
       )}
+
+      <EmailComposeDialog
+        open={!!compose}
+        onOpenChange={(value) => { if (!value) setCompose(null); }}
+        app={app}
+        invite={invite}
+        attempt={attempt}
+        booking={booking}
+        templateKey={compose?.templateKey || "round2_pass"}
+        step="Vòng 2"
+        onSent={() => { setCompose(null); onDone?.(); }}
+      />
     </div>
   );
 }

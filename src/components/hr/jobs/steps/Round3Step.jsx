@@ -5,13 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarClock, Loader2, Plus, Pencil, Trash2, UserCog, AlertTriangle, Check } from "lucide-react";
+import { CalendarClock, Loader2, Mail, Plus, Pencil, Trash2, UserCog, AlertTriangle, Check } from "lucide-react";
 import { formatDateTime, rmsStatus } from "@/lib/rms";
+import EmailComposeDialog from "@/components/hr/email/compose/EmailComposeDialog";
 
 const emptyForm = { id: null, manager_name: "", line_manager_email: "", department: "" };
 
-export default function Round3Step({ app, booking, onDone }) {
+export default function Round3Step({ app, booking, invite, onDone }) {
   const [open, setOpen] = useState(false);
+  const [compose, setCompose] = useState(false);
   const [roles, setRoles] = useState([]);
   const [loadingRoles, setLoadingRoles] = useState(false);
   const [form, setForm] = useState(null);
@@ -139,12 +141,19 @@ export default function Round3Step({ app, booking, onDone }) {
         </p>
       )}
 
-      {!open && canSchedule && (
-        <Button size="sm" variant={scheduled ? "outline" : "default"} onClick={() => setOpen(true)} className="mt-3 gap-1.5">
-          {scheduled ? <CalendarClock className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
-          {scheduled ? "Đổi lịch phỏng vấn" : "Thêm Line Manager phỏng vấn"}
-        </Button>
-      )}
+      <div className="mt-3 flex flex-wrap gap-2">
+        {!open && canSchedule && (
+          <Button size="sm" variant={scheduled ? "outline" : "default"} onClick={() => setOpen(true)} className="gap-1.5">
+            {scheduled ? <CalendarClock className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+            {scheduled ? "Đổi lịch phỏng vấn" : "Thêm Line Manager phỏng vấn"}
+          </Button>
+        )}
+        {canSchedule && (
+          <Button size="sm" variant="outline" onClick={() => setCompose(true)} className="gap-1.5">
+            <Mail className="h-3.5 w-3.5" /> Gửi email cho ứng viên
+          </Button>
+        )}
+      </div>
 
       {open && (
         <div className="mt-3 space-y-3 rounded-xl border border-border/70 p-3">
@@ -237,6 +246,17 @@ export default function Round3Step({ app, booking, onDone }) {
       )}
 
       {error && <div className="mt-3 flex items-start gap-2 rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-800"><AlertTriangle className="mt-0.5 h-3.5 w-3.5" />{error}</div>}
+
+      <EmailComposeDialog
+        open={compose}
+        onOpenChange={setCompose}
+        app={app}
+        invite={invite}
+        booking={booking}
+        templateKey="interview_confirm"
+        step="Vòng 3"
+        onSent={() => onDone?.()}
+      />
     </div>
   );
 }

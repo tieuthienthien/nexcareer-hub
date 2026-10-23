@@ -1,0 +1,107 @@
+{
+  "name": "EmailLog",
+  "type": "object",
+  "description": "L\u1ecbch s\u1eed email HR g\u1eedi cho \u1ee9ng vi\u00ean theo t\u1eebng b\u01b0\u1edbc tuy\u1ec3n d\u1ee5ng (nh\u00e1p, \u0111\u00e3 g\u1eedi, g\u1eedi l\u1ed7i)",
+  "properties": {
+    "application_id": {
+      "type": "string",
+      "description": "H\u1ed3 s\u01a1 \u1ee9ng vi\u00ean nh\u1eadn email"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "step": {
+      "type": "string",
+      "description": "B\u01b0\u1edbc tuy\u1ec3n d\u1ee5ng: V\u00f2ng 1 / V\u00f2ng 2 / V\u00f2ng 3 / K\u1ebft qu\u1ea3"
+    },
+    "template_key": {
+      "type": "string",
+      "description": "M\u1eabu email \u0111\u00e3 d\u00f9ng"
+    },
+    "to_email": {
+      "type": "string"
+    },
+    "cc": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Danh s\u00e1ch email nh\u1eadn b\u1ea3n sao"
+    },
+    "bcc": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Danh s\u00e1ch email nh\u1eadn b\u1ea3n sao \u1ea9n"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "body_html": {
+      "type": "string",
+      "description": "N\u1ed9i dung email d\u1ea1ng HTML (\u0111\u00e3 \u0111i\u1ec1n bi\u1ebfn)"
+    },
+    "banner_url": {
+      "type": "string"
+    },
+    "banner_alt": {
+      "type": "string"
+    },
+    "signature_url": {
+      "type": "string"
+    },
+    "signature_alt": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "sent",
+        "failed"
+      ],
+      "default": "draft"
+    },
+    "error": {
+      "type": "string"
+    },
+    "is_test": {
+      "type": "boolean",
+      "default": false,
+      "description": "Email g\u1eedi th\u1eed cho ch\u00ednh HR"
+    },
+    "sent_by_email": {
+      "type": "string"
+    },
+    "sent_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "application_id",
+    "subject"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

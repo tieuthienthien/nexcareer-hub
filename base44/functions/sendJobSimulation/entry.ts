@@ -89,6 +89,17 @@ export default async function (req: Request): Promise<Response> {
     const link = `${origin(req)}/job-simulation/${invite.token}`;
     const deadlineText = new Date(invite.expires_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
 
+    // HR soạn email mời trong trình soạn email → chỉ tạo lời mời, không gửi mail tự động.
+    if (body?.skip_email === true) {
+      return Response.json({
+        ok: true,
+        invite: { id: invite.id, token: invite.token, expires_at: invite.expires_at, status: invite.status, simulation_name: invite.simulation_name },
+        link,
+        duration_min: sim.duration_min || 60,
+        email_sent: false
+      });
+    }
+
     let emailSent = false;
     let emailError = '';
     const ensured = await ensureCandidateUser(base44, app.email);

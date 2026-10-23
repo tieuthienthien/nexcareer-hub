@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Check, X, Loader2, Sparkles, AlertTriangle } from "lucide-react";
 import { formatDateTime } from "@/lib/rms";
+import EmailComposeDialog from "@/components/hr/email/compose/EmailComposeDialog";
 
 const ADVICE = {
   pass: { label: "AI gợi ý: nên duyệt", cls: "bg-emerald-100 text-emerald-700" },
@@ -11,23 +12,46 @@ const ADVICE = {
   reject: { label: "AI gợi ý: nên loại", cls: "bg-rose-100 text-rose-700" },
 };
 
-export default function Round1Step({ app, onDone }) {
+export default function Round1Step({ app, invite, booking, onDone }) {
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
+  const [compose, setCompose] = useState(null);
 
   const pending = !app?.round1_decided_at && (app?.status === "cv_screening" || !app?.status);
   const rejected = app?.status === "cv_rejected";
   const rubric = Array.isArray(app?.cv_rubric) ? app.cv_rubric : [];
   const advice = ADVICE[app?.cv_advice];
 
-  const decide = async (action) => {
+  // Bấm duyệt/loại → cập nhật hồ sơ rồi mở trình soạn email với mẫu tương ứng.
+  const startCompose = async (action) => {
     setBusy(action);
     setError("");
     try {
-      const res = await base44.functions.invoke("advanceStage", { application_id: app.id, action, note, hr_decision_reason: note });
+      const res = await base44.functions.invoke("advanceStage", {
+        application_id: app.id,
+        action,
+        note,
+        hr_decision_reason: note,
+        skip_email: true,
+      });
       if (res.data?.error) throw new Error(res.data.error);
+      let preset = {};
+      if (action === "approve_round1") {
+        try {
+          const sim = await base44.functions.invoke("sendJobSimulation", { application_id: app.id, skip_email: true, expires_days: 3 });
+          const d = sim.data || {};
+          if (!d.error) {
+            preset = {
+              link_job_simulation: d.link,
+              han_nop_simulation: d.invite?.expires_at ? formatDateTime(d.invite.expires_at) : "",
+              thoi_luong: d.duration_min,
+            };
+          }
+        } catch (e) {}
+      }
       setNote("");
+      setCompose({ templateKey: action === "approve_round1" ? "round1_pass" : "round1_fail", preset, action });
       await onDone?.();
     } catch (e) {
       setError(e.response?.data?.error || e.message || "Không cập nhật được quyết định.");
@@ -112,10 +136,10 @@ export default function Round1Step({ app, onDone }) {
         <div className="mt-3 space-y-2">
           <Textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ghi chú quyết định (không bắt buộc) — sẽ lưu vào hồ sơ và email gửi ứng viên" className="text-sm" />
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={() => decide("approve_round1")} disabled={!!busy} className="gap-1.5">
+            <Button size="sm" onClick={() => startCompose("approve_round1")} disabled={!!busy} className="gap-1.5">
               {busy === "approve_round1" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />} Duyệt CV
             </Button>
-            <Button size="sm" variant="outline" onClick={() => decide("reject_round1")} disabled={!!busy} className="gap-1.5 text-rose-600">
+            <Button size="sm" variant="outline" onClick={() => startCompose("reject_round1")} disabled={!!busy} className="gap-1.5 text-rose-600">
               {busy === "reject_round1" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />} Loại hồ sơ
             </Button>
           </div>
@@ -128,6 +152,18 @@ export default function Round1Step({ app, onDone }) {
           </p>
         )
       )}
+
+      <EmailComposeDialog
+        open={!!compose}
+        onOpenChange={(value) => { if (!value) setCompose(null); }}
+        app={app}
+        invite={invite}
+        booking={booking}
+        templateKey={compose?.templateKey || "round1_pass"}
+        step="Vòng 1"
+        preset={compose?.preset || {}}
+        onSent={() => { setCompose(null); onDone?.(); }}
+      />
     </div>
   );
 }

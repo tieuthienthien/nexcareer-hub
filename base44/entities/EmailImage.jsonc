@@ -1,0 +1,54 @@
+{
+  "name": "EmailImage",
+  "type": "object",
+  "description": "Th\u01b0 vi\u1ec7n \u1ea3nh d\u00f9ng cho email tuy\u1ec3n d\u1ee5ng (banner, \u1ea3nh ch\u00e8n, logo ch\u1eef k\u00fd)",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string",
+      "description": "URL \u1ea3nh c\u00f4ng khai d\u00f9ng tr\u1ef1c ti\u1ebfp trong email"
+    },
+    "alt": {
+      "type": "string",
+      "description": "M\u00f4 t\u1ea3 thay th\u1ebf (alt text)"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "upload",
+        "ai"
+      ],
+      "default": "upload"
+    },
+    "created_by_email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "url"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

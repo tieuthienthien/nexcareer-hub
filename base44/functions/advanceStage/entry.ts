@@ -77,8 +77,10 @@ export default async function (req: Request): Promise<Response> {
 
     let emailSent = false;
     let emailError = '';
+    // HR gửi email qua trình soạn email → không gửi mail tự động ở bước này.
+    const skipEmail = body?.skip_email === true;
 
-    if (next.email) {
+    if (next.email && !skipEmail) {
       // SendEmail chỉ tới được người đã có tài khoản trong app → tạo/mời tài khoản trước khi gửi
       const ensured = await ensureCandidateUser(base44, app.email);
       if (!ensured.registered) {
