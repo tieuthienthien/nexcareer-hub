@@ -13,8 +13,32 @@ export const RMS_OPTIONS = [
   ...Object.entries(RMS_STATUS).map(([value, meta]) => ({ value, label: meta.label })),
 ];
 
+// Trạng thái cũ (status) vẫn được các luồng chấm CV / chuyển vòng cập nhật.
+// Quy đổi sang trạng thái RMS để sơ đồ tiến trình và nhãn luôn phản ánh đúng thực tế.
+const LEGACY_STAGE = {
+  cv_screening: "new",
+  cv_passed: "cv_approved",
+  cv_rejected: "fail",
+  test_invited: "cv_approved",
+  test_submitted: "cv_approved",
+  test_passed: "pending_manager",
+  test_rejected: "fail",
+  interview_invited: "pending_manager",
+  scheduled: "pending_manager",
+  interview_submitted: "interviewed",
+  final_review: "interviewed",
+  hired: "pass",
+  rejected: "fail",
+};
+
+export function legacyStage(app) {
+  return LEGACY_STAGE[app?.status] || "new";
+}
+
 export function rmsStatus(app) {
-  return app?.rms_status || "new";
+  const raw = app?.rms_status;
+  if (raw && raw !== "new") return raw;
+  return legacyStage(app);
 }
 
 export function rmsMeta(app) {
@@ -97,7 +121,48 @@ export function matchesKeyword(app, keyword) {
   return haystack.includes(q);
 }
 
+const AFTER_CV = [
+  "cv_passed",
+  "cv_rejected",
+  "test_invited",
+  "test_submitted",
+  "test_passed",
+  "test_rejected",
+  "interview_invited",
+  "scheduled",
+  "interview_submitted",
+  "final_review",
+  "hired",
+  "rejected",
+];
+
+const WITH_MANAGER = [
+  "test_passed",
+  "interview_invited",
+  "scheduled",
+  "interview_submitted",
+  "final_review",
+  "hired",
+];
+
+const WITH_SCHEDULE = ["interview_submitted", "final_review", "hired"];
+
 export function stepItems(app) {
+  const status = app?.status || "";
+  const stage = rmsStatus(app);
+  const rejectedEarly = status === "cv_rejected";
+  const rejectedLate = app?.manager_decision === "fail" || status === "rejected" || status === "test_rejected";
+
+  const step2Done =
+    !!app?.step2_done ||
+    !!app?.round1_decided_at ||
+    AFTER_CV.includes(status) ||
+    ["cv_approved", "pending_manager", "interviewed", "pass"].includes(stage);
+  const step3Done = !!app?.step3_done || !!app?.assigned_manager_email || WITH_MANAGER.includes(status);
+  const step4Done = !!app?.step4_done || app?.interview_confirmed === true || WITH_SCHEDULE.includes(status) || stage === "interviewed";
+  const step5Done =
+    !!app?.step5_done || !!app?.manager_decision || status === "hired" || status === "rejected" || stage === "pass";
+
   return [
     {
       key: "step1",
@@ -109,31 +174,37 @@ export function stepItems(app) {
     {
       key: "step2",
       title: "HR check & mail mời PV",
-      desc: "HR duyệt CV và gửi thư mời phỏng vấn",
-      done: !!app?.step2_done,
-      at: app?.step2_at,
+      desc: rejectedEarly ? "HR từ chối ở vòng CV" : "HR duyệt CV và gửi thư mời phỏng vấn",
+      done: step2Done,
+      at: app?.step2_at || app?.round1_decided_at,
+      failed: rejectedEarly,
     },
     {
       key: "step3",
       title: "Chuyển Line Manager",
       desc: app?.assigned_manager_email ? `Phụ trách: ${app.assigned_manager_email}` : "Chưa gán Line Manager cho vị trí",
-      done: !!app?.step3_done,
-      at: app?.step3_at,
+      done: step3Done,
+      at: app?.step3_at || app?.manager_opened_at,
     },
     {
       key: "step4",
       title: "Manager chấp thuận lịch",
       desc: interviewSlotLabel(app) || "Ứng viên chưa chọn khung giờ",
-      done: !!app?.step4_done,
-      at: app?.step4_at,
+      done: step4Done,
+      at: app?.step4_at || app?.interview_at,
     },
     {
       key: "step5",
       title: "Kết quả & nhận việc",
-      desc: app?.manager_decision === "fail" ? "Line Manager từ chối" : "Line Manager quyết định Pass/Fail",
-      done: !!app?.step5_done,
-      at: app?.step5_at,
-      failed: app?.manager_decision === "fail",
+      desc:
+        rejectedLate || rejectedEarly
+          ? "Hồ sơ không được chọn"
+          : status === "hired" || stage === "pass"
+            ? "Đã nhận việc"
+            : "Line Manager quyết định Pass/Fail",
+      done: step5Done || rejectedLate || rejectedEarly,
+      at: app?.step5_at || app?.decision_at || app?.round2_decided_at,
+      failed: rejectedLate || rejectedEarly,
     },
   ];
 }

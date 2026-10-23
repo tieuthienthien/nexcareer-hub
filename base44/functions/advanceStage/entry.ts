@@ -2,17 +2,38 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { buildEmail, appOrigin } from "../../shared/stageEmails.ts";
 import { provisionCandidateAccount, ensureCandidateUser, normalizeEmail } from "../../shared/candidateAccount.ts";
 
-const ACTIONS: Record<string, { status: string; email?: string; finalResult?: string }> = {
-  approve_round1: { status: 'cv_passed', email: 'round1_pass' },
-  reject_round1: { status: 'cv_rejected', email: 'round1_fail' },
-  approve_round2: { status: 'test_passed', email: 'round2_pass' },
-  reject_round2: { status: 'test_rejected', email: 'round2_fail' },
-  mark_interviewed: { status: 'interview_submitted' },
-  hire: { status: 'hired', email: 'final_result', finalResult: 'hired' },
-  reject_round3: { status: 'rejected', email: 'final_result', finalResult: 'rejected' },
-  final_hired: { status: 'hired', email: 'final_result', finalResult: 'hired' },
-  final_rejected: { status: 'rejected', email: 'final_result', finalResult: 'rejected' },
-  final_review: { status: 'final_review', email: 'final_result', finalResult: 'review' }
+const ACTIONS: Record<string, { status: string; email?: string; finalResult?: string; rms: string }> = {
+  approve_round1: { status: 'cv_passed', email: 'round1_pass', rms: 'cv_approved' },
+  reject_round1: { status: 'cv_rejected', email: 'round1_fail', rms: 'fail' },
+  approve_round2: { status: 'test_passed', email: 'round2_pass', rms: 'pending_manager' },
+  reject_round2: { status: 'test_rejected', email: 'round2_fail', rms: 'fail' },
+  mark_interviewed: { status: 'interview_submitted', rms: 'interviewed' },
+  hire: { status: 'hired', email: 'final_result', finalResult: 'hired', rms: 'pass' },
+  reject_round3: { status: 'rejected', email: 'final_result', finalResult: 'rejected', rms: 'fail' },
+  final_hired: { status: 'hired', email: 'final_result', finalResult: 'hired', rms: 'pass' },
+  final_rejected: { status: 'rejected', email: 'final_result', finalResult: 'rejected', rms: 'fail' },
+  final_review: { status: 'final_review', email: 'final_result', finalResult: 'review', rms: 'interviewed' }
+};
+
+// Giữ bộ cờ 5 bước của sơ đồ tiến trình đồng bộ với trạng thái cũ.
+const RMS_STEPS: Record<string, (now: string) => Record<string, any>> = {
+  approve_round1: (now) => ({ step2_done: true, step2_at: now }),
+  reject_round1: (now) => ({
+    step2_done: true, step2_at: now, step5_done: true, step5_at: now,
+    manager_decision: 'fail', decision_at: now
+  }),
+  reject_round2: (now) => ({
+    step5_done: true, step5_at: now, manager_decision: 'fail', decision_at: now
+  }),
+  mark_interviewed: (now) => ({ step4_done: true, step4_at: now }),
+  hire: (now) => ({ step5_done: true, step5_at: now, manager_decision: 'pass', decision_at: now }),
+  final_hired: (now) => ({ step5_done: true, step5_at: now, manager_decision: 'pass', decision_at: now }),
+  reject_round3: (now) => ({
+    step5_done: true, step5_at: now, manager_decision: 'fail', decision_at: now
+  }),
+  final_rejected: (now) => ({
+    step5_done: true, step5_at: now, manager_decision: 'fail', decision_at: now
+  })
 };
 
 export default async function (req: Request): Promise<Response> {
@@ -34,7 +55,7 @@ export default async function (req: Request): Promise<Response> {
     if (!app) return Response.json({ error: 'Không tìm thấy hồ sơ' }, { status: 404 });
 
     const now = new Date().toISOString();
-    const updateData: any = { status: next.status };
+    const updateData: any = { status: next.status, rms_status: next.rms, ...(RMS_STEPS[action]?.(now) || {}) };
     if (note) { updateData.final_notes = note; updateData.final_result_note = note; }
     if (decisionReason) updateData.hr_decision_reason = decisionReason;
     if (action === 'approve_round1' || action === 'reject_round1') updateData.round1_decided_at = now;
