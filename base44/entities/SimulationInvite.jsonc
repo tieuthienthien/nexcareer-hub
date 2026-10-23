@@ -1,0 +1,88 @@
+{
+  "name": "SimulationInvite",
+  "type": "object",
+  "description": "L\u1eddi m\u1eddi l\u00e0m Job Simulation (V\u00f2ng 2) g\u1eedi cho t\u1eebng \u1ee9ng vi\u00ean, m\u1ed7i l\u1eddi m\u1eddi c\u00f3 token ri\u00eang",
+  "properties": {
+    "token": {
+      "type": "string",
+      "description": "Token duy nh\u1ea5t d\u00f9ng trong link l\u00e0m b\u00e0i"
+    },
+    "simulation_id": {
+      "type": "string"
+    },
+    "simulation_name": {
+      "type": "string"
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "candidate_email": {
+      "type": "string"
+    },
+    "candidate_name": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": "string",
+      "description": "H\u1ea1n cu\u1ed1i l\u00e0m b\u00e0i (ISO)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "sent",
+        "started",
+        "submitted",
+        "expired"
+      ],
+      "default": "sent"
+    },
+    "sent_at": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "submitted_at": {
+      "type": "string"
+    },
+    "score": {
+      "type": "number"
+    },
+    "passed": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "token",
+    "application_id",
+    "candidate_email"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

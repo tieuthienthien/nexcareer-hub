@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Building2, ArrowLeft, LogOut, LayoutDashboard, FileText, Users, MessageCircle, GitCompare, MessageSquare, Sparkles, CalendarClock, GraduationCap, Workflow, UserCog, Palette, Mail } from "lucide-react";
+import { Building2, ArrowLeft, LogOut, LayoutDashboard, FileText, Users, MessageCircle, GitCompare, MessageSquare, CalendarClock, GraduationCap, Mail } from "lucide-react";
 import { Image } from "@/components/ui/image";
 import StarRainClick from "@/components/StarRainClick";
 import HrChatbotNotifications from "@/components/hr/rms/HrChatbotNotifications";
@@ -9,21 +9,17 @@ import ManagerWorkspace from "@/pages/hr/ManagerWorkspace";
 
 const mainNav = [
   { label: "Tổng quan", path: "/hr-studio", icon: LayoutDashboard, end: true },
+  { label: "Việc làm", path: "/hr-studio/jobs", icon: FileText },
   { label: "Hồ sơ ứng viên", path: "/hr-studio/applications", icon: Users },
-  { label: "Tiến trình", path: "/hr-studio/pipeline", icon: Workflow },
-  { label: "Line Manager", path: "/hr-studio/manager", icon: UserCog },
+  { label: "Lịch phỏng vấn", path: "/hr-studio/schedule", icon: CalendarClock },
 ];
 
 const moreNav = [
-  { label: "Việc làm", path: "/hr-studio/jobs", icon: FileText },
-  { label: "Tạo JD", path: "/hr-studio/jd", icon: Sparkles },
-  { label: "Lịch phỏng vấn", path: "/hr-studio/schedule", icon: CalendarClock },
-  { label: "Khóa học", path: "/hr-studio/courses", icon: GraduationCap },
+  { label: "Job Simulation", path: "/hr-studio/job-simulations", icon: GraduationCap },
   { label: "So sánh", path: "/hr-studio/compare", icon: GitCompare },
   { label: "Chatbot", path: "/hr-studio/chatbot", icon: MessageCircle },
   { label: "Phản hồi", path: "/hr-studio/feedback", icon: MessageSquare },
   { label: "Mẫu email", path: "/hr-studio/email-templates", icon: Mail },
-  { label: "Design web", path: "/hr-studio/design", icon: Palette },
 ];
 
 export default function HrLayout() {
@@ -97,6 +93,7 @@ export default function HrLayout() {
           </div>
         </div>
         <nav className="flex-1 overflow-y-auto p-3">
+          <div className="px-3 pb-1 text-[10px] font-700 uppercase tracking-wider text-muted-foreground">Tuyển dụng</div>
           <div className="space-y-1">
             {mainNav.map((n) => (
               <NavLink

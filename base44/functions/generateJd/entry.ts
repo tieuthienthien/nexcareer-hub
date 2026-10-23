@@ -23,6 +23,47 @@ export default async function (req: Request): Promise<Response> {
     const company = String(body?.company || 'Nexora Technology').slice(0, 160);
     const location = String(body?.location || '').slice(0, 120);
 
+    // Chế độ "vài ý" dùng trong form tạo/sửa việc làm: sinh JD đầy đủ + nhãn kỹ năng.
+    if (body?.mode === 'hints') {
+      const skills = Array.isArray(body?.skills) ? body.skills.slice(0, 15).map((s: any) => String(s).slice(0, 60)) : [];
+      const level = String(body?.experience || '').slice(0, 80);
+      const hints = String(body?.hints || '').slice(0, 800);
+      const llm = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        model: AI_MODEL,
+        prompt: `Bạn là chuyên gia tuyển dụng của ${company}. Viết JD tiếng Việt chuyên nghiệp cho vị trí dưới đây, chỉ dựa trên thông tin được cung cấp, không bịa con số lương hay cam kết cụ thể.
+
+Vị trí: ${title}
+Công ty: ${company}${location ? `\nĐịa điểm: ${location}` : ''}
+Cấp bậc / kinh nghiệm: ${level || 'Không nêu'}
+Kỹ năng chính: ${skills.join(', ') || 'Không nêu'}
+Ý chính từ HR: ${hints || 'Không có'}
+
+Yêu cầu đầu ra:
+- description: 1 đoạn 3–5 câu nêu vai trò, sản phẩm/dự án, môi trường làm việc.
+- requirements: danh sách gạch đầu dòng (mỗi ý bắt đầu "- "), nhóm theo Kỹ năng / Kinh nghiệm / Bằng cấp / Thái độ.
+- benefits: danh sách gạch đầu dòng quyền lợi phổ biến của công ty công nghệ.
+- skills: mảng 6–12 nhãn kỹ năng/từ khóa ngắn (tiếng Việt hoặc tên công nghệ) dùng để chấm CV.
+Chỉ trả JSON hợp lệ.`,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            description: { type: 'string' },
+            requirements: { type: 'string' },
+            benefits: { type: 'string' },
+            skills: { type: 'array', items: { type: 'string' } }
+          }
+        }
+      });
+      return Response.json({
+        ok: true,
+        description: llm?.description || '',
+        requirements: llm?.requirements || '',
+        benefits: llm?.benefits || '',
+        skills: Array.isArray(llm?.skills) && llm.skills.length ? llm.skills : skills,
+        generated_at: new Date().toISOString()
+      });
+    }
+
     const lines: string[] = [];
     for (const key of Object.keys(GROUP_LABEL)) {
       const items = Array.isArray(rubric[key]) ? rubric[key] : [];

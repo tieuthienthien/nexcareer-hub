@@ -67,7 +67,7 @@ export default function HrJobs() {
           <Button variant="outline" onClick={syncFromSource} disabled={syncing} className="gap-2">
             {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Đồng bộ từ TopCV
           </Button>
-          <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="gap-2"><Plus className="h-4 w-4" /> Đăng việc làm</Button>
+          <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="gap-2"><Plus className="h-4 w-4" /> Tạo việc làm</Button>
         </div>
       </div>
 
@@ -95,16 +95,16 @@ export default function HrJobs() {
         ) : (
           jobs.map((job) => (
             <div key={job.id} className="flex items-center gap-4 border-b border-border/60 p-4 last:border-0 hover:bg-muted/30">
-              <div className="min-w-0 flex-1">
+              <Link to={`/hr-studio/jobs/${job.id}`} className="min-w-0 flex-1 group">
                 <div className="flex items-center gap-2">
-                  <Link to={`/viec-lam/${job.id}`} className="truncate text-sm font-600 hover:text-primary">{job.title}</Link>
+                  <span className="truncate text-sm font-600 group-hover:text-primary">{job.title}</span>
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-600 ${job.status === "published" ? "bg-emerald-100 text-emerald-700" : job.status === "draft" ? "bg-muted text-muted-foreground" : "bg-rose-100 text-rose-700"}`}>
                     {job.status === "published" ? "Đang tuyển" : job.status === "draft" ? "Nháp" : "Đã đóng"}
                   </span>
                   {job.featured && <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-600 text-accent">Nổi bật</span>}
                 </div>
                 <div className="mt-0.5 truncate text-xs text-muted-foreground">{job.company} · {job.location} · {formatSalary(job)} · {employmentTypeLabel[job.employment_type]}</div>
-              </div>
+              </Link>
               <div className="flex items-center gap-1">
                 <Button asChild variant="ghost" size="icon"><Link to={`/viec-lam/${job.id}`}><ExternalLink className="h-4 w-4" /></Link></Button>
                 <Button variant="ghost" size="icon" onClick={() => { setEditing(job); setDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>

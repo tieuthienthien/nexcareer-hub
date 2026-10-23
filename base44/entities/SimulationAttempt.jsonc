@@ -1,0 +1,110 @@
+{
+  "name": "SimulationAttempt",
+  "type": "object",
+  "description": "B\u00e0i l\u00e0m Job Simulation c\u1ee7a \u1ee9ng vi\u00ean: \u0111\u00e1p \u00e1n, \u0111i\u1ec3m t\u1eebng ph\u1ea7n, b\u00e1o c\u00e1o AI v\u00e0 c\u1edd b\u1ea5t th\u01b0\u1eddng",
+  "properties": {
+    "invite_id": {
+      "type": "string"
+    },
+    "simulation_id": {
+      "type": "string"
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "candidate_email": {
+      "type": "string"
+    },
+    "candidate_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_progress",
+        "submitted"
+      ],
+      "default": "in_progress"
+    },
+    "answers": {
+      "type": "object",
+      "description": "\u0110\u00e1p \u00e1n nh\u00e1p / n\u1ed9p c\u1ee7a \u1ee9ng vi\u00ean"
+    },
+    "task_scores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          },
+          "comment": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "score": {
+      "type": "number"
+    },
+    "passed": {
+      "type": "boolean"
+    },
+    "ai_report": {
+      "type": "object",
+      "description": "Nh\u1eadn x\u00e9t AI, \u0111i\u1ec3m m\u1ea1nh, c\u1ea7n c\u1ea3i thi\u1ec7n, radar 4 k\u1ef9 n\u0103ng"
+    },
+    "flags": {
+      "type": "object",
+      "description": "C\u1edd b\u1ea5t th\u01b0\u1eddng: s\u1ed1 l\u1ea7n r\u1eddi tab, d\u00e1n code, s\u1ed1 l\u1ea7n ch\u1ea1y test"
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "submitted_at": {
+      "type": "string"
+    },
+    "time_spent_sec": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "invite_id",
+    "simulation_id",
+    "application_id"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

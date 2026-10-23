@@ -8,7 +8,7 @@ import { Image } from "@/components/ui/image";
 const navLinks = [
   { label: "Trang chủ", path: "/" },
   { label: "Việc làm", path: "/viec-lam" },
-  { label: "Khóa học", path: "/khoa-hoc" },
+  { label: "Job Simulation", path: "/job-simulations" },
   { label: "Liên hệ", path: "/lien-he" },
   { label: "Trung tâm hỗ trợ", path: "/ho-tro" },
 ];

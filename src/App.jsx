@@ -17,22 +17,18 @@ import Contact from '@/pages/Contact';
 import HrDashboard from '@/pages/hr/HrDashboard';
 import HrJobs from '@/pages/hr/HrJobs';
 import HrApplications from '@/pages/hr/HrApplications';
-import HrPipeline from '@/pages/hr/HrPipeline';
-import ManagerWorkspace from '@/pages/hr/ManagerWorkspace';
-import HrJdBuilder from '@/pages/hr/HrJdBuilder';
 import HrSchedule from '@/pages/hr/HrSchedule';
-import HrCourses from '@/pages/hr/HrCourses';
+import HrJobDetail from '@/pages/hr/HrJobDetail';
+import HrJobSimulations from '@/pages/hr/HrJobSimulations';
 import InterviewSchedule from '@/pages/InterviewSchedule';
 import HrChatbot from '@/pages/hr/HrChatbot';
 import HrCompare from '@/pages/hr/HrCompare';
 import HrFeedback from '@/pages/hr/HrFeedback';
-import HrDesignStudio from '@/pages/hr/HrDesignStudio';
 import HrEmailTemplates from '@/pages/hr/HrEmailTemplates';
 import { SiteDesignProvider } from '@/components/design/SiteDesignProvider';
 import SupportCenter from '@/pages/SupportCenter';
-import Courses from '@/pages/Courses';
-import CourseDetail from '@/pages/CourseDetail';
-import CourseLesson from '@/pages/CourseLesson';
+import JobSimulationIntro from '@/pages/JobSimulationIntro';
+import SimulationRunner from '@/pages/SimulationRunner';
 import MyCertificates from '@/pages/MyCertificates';
 import VerifyCertificate from '@/pages/VerifyCertificate';
 import AssessmentTest from '@/pages/AssessmentTest';
@@ -77,9 +73,11 @@ const AuthenticatedApp = () => {
         <Route path="/" element={<Home />} />
         <Route path="/viec-lam" element={<Jobs />} />
         <Route path="/viec-lam/:id" element={<JobDetail />} />
-        <Route path="/khoa-hoc" element={<Courses />} />
-        <Route path="/khoa-hoc/:slug" element={<CourseDetail />} />
-        <Route path="/khoa-hoc/:slug/bai-hoc/:lessonId" element={<CourseLesson />} />
+        <Route path="/job-simulations" element={<JobSimulationIntro />} />
+        <Route path="/khoa-hoc" element={<Navigate to="/job-simulations" replace />} />
+        <Route path="/khoa-hoc/:slug" element={<Navigate to="/job-simulations" replace />} />
+        <Route path="/khoa-hoc/:slug/bai-hoc/:lessonId" element={<Navigate to="/job-simulations" replace />} />
+        <Route path="/courses" element={<Navigate to="/job-simulations" replace />} />
         <Route path="/xac-thuc-chung-chi" element={<VerifyCertificate />} />
         <Route path="/lien-he" element={<Contact />} />
         <Route path="/ho-tro" element={<SupportCenter />} />
@@ -93,23 +91,26 @@ const AuthenticatedApp = () => {
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/phong-thi/:applicationId" element={<AssessmentTest />} />
         <Route path="/phong-van/:applicationId" element={<AssessmentInterview />} />
+        <Route path="/job-simulation/:token" element={<SimulationRunner />} />
       </Route>
 
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/hr-studio" element={<HrLayout />}>
           <Route index element={<HrDashboard />} />
           <Route path="jobs" element={<HrJobs />} />
-          <Route path="jd" element={<HrJdBuilder />} />
+          <Route path="jobs/:id" element={<HrJobDetail />} />
+          <Route path="job-simulations" element={<HrJobSimulations />} />
           <Route path="applications" element={<HrApplications />} />
-          <Route path="pipeline" element={<HrPipeline />} />
-          <Route path="manager" element={<ManagerWorkspace />} />
           <Route path="schedule" element={<HrSchedule />} />
-          <Route path="courses" element={<HrCourses />} />
           <Route path="compare" element={<HrCompare />} />
           <Route path="chatbot" element={<HrChatbot />} />
           <Route path="feedback" element={<HrFeedback />} />
           <Route path="email-templates" element={<HrEmailTemplates />} />
-          <Route path="design" element={<HrDesignStudio />} />
+          <Route path="jd" element={<Navigate to="/hr-studio/jobs" replace />} />
+          <Route path="manager" element={<Navigate to="/hr-studio/jobs" replace />} />
+          <Route path="pipeline" element={<Navigate to="/hr-studio/jobs" replace />} />
+          <Route path="design" element={<Navigate to="/hr-studio/jobs" replace />} />
+          <Route path="courses" element={<Navigate to="/hr-studio/job-simulations" replace />} />
         </Route>
       </Route>
 

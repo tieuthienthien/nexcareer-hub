@@ -1,0 +1,99 @@
+{
+  "name": "JobSimulation",
+  "type": "object",
+  "description": "B\u00e0i m\u00f4 ph\u1ecfng c\u00f4ng vi\u1ec7c th\u1ef1c t\u1ebf d\u00f9ng cho V\u00f2ng 2 c\u1ee7a quy tr\u00ecnh tuy\u1ec3n d\u1ee5ng",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "role_title": {
+      "type": "string",
+      "description": "V\u1ecb tr\u00ed \u00e1p d\u1ee5ng"
+    },
+    "job_id": {
+      "type": "string",
+      "description": "Vi\u1ec7c l\u00e0m g\u1eafn v\u1edbi simulation (n\u1ebfu c\u00f3)"
+    },
+    "description": {
+      "type": "string",
+      "description": "B\u1ed1i c\u1ea3nh doanh nghi\u1ec7p c\u1ee7a b\u00e0i m\u00f4 ph\u1ecfng"
+    },
+    "duration_min": {
+      "type": "number",
+      "default": 60
+    },
+    "pass_score": {
+      "type": "number",
+      "default": 80
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active"
+      ],
+      "default": "active"
+    },
+    "tasks": {
+      "type": "array",
+      "description": "Danh s\u00e1ch nhi\u1ec7m v\u1ee5 c\u1ee7a b\u00e0i m\u00f4 ph\u1ecfng",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "code",
+              "mcq",
+              "writing"
+            ]
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "points": {
+            "type": "number"
+          },
+          "starter_code": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "criteria": {
+      "type": "string",
+      "description": "Thang \u0111i\u1ec3m / ng\u01b0\u1ee1ng \u0111\u1ea1t ghi ch\u00fa cho HR"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw, Sparkles } from "lucide-react";
-import ApplicationDetailDialog from "@/components/hr/ApplicationDetailDialog";
+import CandidatePanel from "@/components/hr/jobs/CandidatePanel";
 import CandidateFilters from "@/components/hr/rms/CandidateFilters";
 import CandidateTable from "@/components/hr/rms/CandidateTable";
 import CandidateQuickDialog from "@/components/hr/rms/CandidateQuickDialog";
@@ -13,7 +12,6 @@ import { matchesKeyword, matchesYears } from "@/lib/rms";
 const emptyFilters = { keyword: "", position: "all", status: "all", years: "all", education: "all" };
 
 export default function HrApplications() {
-  const navigate = useNavigate();
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState(emptyFilters);
@@ -143,20 +141,17 @@ export default function HrApplications() {
           apps={visible}
           onViewDetail={(a) => setSelected(a)}
           onCompose={(list) => setCompose(list)}
-          onOpenPipeline={(a) => navigate(`/hr-studio/pipeline?candidate=${a.id}`)}
+          onOpenPipeline={(a) => setSelected(a)}
           onEdit={(a) => setQuick({ app: a, mode: "edit" })}
           onNote={(a) => setQuick({ app: a, mode: "note" })}
         />
       )}
 
-      <ApplicationDetailDialog
-        application={selected}
+      <CandidatePanel
+        applicationId={selected?.id}
         open={!!selected}
         onOpenChange={(o) => !o && setSelected(null)}
-        onUpdated={(updated) => {
-          setApps((prev) => prev.map((x) => (x.id === updated.id ? updated : x)));
-          setSelected(updated);
-        }}
+        onChanged={load}
       />
 
       <CandidateQuickDialog
