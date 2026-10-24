@@ -6,6 +6,7 @@ import { Image } from "@/components/ui/image";
 import StarRainClick from "@/components/StarRainClick";
 import HrChatbotNotifications from "@/components/hr/rms/HrChatbotNotifications";
 import ManagerWorkspace from "@/pages/hr/ManagerWorkspace";
+import UserAvatar from "@/components/UserAvatar";
 
 const mainNav = [
   { label: "Tổng quan", path: "/hr-studio", icon: LayoutDashboard, end: true },
@@ -50,7 +51,7 @@ export default function HrLayout() {
     return (
       <div className="min-h-screen bg-muted/30">
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-xl sm:px-6">
-          <div className="flex items-center gap-2.5">
+          <Link to="/" className="flex items-center gap-2.5 rounded-xl transition-opacity hover:opacity-80">
             <Image
               src="https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492/133362060_PhihnhgiaX-MEgiangnhmngm.png"
               alt="X-ME NexCareer Hub"
@@ -62,7 +63,7 @@ export default function HrLayout() {
               <div className="font-heading text-sm font-700">HR Studio · Line Manager</div>
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{user.email}</div>
             </div>
-          </div>
+          </Link>
           <div className="flex items-center gap-2">
             <Button asChild variant="ghost" size="sm" className="gap-2"><Link to="/"><ArrowLeft className="h-4 w-4" /> Trang chủ</Link></Button>
             <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Đăng xuất"><LogOut className="h-4 w-4" /></Button>
@@ -79,7 +80,7 @@ export default function HrLayout() {
   return (
     <div className="min-h-screen bg-muted/30">
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-border bg-card lg:flex">
-        <div className="flex h-16 items-center gap-2.5 border-b border-border px-5">
+        <Link to="/" className="flex h-16 items-center gap-2.5 border-b border-border px-5 transition-colors hover:bg-muted/50">
           <Image
             src="https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492/133362060_PhihnhgiaX-MEgiangnhmngm.png"
             alt="X-ME NexCareer Hub"
@@ -91,7 +92,7 @@ export default function HrLayout() {
             <div className="font-heading text-sm font-700">HR Studio</div>
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">NexCareer Hub</div>
           </div>
-        </div>
+        </Link>
         <nav className="flex-1 overflow-y-auto p-3">
           <div className="px-3 pb-1 text-[10px] font-700 uppercase tracking-wider text-muted-foreground">Tuyển dụng</div>
           <div className="space-y-1">
@@ -133,9 +134,7 @@ export default function HrLayout() {
             <ArrowLeft className="h-4 w-4" /> Về NexCareer Hub
           </Link>
           <div className="mt-2 flex items-center gap-2.5 rounded-xl bg-muted/60 px-3 py-2.5">
-            <div className="grid h-8 w-8 place-items-center rounded-full bg-primary/15 text-xs font-700 text-primary">
-              {(user?.full_name || user?.email || "HR")[0].toUpperCase()}
-            </div>
+            <UserAvatar name={user?.full_name} email={user?.email} size={32} />
             <div className="min-w-0 flex-1 leading-tight">
               <div className="truncate text-xs font-600">{user?.full_name || "HR"}</div>
               <div className="truncate text-[11px] text-muted-foreground">{user?.email}</div>
@@ -149,7 +148,7 @@ export default function HrLayout() {
 
       <div className="lg:pl-64">
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2 lg:hidden">
+          <Link to="/" className="flex items-center gap-2 lg:hidden">
             <Image
               src="https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492/133362060_PhihnhgiaX-MEgiangnhmngm.png"
               alt="X-ME NexCareer Hub"
@@ -158,7 +157,7 @@ export default function HrLayout() {
               className="h-8 w-8 rounded-full ring-1 ring-border"
             />
             <span className="font-heading text-sm font-700">HR Studio</span>
-          </div>
+          </Link>
           <div className="hidden lg:block">
             <h1 className="font-heading text-lg font-600">Trung tâm quản lý tuyển dụng</h1>
           </div>

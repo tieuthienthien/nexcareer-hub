@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Clock, Send, Lock, AlertTriangle, Check, MessageSquare, Ticket } from "lucide-react";
+import { Image } from "@/components/ui/image";
+import { Loader2, Clock, Send, Lock, AlertTriangle, Check, MessageSquare, Ticket, ShieldAlert, Maximize2, Minimize2 } from "lucide-react";
 import CodeWorkspace from "@/components/sim/CodeWorkspace";
 import SimulationResult from "@/components/sim/SimulationResult";
 import { runTests, summarize } from "@/lib/simulationRunner";
@@ -29,10 +30,48 @@ export default function SimulationRunner() {
   const [result, setResult] = useState(null);
   const [savedAt, setSavedAt] = useState("");
   const submittedRef = useRef(false);
+  const [acked, setAcked] = useState(false);
+  const [isFull, setIsFull] = useState(false);
+  const fullscreenUsedRef = useRef(false);
+  const devtoolsAtRef = useRef(0);
 
   const call = async (action, payload = {}) => {
     const res = await base44.functions.invoke("simulationAccess", { token, action, ...payload });
     return res.data || {};
+  };
+
+  // Ghi nhận hành vi nghi vấn để HR xem xét (chỉ cảnh báo, không tự loại bài).
+  const cheat = (type, detail = "") => {
+    call("cheat", { type, detail }).catch(() => null);
+  };
+
+  const block = (type) => (event) => {
+    event.preventDefault();
+    if (type === "paste") {
+      const len = (event.clipboardData?.getData("text") || "").length;
+      cheat(len > 300 ? "bulk_paste" : "paste", len ? `${len} ký tự` : "");
+    } else {
+      cheat(type);
+    }
+  };
+
+  const confirmLeave = (event) => {
+    const ok = window.confirm("Bài làm đang diễn ra. Nếu rời trang, bài chưa nộp có thể không được lưu. Bạn vẫn muốn về trang chủ?");
+    if (!ok && event) event.preventDefault();
+  };
+
+  const startExam = () => {
+    setAcked(true);
+    try {
+      document.documentElement.requestFullscreen?.();
+    } catch (e) {}
+  };
+
+  const toggleFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch (e) {}
   };
 
   useEffect(() => {
@@ -120,12 +159,51 @@ export default function SimulationRunner() {
   }, [data, result, locked, answers, flags]);
 
   useEffect(() => {
-    if (!data || result || locked) return;
+    if (!data || result || locked) return undefined;
     const onVisibility = () => {
-      if (document.hidden) setFlags((f) => ({ ...f, tab_switches: (f.tab_switches || 0) + 1 }));
+      if (document.hidden) {
+        setFlags((f) => ({ ...f, tab_switches: (f.tab_switches || 0) + 1 }));
+        cheat("tab_switch");
+      }
+    };
+    const onBlur = () => cheat("window_blur");
+    const onBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = "";
     };
     document.addEventListener("visibilitychange", onVisibility);
-    return () => document.removeEventListener("visibilitychange", onVisibility);
+    window.addEventListener("blur", onBlur);
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("blur", onBlur);
+      window.removeEventListener("beforeunload", onBeforeUnload);
+    };
+  }, [data, result, locked]);
+
+  // DevTools thường làm chênh lệch lớn giữa outer và inner size — ghi nhận tối đa 1 lần/phút.
+  useEffect(() => {
+    if (!data || result || locked) return undefined;
+    const id = setInterval(() => {
+      const diffW = window.outerWidth - window.innerWidth;
+      const diffH = window.outerHeight - window.innerHeight;
+      if ((diffW > 200 || diffH > 250) && Date.now() - devtoolsAtRef.current > 60000) {
+        devtoolsAtRef.current = Date.now();
+        cheat("devtools", `Chênh lệch ${diffW}x${diffH}`);
+      }
+    }, 4000);
+    return () => clearInterval(id);
+  }, [data, result, locked]);
+
+  useEffect(() => {
+    const onFsChange = () => {
+      const active = !!document.fullscreenElement;
+      setIsFull(active);
+      if (active) fullscreenUsedRef.current = true;
+      else if (fullscreenUsedRef.current && data && !result && !locked) cheat("fullscreen_exit");
+    };
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
   }, [data, result, locked]);
 
   const activeTask = useMemo(() => (data?.simulation?.tasks || []).find((t) => t.id === activeId), [data, activeId]);
@@ -196,6 +274,33 @@ export default function SimulationRunner() {
     );
   }
 
+  if (data && !acked) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-muted/30 p-4">
+        <div className="w-full max-w-2xl rounded-3xl border border-border bg-card p-6 sm:p-8">
+          <div className="flex items-center gap-3">
+            <span className="grid h-11 w-11 place-items-center rounded-full bg-primary/10 text-primary"><ShieldAlert className="h-5 w-5" /></span>
+            <div>
+              <h1 className="font-heading text-lg font-700">Bài làm được giám sát hành vi</h1>
+              <p className="text-xs text-muted-foreground">Vòng 2 · Job Simulation · {data.simulation.name}</p>
+            </div>
+          </div>
+          <ul className="mt-4 space-y-1.5 text-sm leading-relaxed text-foreground/80">
+            <li>• Không sao chép, dán, cắt hoặc kéo thả văn bản trong khu vực làm bài.</li>
+            <li>• Không mở menu chuột phải và không mở DevTools.</li>
+            <li>• Hạn chế chuyển tab hoặc rời khỏi cửa sổ làm bài.</li>
+            <li>• Hệ thống ghi nhận các hành vi bất thường (loại hành vi, thời điểm, số lần) và gửi cảnh báo cho HR để xem xét.</li>
+            <li>• Hệ thống chỉ cảnh báo, không tự động loại bài làm. HR là người quyết định cuối cùng.</li>
+          </ul>
+          <Button className="mt-5 w-full gap-2" onClick={startExam}>
+            <Check className="h-4 w-4" /> Tôi đã hiểu, bắt đầu làm bài
+          </Button>
+          <Link to="/" className="mt-3 block text-center text-xs text-muted-foreground hover:text-foreground">Về trang chủ</Link>
+        </div>
+      </div>
+    );
+  }
+
   const tasks = data?.simulation?.tasks || [];
   const answered = (t) => {
     const a = answers[t.id];
@@ -205,13 +310,37 @@ export default function SimulationRunner() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div
+      className="min-h-screen bg-muted/30"
+      onCopy={block("copy")}
+      onCut={block("cut")}
+      onPaste={block("paste")}
+      onDragStart={block("drag")}
+      onContextMenu={(event) => { event.preventDefault(); cheat("context_menu"); }}
+    >
       <header className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-2 border-b border-border bg-background/90 px-4 py-3 backdrop-blur-xl">
-        <div className="min-w-0">
+        <Link to="/" onClick={confirmLeave} className="flex items-center gap-2 rounded-xl transition-opacity hover:opacity-80" title="Về trang chủ">
+          <Image
+            src="https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492/133362060_PhihnhgiaX-MEgiangnhmngm.png"
+            alt="X-ME NexCareer Hub"
+            fittingType="fill"
+            focalPointY={0.32}
+            className="h-9 w-9 rounded-full ring-1 ring-border"
+          />
+          <div className="leading-tight">
+            <div className="font-heading text-sm font-700">NexCareer Hub</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Vòng 2 · Job Simulation</div>
+          </div>
+        </Link>
+        <div className="min-w-0 flex-1 px-1">
           <h1 className="truncate font-heading text-sm font-700 sm:text-base">{data.simulation.name}</h1>
           <p className="text-[11px] text-muted-foreground">Vòng 2 · Job Simulation · {data.simulation.duration_min} phút · Đạt từ {data.simulation.pass_score} điểm</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={toggleFullscreen} className="gap-1.5" title="Toàn màn hình">
+            {isFull ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            <span className="hidden sm:inline">{isFull ? "Thoát" : "Toàn màn hình"}</span>
+          </Button>
           <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-700 tabular-nums ${remaining < 300 ? "bg-rose-100 text-rose-700" : "bg-primary/10 text-primary"}`}>
             <Clock className="h-4 w-4" /> {mmss(remaining)}
           </span>

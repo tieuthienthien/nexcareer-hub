@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Pencil, Trash2, ExternalLink, Loader2, RefreshCw } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, ExternalLink, Loader2 } from "lucide-react";
 import JobFormDialog from "@/components/hr/JobFormDialog";
 import { formatSalary, employmentTypeLabel } from "@/lib/jobUtils";
 
@@ -16,7 +16,6 @@ export default function HrJobs() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deleting, setDeleting] = useState(null);
-  const [syncing, setSyncing] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -42,20 +41,6 @@ export default function HrJobs() {
     setDeleting(null);
   };
 
-  const syncFromSource = async () => {
-    setSyncing(true);
-    try {
-      const res = await base44.functions.invoke("syncNexoraJobs", {});
-      const d = res.data || {};
-      if (d.error) alert(d.error);
-      else alert(`Đã đồng bộ: ${d.created} tin mới, ${d.updated} tin cập nhật.`);
-      await load();
-    } catch (e) {
-      alert(e.message || "Không thể đồng bộ.");
-    }
-    setSyncing(false);
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -64,9 +49,6 @@ export default function HrJobs() {
           <p className="mt-1 text-sm text-muted-foreground">Đăng và quản lý các vị trí tuyển dụng</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={syncFromSource} disabled={syncing} className="gap-2">
-            {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Đồng bộ từ TopCV
-          </Button>
           <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="gap-2"><Plus className="h-4 w-4" /> Tạo việc làm</Button>
         </div>
       </div>

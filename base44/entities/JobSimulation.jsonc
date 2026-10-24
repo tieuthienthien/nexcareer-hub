@@ -26,6 +26,11 @@
       "type": "number",
       "default": 80
     },
+    "cheat_threshold": {
+      "type": "number",
+      "default": 3,
+      "description": "S\u1ed1 s\u1ef1 ki\u1ec7n nghi v\u1ea5n gian l\u1eadn \u0111\u1ec3 g\u1eedi c\u1ea3nh b\u00e1o cho HR"
+    },
     "status": {
       "type": "string",
       "enum": [

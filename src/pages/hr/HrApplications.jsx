@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import CandidatePanel from "@/components/hr/jobs/CandidatePanel";
 import CandidateFilters from "@/components/hr/rms/CandidateFilters";
 import CandidateTable from "@/components/hr/rms/CandidateTable";
@@ -20,7 +20,6 @@ export default function HrApplications() {
   const [selected, setSelected] = useState(null);
   const [quick, setQuick] = useState(null);
   const [compose, setCompose] = useState(null);
-  const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState("");
   const [scoring, setScoring] = useState("");
   const [scoreProgress, setScoreProgress] = useState({ done: 0, total: 0 });
@@ -69,25 +68,6 @@ export default function HrApplications() {
     [apps, filters.keyword, filters.years, filters.education]
   );
 
-  const syncTopcv = async () => {
-    setSyncing(true);
-    setSyncMsg("");
-    try {
-      const res = await base44.functions.invoke("syncTopcvApplications", {});
-      const data = res.data || res;
-      if (data.error) setSyncMsg(data.error);
-      else if (data.ready === false) setSyncMsg(data.message || "Nguồn TopCV chưa cung cấp dữ liệu hồ sơ.");
-      else {
-        setSyncMsg(`Đã nhận ${data.total} hồ sơ · tạo mới ${data.created} · cập nhật ${data.updated}${data.needsReview ? ` · ${data.needsReview} hồ sơ cần rà soát` : ""}`);
-        await load();
-      }
-    } catch (e) {
-      setSyncMsg(e.response?.data?.error || e.message || "Không đồng bộ được hồ sơ.");
-    } finally {
-      setSyncing(false);
-    }
-  };
-
   const scorePending = async () => {
     const pending = visible.filter((a) => !a.rms_status || a.rms_status === "new").slice(0, 10);
     if (!pending.length) { setSyncMsg("Không có hồ sơ nào đang chờ chấm CV."); return; }
@@ -115,9 +95,6 @@ export default function HrApplications() {
           <Button variant="outline" size="sm" onClick={scorePending} disabled={!!scoring} className="gap-2">
             {scoring ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             {scoring ? `Đang chấm ${scoreProgress.done}/${scoreProgress.total}` : "Chấm AI hàng loạt"}
-          </Button>
-          <Button variant="outline" size="sm" onClick={syncTopcv} disabled={syncing} className="gap-2">
-            {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Đồng bộ từ TopCV
           </Button>
         </div>
       </div>

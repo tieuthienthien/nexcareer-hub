@@ -122,7 +122,14 @@ export default function Round1Step({ app, invite, booking, onDone }) {
         </div>
       )}
 
-      <HrScoreBox applicationId={app.id} round="cv" aiScore={app.cv_match_score} onChange={(r) => setHrScore(r?.hr_score ?? null)} />
+      <HrScoreBox
+        applicationId={app.id}
+        round="cv"
+        aiScore={app.cv_match_score}
+        canRegrade={!!(app.cv_file_uri || app.cv_snapshot || app.cover_letter)}
+        onRegraded={onDone}
+        onChange={(r) => setHrScore(r?.hr_score ?? null)}
+      />
 
       {error && <div className="mt-3 flex items-start gap-2 rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-800"><AlertTriangle className="mt-0.5 h-3.5 w-3.5" />{error}</div>}
       {notice && <div className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-xs text-emerald-800">{notice}</div>}

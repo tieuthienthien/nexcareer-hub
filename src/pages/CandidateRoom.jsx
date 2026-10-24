@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import UserAvatar from "@/components/UserAvatar";
 import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -121,6 +122,12 @@ export default function CandidateRoom() {
         <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-indigo-600 p-6 text-white shadow-xl sm:p-8">
           <div className="flex items-center justify-between">
             <div>
+              <UserAvatar
+                name={profile?.full_name || user?.full_name}
+                email={user?.email}
+                size={56}
+                className="mb-3 ring-2 ring-white/40"
+              />
               <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-600">
                 <Sparkles className="h-3.5 w-3.5" /> Candidate Room
               </div>

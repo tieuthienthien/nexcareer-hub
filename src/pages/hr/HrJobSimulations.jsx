@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Loader2, Plus, Sparkles, Clock, Award, Users, Trash2, Eye, Pencil } from "lucide-react";
 import { formatDateTime } from "@/lib/rms";
 
-const emptyForm = { name: "", role_title: "", job_id: "", description: "", duration_min: 60, pass_score: 80, status: "active" };
+const emptyForm = { name: "", role_title: "", job_id: "", description: "", duration_min: 60, pass_score: 80, cheat_threshold: 3, status: "active" };
 const emptyTask = { id: "", title: "", type: "code", prompt: "", points: 20, starter_code: "" };
 
 export default function HrJobSimulations() {
@@ -91,7 +91,8 @@ export default function HrJobSimulations() {
       job_id: sim.job_id || "",
       description: sim.description || "",
       duration_min: sim.duration_min || 60,
-      pass_score: sim.pass_score || 80,
+        pass_score: sim.pass_score || 80,
+        cheat_threshold: sim.cheat_threshold || 3,
       status: sim.status || "active",
     });
     const list = Array.isArray(sim.tasks) && sim.tasks.length ? sim.tasks : [{ ...emptyTask, id: "task1" }];
@@ -117,6 +118,7 @@ export default function HrJobSimulations() {
         ...form,
         duration_min: Number(form.duration_min) || 60,
         pass_score: Number(form.pass_score) || 80,
+        cheat_threshold: Math.max(1, Number(form.cheat_threshold) || 3),
         criteria: `Tổng ${tasks.reduce((s, t) => s + (Number(t.points) || 0), 0)} điểm · Đạt từ ${Number(form.pass_score) || 80} điểm`,
         tasks: tasks.filter((t) => t.title).map((t, i) => ({ ...t, id: t.id || `task${i + 1}`, points: Number(t.points) || 10 })),
       };
@@ -245,6 +247,10 @@ export default function HrJobSimulations() {
             <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Bối cảnh doanh nghiệp</Label><Textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
             <div className="space-y-1.5"><Label className="text-xs">Thời lượng (phút)</Label><Input type="number" value={form.duration_min} onChange={(e) => setForm({ ...form, duration_min: e.target.value })} /></div>
             <div className="space-y-1.5"><Label className="text-xs">Ngưỡng đạt</Label><Input type="number" value={form.pass_score} onChange={(e) => setForm({ ...form, pass_score: e.target.value })} /></div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Ngưỡng cảnh báo gian lận (số sự kiện)</Label>
+              <Input type="number" min={1} value={form.cheat_threshold} onChange={(e) => setForm({ ...form, cheat_threshold: e.target.value })} />
+            </div>
           </div>
 
           <div className="mt-3 space-y-2">

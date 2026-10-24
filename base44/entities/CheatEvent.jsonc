@@ -1,0 +1,88 @@
+{
+  "name": "CheatEvent",
+  "type": "object",
+  "description": "S\u1ef1 ki\u1ec7n nghi v\u1ea5n gian l\u1eadn khi \u1ee9ng vi\u00ean l\u00e0m Job Simulation (V\u00f2ng 2). H\u1ec7 th\u1ed1ng ch\u1ec9 c\u1ea3nh b\u00e1o, HR l\u00e0 ng\u01b0\u1eddi quy\u1ebft \u0111\u1ecbnh cu\u1ed1i c\u00f9ng.",
+  "properties": {
+    "application_id": {
+      "type": "string",
+      "description": "H\u1ed3 s\u01a1 \u1ee9ng vi\u00ean"
+    },
+    "invite_id": {
+      "type": "string",
+      "description": "L\u1eddi m\u1eddi l\u00e0m b\u00e0i"
+    },
+    "attempt_id": {
+      "type": "string",
+      "description": "B\u00e0i l\u00e0m t\u01b0\u01a1ng \u1ee9ng"
+    },
+    "simulation_id": {
+      "type": "string"
+    },
+    "candidate_email": {
+      "type": "string"
+    },
+    "candidate_name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "copy",
+        "paste",
+        "cut",
+        "drag",
+        "context_menu",
+        "tab_switch",
+        "window_blur",
+        "devtools",
+        "fullscreen_exit",
+        "fast_submit",
+        "bulk_paste"
+      ],
+      "description": "Lo\u1ea1i h\u00e0nh vi nghi v\u1ea5n"
+    },
+    "count": {
+      "type": "number",
+      "default": 1,
+      "description": "S\u1ed1 l\u1ea7n \u0111\u00e3 ghi nh\u1eadn cho h\u00e0nh vi n\u00e0y"
+    },
+    "first_at": {
+      "type": "string",
+      "description": "Th\u1eddi \u0111i\u1ec3m ghi nh\u1eadn l\u1ea7n \u0111\u1ea7u (ISO)"
+    },
+    "last_at": {
+      "type": "string",
+      "description": "Th\u1eddi \u0111i\u1ec3m ghi nh\u1eadn g\u1ea7n nh\u1ea5t (ISO)"
+    },
+    "detail": {
+      "type": "string",
+      "description": "Chi ti\u1ebft b\u1ed5 sung (v\u00ed d\u1ee5: s\u1ed1 k\u00fd t\u1ef1 \u0111\u01b0\u1ee3c d\u00e1n, th\u1eddi gian l\u00e0m b\u00e0i)"
+    }
+  },
+  "required": [
+    "application_id",
+    "type"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

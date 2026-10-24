@@ -143,7 +143,14 @@ export default function Round3Step({ app, booking, invite, onDone }) {
       )}
 
       {canSchedule && (
-        <HrScoreBox applicationId={app.id} round="interview" aiScore={app.interview_score} onChange={() => {}} />
+        <HrScoreBox
+          applicationId={app.id}
+          round="interview"
+          aiScore={app.interview_score}
+          canRegrade={!!app.interview_submitted_at || app.interview_score != null}
+          onRegraded={onDone}
+          onChange={() => {}}
+        />
       )}
 
       <div className="mt-3 flex flex-wrap gap-2">

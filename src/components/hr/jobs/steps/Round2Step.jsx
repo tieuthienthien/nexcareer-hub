@@ -201,6 +201,8 @@ export default function Round2Step({ app, invite, attempt, booking, onDone }) {
           applicationId={app.id}
           round="simulation"
           aiScore={attempt?.score ?? app?.test_score}
+          canRegrade={attempt?.status === "submitted"}
+          onRegraded={onDone}
           onChange={(r) => setHrScore(r?.hr_score ?? null)}
         />
       )}

@@ -10,6 +10,8 @@ import Round2Step from "@/components/hr/jobs/steps/Round2Step";
 import Round3Step from "@/components/hr/jobs/steps/Round3Step";
 import ResultStep from "@/components/hr/jobs/steps/ResultStep";
 import ActivityTimeline from "@/components/hr/jobs/ActivityTimeline";
+import CheatWarningPanel from "@/components/hr/jobs/CheatWarningPanel";
+import UserAvatar from "@/components/UserAvatar";
 import { candidateCode, formatDate, rmsMeta } from "@/lib/rms";
 
 export default function CandidatePanel({ applicationId, open, onOpenChange, onChanged }) {
@@ -87,6 +89,7 @@ export default function CandidatePanel({ applicationId, open, onOpenChange, onCh
             <div className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border bg-card p-4">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
+                  <UserAvatar name={app.full_name} email={app.email} size={40} />
                   <h3 className="font-heading text-lg font-700">{app.full_name || "Chưa có tên"}</h3>
                   <Badge className={`rounded-full border-0 ${meta?.color}`}>{meta?.label}</Badge>
                   <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-700 text-muted-foreground">{candidateCode(app)}</span>
@@ -103,6 +106,8 @@ export default function CandidatePanel({ applicationId, open, onOpenChange, onCh
             </div>
 
             <CandidateStepper app={app} invite={invite} attempt={attempt} booking={booking} />
+
+            <CheatWarningPanel applicationId={app.id} />
 
             <Round1Step app={app} invite={invite} booking={booking} onDone={refresh} />
             <Round2Step app={app} invite={invite} attempt={attempt} booking={booking} onDone={refresh} />
