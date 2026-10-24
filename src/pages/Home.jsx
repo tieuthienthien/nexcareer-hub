@@ -83,7 +83,7 @@ export default function Home() {
             </div>
           </form>
 
-          <div className="mx-auto mt-8 grid max-w-4xl grid-cols-3 gap-4">
+          <div className="mx-auto mt-8 grid max-w-4xl grid-cols-4 gap-4">
             {[
               { value: String(totalJobs), label: "Vị trí đang tuyển" },
               { value: "3", label: "Vòng đánh giá" },
