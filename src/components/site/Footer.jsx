@@ -99,7 +99,7 @@ export default function Footer() {
 
           <p className="max-w-3xl text-center leading-relaxed">
             Website là sản phẩm dự thi SpawnX 2026: POWER UP THE BIZ CHALLENGE
-            - chủ đề CTRL + BUILD
+            - Chủ đề CTRL + BUILD
           </p>
 
           <p className="text-center">
