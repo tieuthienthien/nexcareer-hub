@@ -98,7 +98,46 @@ export default function Home() {
           </div>
         </div>
       </section>
+            {/* Chúng tôi làm việc với */}
+      <section className="border-y border-border bg-muted/40 py-10">
+        <style>{`
+          @keyframes tech-marquee {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+          }
+          .tech-marquee-track { animation: tech-marquee 30s linear infinite; will-change: transform; }
+          .tech-marquee:hover .tech-marquee-track { animation-play-state: paused; }
+          .tech-marquee-mask {
+            -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+            mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .tech-marquee-track { animation: none; }
+          }
+        `}</style>
 
+        <p className="text-center text-xs font-600 uppercase tracking-[0.25em] text-muted-foreground">
+          Chúng tôi làm việc với
+        </p>
+
+        <div className="tech-marquee tech-marquee-mask mt-8 overflow-hidden">
+          <div className="tech-marquee-track flex w-max items-center">
+            {[0, 1].map((dup) => (
+              <div key={dup} className="flex shrink-0 items-center" aria-hidden={dup === 1}>
+                {["Next.js", "Node.js", "Python", "Go", "Swift", "Kotlin", "Flutter", "AWS", "GCP", "Kubernetes"].map((t) => (
+                  <span
+                    key={`${dup}-${t}`}
+                    className="flex items-center gap-10 pr-10 font-heading text-2xl font-700 text-muted-foreground/60 sm:text-3xl"
+                  >
+                    {t}
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
       {/* Two portals CTA */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
