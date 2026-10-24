@@ -98,8 +98,8 @@ export default function Home() {
           </div>
         </div>
       </section>
-            {/* Chúng tôi làm việc với */}
-      <section className="border-y border-border bg-muted/40 py-10">
+      {/* Chúng tôi làm việc với */}
+      <section className="bg-muted/40 py-10">
         <style>{`
           @keyframes tech-marquee {
             from { transform: translateX(0); }
@@ -127,10 +127,10 @@ export default function Home() {
                 {["Next.js", "Node.js", "Python", "Go", "Swift", "Kotlin", "Flutter", "AWS", "GCP", "Kubernetes"].map((t) => (
                   <span
                     key={`${dup}-${t}`}
-                    className="flex items-center gap-10 pr-10 font-heading text-2xl font-700 text-muted-foreground/60 sm:text-3xl"
+                    className="flex items-center gap-10 pr-10 font-heading text-2xl font-700 sm:text-3xl"
                   >
-                    {t}
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />
+                    <span className="text-galaxy">{t}</span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-pastel-lavender shadow-[0_0_10px_hsl(266_70%_82%)]" />
                   </span>
                 ))}
               </div>
