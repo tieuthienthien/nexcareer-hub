@@ -104,10 +104,10 @@ export default function CandidatePanel({ applicationId, open, onOpenChange, onCh
 
             <CandidateStepper app={app} invite={invite} attempt={attempt} booking={booking} />
 
-            <Round1Step app={app} onDone={refresh} />
-            <Round2Step app={app} invite={invite} attempt={attempt} onDone={refresh} />
-            <Round3Step app={app} booking={booking} onDone={refresh} />
-            <ResultStep app={app} attempt={attempt} booking={booking} onDone={refresh} />
+            <Round1Step app={app} invite={invite} booking={booking} onDone={refresh} />
+            <Round2Step app={app} invite={invite} attempt={attempt} booking={booking} onDone={refresh} />
+            <Round3Step app={app} booking={booking} invite={invite} onDone={refresh} />
+            <ResultStep app={app} attempt={attempt} booking={booking} invite={invite} onDone={refresh} />
 
             <ActivityTimeline app={app} invite={invite} attempt={attempt} booking={booking} />
           </div>

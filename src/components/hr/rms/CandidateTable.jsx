@@ -102,8 +102,12 @@ export default function CandidateTable({ apps = [], onViewDetail, onCompose, onO
           </thead>
           <tbody>
             {current.map((a) => (
-              <tr key={a.id} className="border-b border-border/60 last:border-0 hover:bg-muted/20">
-                <td className="px-3 py-2.5">
+              <tr
+                key={a.id}
+                onClick={() => onViewDetail?.(a)}
+                className="cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/20"
+              >
+                <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                   <Checkbox checked={selected.includes(a.id)} onCheckedChange={() => toggleRow(a.id)} aria-label={`Chọn ${a.full_name}`} />
                 </td>
                 <td className="whitespace-nowrap px-3 py-2.5 font-mono text-xs text-muted-foreground">{candidateCode(a)}</td>
@@ -124,8 +128,8 @@ export default function CandidateTable({ apps = [], onViewDetail, onCompose, onO
                     <span className="text-xs text-muted-foreground">—</span>
                   )}
                 </td>
-                <td className="px-3 py-2.5"><CvButtons app={a} /></td>
-                <td className="px-3 py-2.5">
+                <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}><CvButtons app={a} /></td>
+                <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-1">
                     <button type="button" title="Sửa thông tin" onClick={() => onEdit?.(a)} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"><Pencil className="h-4 w-4" /></button>
                     <button type="button" title="Ghi chú HR" onClick={() => onNote?.(a)} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"><StickyNote className="h-4 w-4" /></button>

@@ -1,9 +1,12 @@
-
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { Image } from "@/components/ui/image";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function Footer() {
+  const { isAuthenticated, user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   return (
     <footer className="border-t border-border bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -39,16 +42,13 @@ export default function Footer() {
                   Việc làm
                 </Link>
               </li>
-              <li>
-                <Link to="/candidate-room" className="hover:text-primary">
-                  Candidate Room
-                </Link>
-              </li>
-              <li>
-                <Link to="/hr-studio" className="hover:text-primary">
-                  HR Studio
-                </Link>
-              </li>
+              {isAuthenticated && (
+                <li>
+                  <Link to={isAdmin ? "/hr-studio" : "/candidate-room"} className="hover:text-primary">
+                    {isAdmin ? "HR Studio" : "Candidate Room"}
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -110,5 +110,3 @@ export default function Footer() {
     </footer>
   );
 }
-
-

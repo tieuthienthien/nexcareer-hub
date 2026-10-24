@@ -1,6 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { AI_MODEL } from '../../shared/aiModel.ts';
 import { normalizeEmail } from '../../shared/candidateAccount.ts';
+import { sendStageMail } from '../../shared/mailer.ts';
+import { appOrigin } from '../../shared/stageEmails.ts';
 import { MCQ_TASK3, publicTasks, mcqQuestions, SAMPLE_SIMULATION } from '../../shared/jobSimulation.ts';
 
 const round1 = (n: number) => Math.round(Number(n || 0) * 10) / 10;
@@ -243,19 +245,30 @@ Không thêm điểm vượt mức tối đa. Chỉ trả JSON hợp lệ.`,
         passed
       });
 
+      // Điểm AI chỉ mang tính tham khảo → hồ sơ dừng ở "đã nộp bài", HR chấm Điểm HR chính thức rồi quyết định.
       await base44.asServiceRole.entities.Application.update(invite.application_id, {
-        status: passed ? 'test_passed' : 'test_rejected',
-        rms_status: passed ? 'pending_manager' : 'fail',
+        status: 'test_submitted',
+        rms_status: 'cv_approved',
         test_submitted_at: now,
         test_score: totalScore,
         test_ai_analysis: [ai?.strengths, ai?.improvements].filter(Boolean).join('\n\n'),
         step2_done: true,
-        step2_at: now,
-        ...(passed ? {} : { round2_decided_at: now, hr_decision_reason: `Không đạt Job Simulation (${totalScore}/${passScore} điểm)` })
+        step2_at: now
       }).catch(() => null);
+
+      let emailSent = false;
+      let emailError = '';
+      const appRow = await base44.asServiceRole.entities.Application.get(invite.application_id).catch(() => null);
+      if (appRow) {
+        const mail = await sendStageMail(base44, appRow, 'test_submitted_ack', { origin: appOrigin(req) });
+        emailSent = mail.sent;
+        emailError = mail.error;
+      }
 
       return Response.json({
         ok: true,
+        email_sent: emailSent,
+        email_error: emailError || undefined,
         result: {
           score: updated.score,
           passed: updated.passed,

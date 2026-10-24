@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import RoleGuard from '@/components/RoleGuard';
 import SiteLayout from '@/components/site/SiteLayout';
 import HrLayout from '@/components/hr/HrLayout';
 import Home from '@/pages/Home';
@@ -31,7 +32,6 @@ import JobSimulationIntro from '@/pages/JobSimulationIntro';
 import SimulationRunner from '@/pages/SimulationRunner';
 import MyCertificates from '@/pages/MyCertificates';
 import VerifyCertificate from '@/pages/VerifyCertificate';
-import AssessmentTest from '@/pages/AssessmentTest';
 import AssessmentInterview from '@/pages/AssessmentInterview';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -82,35 +82,39 @@ const AuthenticatedApp = () => {
         <Route path="/lien-he" element={<Contact />} />
         <Route path="/ho-tro" element={<SupportCenter />} />
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-          <Route path="/candidate-room" element={<CandidateRoom />} />
-          <Route path="/chung-chi" element={<MyCertificates />} />
-          <Route path="/lich-phong-van/:applicationId" element={<InterviewSchedule />} />
+          <Route element={<RoleGuard allow="candidate" />}>
+            <Route path="/candidate-room" element={<CandidateRoom />} />
+            <Route path="/chung-chi" element={<MyCertificates />} />
+            <Route path="/lich-phong-van/:applicationId" element={<InterviewSchedule />} />
+          </Route>
         </Route>
       </Route>
 
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        <Route path="/phong-thi/:applicationId" element={<AssessmentTest />} />
+        <Route path="/phong-thi/:applicationId" element={<Navigate to="/candidate-room" replace />} />
         <Route path="/phong-van/:applicationId" element={<AssessmentInterview />} />
         <Route path="/job-simulation/:token" element={<SimulationRunner />} />
       </Route>
 
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        <Route path="/hr-studio" element={<HrLayout />}>
-          <Route index element={<HrDashboard />} />
-          <Route path="jobs" element={<HrJobs />} />
-          <Route path="jobs/:id" element={<HrJobDetail />} />
-          <Route path="job-simulations" element={<HrJobSimulations />} />
-          <Route path="applications" element={<HrApplications />} />
-          <Route path="schedule" element={<HrSchedule />} />
-          <Route path="compare" element={<HrCompare />} />
-          <Route path="chatbot" element={<HrChatbot />} />
-          <Route path="feedback" element={<HrFeedback />} />
-          <Route path="email-templates" element={<HrEmailTemplates />} />
-          <Route path="jd" element={<Navigate to="/hr-studio/jobs" replace />} />
-          <Route path="manager" element={<Navigate to="/hr-studio/jobs" replace />} />
-          <Route path="pipeline" element={<Navigate to="/hr-studio/jobs" replace />} />
-          <Route path="design" element={<Navigate to="/hr-studio/jobs" replace />} />
-          <Route path="courses" element={<Navigate to="/hr-studio/job-simulations" replace />} />
+        <Route element={<RoleGuard allow="admin" />}>
+          <Route path="/hr-studio" element={<HrLayout />}>
+            <Route index element={<HrDashboard />} />
+            <Route path="jobs" element={<HrJobs />} />
+            <Route path="jobs/:id" element={<HrJobDetail />} />
+            <Route path="job-simulations" element={<HrJobSimulations />} />
+            <Route path="applications" element={<HrApplications />} />
+            <Route path="schedule" element={<HrSchedule />} />
+            <Route path="compare" element={<HrCompare />} />
+            <Route path="chatbot" element={<HrChatbot />} />
+            <Route path="feedback" element={<HrFeedback />} />
+            <Route path="email-templates" element={<HrEmailTemplates />} />
+            <Route path="jd" element={<Navigate to="/hr-studio/jobs" replace />} />
+            <Route path="manager" element={<Navigate to="/hr-studio/jobs" replace />} />
+            <Route path="pipeline" element={<Navigate to="/hr-studio/jobs" replace />} />
+            <Route path="design" element={<Navigate to="/hr-studio/jobs" replace />} />
+            <Route path="courses" element={<Navigate to="/hr-studio/job-simulations" replace />} />
+          </Route>
         </Route>
       </Route>
 

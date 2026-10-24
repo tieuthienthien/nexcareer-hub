@@ -14,18 +14,29 @@ function ScoreCell({ value }) {
 
 export default function HrCompare() {
   const [all, setAll] = useState([]);
+  const [scores, setScores] = useState({});
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState([]);
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await base44.entities.Application.filter({}, { sort: "-created_date", limit: 100 });
+        const [res, scoreRes] = await Promise.all([
+          base44.entities.Application.filter({}, { sort: "-created_date", limit: 100 }),
+          base44.entities.RoundScore.list({ limit: 300 }),
+        ]);
         setAll(res.items || []);
+        const map = {};
+        (scoreRes.items || []).forEach((r) => {
+          map[r.application_id] = { ...(map[r.application_id] || {}), [r.round]: r };
+        });
+        setScores(map);
       } catch (e) {}
       setLoading(false);
     })();
   }, []);
+
+  const hrScore = (app, round) => scores?.[app.id]?.[round]?.hr_score;
 
   const toggle = (id) => {
     setSelected((prev) => {
@@ -41,9 +52,21 @@ export default function HrCompare() {
     { label: "Vị trí", get: (a) => a.job_title || "—" },
     { label: "Công ty", get: (a) => a.company || "—" },
     { label: "Trạng thái", get: (a) => <span className={`rounded-full px-2 py-0.5 text-[11px] font-600 ${applicationStatusColor[a.status]}`}>{applicationStatusLabel[a.status]}</span> },
-    { label: "Điểm CV (AI)", get: (a) => <ScoreCell value={a.cv_match_score} /> },
-    { label: "Điểm thi (AI)", get: (a) => <ScoreCell value={a.test_score} /> },
-    { label: "Điểm phỏng vấn (AI)", get: (a) => <ScoreCell value={a.interview_score} /> },
+    { label: "Điểm AI vòng 1 (tham khảo)", get: (a) => <ScoreCell value={a.cv_match_score} /> },
+    { label: "Điểm AI vòng 2 (tham khảo)", get: (a) => <ScoreCell value={a.test_score} /> },
+    { label: "Điểm AI vòng 3 (tham khảo)", get: (a) => <ScoreCell value={a.interview_score} /> },
+    { label: "Điểm HR vòng 1 (CV)", get: (a) => <ScoreCell value={hrScore(a, "cv")} /> },
+    { label: "Điểm HR vòng 2 (Job Simulation)", get: (a) => <ScoreCell value={hrScore(a, "simulation")} /> },
+    { label: "Điểm HR vòng 3 (Phỏng vấn)", get: (a) => <ScoreCell value={hrScore(a, "interview")} /> },
+    {
+      label: "Tổng điểm HR",
+      get: (a) => {
+        const list = ["cv", "simulation", "interview"].map((r) => hrScore(a, r));
+        if (list.some((v) => v == null)) return <span className="text-xs text-amber-700">Chưa chấm đủ 3 vòng</span>;
+        const total = list.reduce((s, v) => s + Number(v), 0);
+        return <span className="font-700">{Math.round(total / 3)}/100</span>;
+      },
+    },
     { label: "Điểm mạnh", get: (a) => a.cv_strengths ? <p className="whitespace-pre-wrap text-xs">{a.cv_strengths}</p> : "—" },
     { label: "Khoảng trống", get: (a) => a.cv_gaps ? <p className="whitespace-pre-wrap text-xs">{a.cv_gaps}</p> : "—" },
     { label: "Ghi chú HR", get: (a) => a.notes || a.final_notes || "—" },

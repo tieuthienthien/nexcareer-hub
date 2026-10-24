@@ -11,6 +11,18 @@ export default function ApplicationTimeline({ app }) {
   const info = getStageInfo(app.status);
   const final = isFinalStatus(app.status);
   const [booking, setBooking] = useState(null);
+  const [invite, setInvite] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await base44.entities.SimulationInvite.filter({ application_id: app.id }, { sort: "-created_date", limit: 1 });
+        setInvite((res.items || [])[0] || null);
+      } catch (e) {
+        setInvite(null);
+      }
+    })();
+  }, [app.id, app.status]);
 
   useEffect(() => {
     if (!app.interview_booking_id) { setBooking(null); return; }
@@ -86,16 +98,26 @@ export default function ApplicationTimeline({ app }) {
                   </p>
                 )}
 
-                {r.id === 2 && canTakeExam && (
-                  <Link to={`/phong-thi/${app.id}`} className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-600 text-primary-foreground hover:bg-primary/90">
-                    Vào phòng thi vòng 2 <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
+                {r.id === 2 && canTakeExam && invite && (
+                  <div className="mt-2 rounded-xl border border-primary/30 bg-primary/5 p-3">
+                    <p className="text-xs font-600 text-primary">Job Simulation — bài mô phỏng công việc thực tế</p>
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      {invite.simulation_name || "Bài mô phỏng vị trí ứng tuyển"}
+                      {invite.expires_at ? ` · Hạn nộp ${new Date(invite.expires_at).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" })}` : ""}
+                    </p>
+                    <Link to={`/job-simulation/${invite.token}`} className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-600 text-primary-foreground hover:bg-primary/90">
+                      Vào làm Job Simulation <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
+                )}
+                {r.id === 2 && canTakeExam && !invite && (
+                  <p className="mt-2 text-xs text-muted-foreground">HR đã duyệt CV. Lời mời làm Job Simulation sẽ xuất hiện ở đây ngay khi được gửi (kèm email).</p>
                 )}
                 {r.id === 2 && app.status === "test_submitted" && (
                   <p className="mt-2 text-xs text-sky-700">Đã nộp bài — HR đang chấm và sẽ gửi email kết quả.</p>
                 )}
                 {r.id === 2 && app.test_score != null && app.status !== "test_submitted" && (
-                  <p className="mt-2 text-xs text-muted-foreground">Điểm bài thi: {app.test_score}/100</p>
+                  <p className="mt-2 text-xs text-muted-foreground">Điểm AI Job Simulation (tham khảo): {app.test_score}/100</p>
                 )}
 
                 {r.id === 3 && canPickSlot && (

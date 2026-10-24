@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
-import { buildEmail, appOrigin } from "../../shared/stageEmails.ts";
-import { provisionCandidateAccount, ensureCandidateUser, normalizeEmail } from "../../shared/candidateAccount.ts";
+import { appOrigin } from "../../shared/stageEmails.ts";
+import { sendStageMail } from "../../shared/mailer.ts";
+import { provisionCandidateAccount } from "../../shared/candidateAccount.ts";
 
 const ACTIONS: Record<string, { status: string; email?: string; finalResult?: string; rms: string }> = {
   approve_round1: { status: 'cv_passed', email: 'round1_pass', rms: 'cv_approved' },
@@ -13,6 +14,24 @@ const ACTIONS: Record<string, { status: string; email?: string; finalResult?: st
   final_hired: { status: 'hired', email: 'final_result', finalResult: 'hired', rms: 'pass' },
   final_rejected: { status: 'rejected', email: 'final_result', finalResult: 'rejected', rms: 'fail' },
   final_review: { status: 'final_review', email: 'final_result', finalResult: 'review', rms: 'interviewed' }
+};
+
+// Mỗi quyết định đều thuộc một vòng → bắt buộc vòng đó đã có Điểm HR chính thức.
+const ROUND_OF: Record<string, string> = {
+  approve_round1: 'cv',
+  reject_round1: 'cv',
+  approve_round2: 'simulation',
+  reject_round2: 'simulation',
+  hire: 'interview',
+  reject_round3: 'interview',
+  final_hired: 'interview',
+  final_rejected: 'interview'
+};
+
+const ROUND_LABEL: Record<string, string> = {
+  cv: 'Vòng 1 (duyệt CV)',
+  simulation: 'Vòng 2 (Job Simulation)',
+  interview: 'Vòng 3 (phỏng vấn)'
 };
 
 // Giữ bộ cờ 5 bước của sơ đồ tiến trình đồng bộ với trạng thái cũ.
@@ -54,6 +73,22 @@ export default async function (req: Request): Promise<Response> {
     const app = await base44.asServiceRole.entities.Application.get(applicationId);
     if (!app) return Response.json({ error: 'Không tìm thấy hồ sơ' }, { status: 404 });
 
+    // Chặn chuyển vòng / chốt kết quả khi vòng hiện tại chưa có Điểm HR.
+    const round = ROUND_OF[action];
+    if (round) {
+      const scoreRes = await base44.asServiceRole.entities.RoundScore.filter(
+        { application_id: applicationId, round },
+        { limit: 1 }
+      );
+      const scored = (scoreRes.items || [])[0];
+      if (!scored || scored.hr_score == null) {
+        return Response.json(
+          { error: `Chưa có Điểm HR của ${ROUND_LABEL[round]}. Vui lòng chấm điểm HR trước khi chuyển vòng hoặc chốt kết quả.` },
+          { status: 400 }
+        );
+      }
+    }
+
     const now = new Date().toISOString();
     const updateData: any = { status: next.status, rms_status: next.rms, ...(RMS_STEPS[action]?.(now) || {}) };
     if (note) { updateData.final_notes = note; updateData.final_result_note = note; }
@@ -75,44 +110,29 @@ export default async function (req: Request): Promise<Response> {
       }
     }
 
+    // Email tự động cho ứng viên ở mọi bước có thông báo.
     let emailSent = false;
     let emailError = '';
-    // HR gửi email qua trình soạn email → không gửi mail tự động ở bước này.
-    const skipEmail = body?.skip_email === true;
-
-    if (next.email && !skipEmail) {
-      // SendEmail chỉ tới được người đã có tài khoản trong app → tạo/mời tài khoản trước khi gửi
-      const ensured = await ensureCandidateUser(base44, app.email);
-      if (!ensured.registered) {
-        emailError = ensured.error || 'Chưa gửi được email cho ứng viên';
-      } else {
-        const origin = appOrigin(req);
-        const mail = buildEmail(next.email, {
-          candidateName: app.full_name,
-          jobTitle: app.job_title,
-          company: app.company,
-          matchScore: next.email === 'round1_pass' || next.email === 'round1_fail' ? app.cv_match_score : null,
-          missing: app.cv_required_missing || [],
-          finalResult: next.finalResult,
-          note,
-          scheduleUrl: `/lich-phong-van/${app.id}`,
-          accountEmail: account?.email || normalizeEmail(app.email) || undefined,
-          origin
-        });
-        try {
-          await base44.asServiceRole.integrations.Core.SendEmail({ to: normalizeEmail(app.email)!, subject: mail.subject, html: mail.html });
-          emailSent = true;
-        } catch (e: any) {
-          const raw = e?.message || '';
-          emailError = /custom domain/i.test(raw)
-            ? 'Ứng viên chưa đăng nhập vào app lần nào nên hệ thống chỉ gửi được khi app có tên miền email đã xác thực (mục Tên miền). Hãy gửi lại sau khi kết nối tên miền.'
-            : raw || 'Không gửi được email cho ứng viên';
-        }
-      }
+    if (next.email) {
+      const mail = await sendStageMail(base44, app, next.email, {
+        finalResult: next.finalResult,
+        note,
+        accountEmail: account?.email || undefined,
+        scheduleUrl: `/lich-phong-van/${app.id}`,
+        origin: appOrigin(req)
+      });
+      emailSent = mail.sent;
+      emailError = mail.error;
     }
 
-    return Response.json({ ok: true, status: next.status, application: updated, email_sent: emailSent, email_error: emailError || undefined });
-  } catch (error) {
+    return Response.json({
+      ok: true,
+      status: next.status,
+      application: updated,
+      email_sent: emailSent,
+      email_error: emailError || undefined
+    });
+  } catch (error: any) {
     return Response.json({ error: error.message }, { status: 500 });
   }
 }

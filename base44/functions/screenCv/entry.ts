@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
-import { buildEmail, appOrigin } from "../../shared/stageEmails.ts";
+import { appOrigin } from "../../shared/stageEmails.ts";
+import { sendStageMail } from "../../shared/mailer.ts";
 import { AI_MODEL } from "../../shared/aiModel.ts";
 
 type RubricItem = { group: string; label: string; band?: string; requirement: string; weight: number };
@@ -103,20 +104,26 @@ export default async function (req: Request): Promise<Response> {
       } catch (e) {}
     }
 
-    // 3) Gửi email xác nhận đã nhận hồ sơ (chỉ 1 lần)
+    // 3) Gửi email xác nhận đã nhận hồ sơ (chỉ 1 lần) — trả về trạng thái để giao diện báo lỗi nếu không gửi được
+    let emailSent = false;
+    let emailError = '';
     if (!app.confirmation_sent_at) {
-      const origin = appOrigin(req);
-      const mail = buildEmail('application_confirmed', {
-        candidateName: app.full_name, jobTitle: app.job_title, company: app.company, origin
-      });
-      try {
-        await base44.asServiceRole.integrations.Core.SendEmail({ to: app.email, subject: mail.subject, html: mail.html });
-        await base44.asServiceRole.entities.Application.update(applicationId, { confirmation_sent_at: new Date().toISOString() });
-      } catch (e) {}
+      const mail = await sendStageMail(base44, app, 'application_confirmed', { origin: appOrigin(req) });
+      emailSent = mail.sent;
+      emailError = mail.error;
+      if (mail.sent) {
+        await base44.asServiceRole.entities.Application.update(applicationId, { confirmation_sent_at: new Date().toISOString() }).catch(() => null);
+      }
     }
 
     if (!rubric.length || !cvText) {
-      return Response.json({ ok: true, match_score: null, message: 'Chưa đủ dữ liệu để chấm điểm (thiếu barem hoặc nội dung CV).' });
+      return Response.json({
+        ok: true,
+        match_score: null,
+        email_sent: emailSent,
+        email_error: emailError || undefined,
+        message: 'Chưa đủ dữ liệu để chấm điểm (thiếu barem hoặc nội dung CV).'
+      });
     }
 
     // 4) AI đối chiếu từng nhãn của barem với CV
@@ -218,6 +225,8 @@ Trả JSON: items (mảng {label, matched, evidence}), analysis (2-3 câu), stre
     return Response.json({
       ok: true,
       match_score: score,
+      email_sent: emailSent,
+      email_error: emailError || undefined,
       advice,
       analysis: llm?.analysis || '',
       matched: compared.filter((c) => c.matched).map((c) => c.label),

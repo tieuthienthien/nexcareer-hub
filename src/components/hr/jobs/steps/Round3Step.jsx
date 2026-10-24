@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CalendarClock, Loader2, Mail, Plus, Pencil, Trash2, UserCog, AlertTriangle, Check } from "lucide-react";
 import { formatDateTime, rmsStatus } from "@/lib/rms";
+import HrScoreBox from "@/components/hr/jobs/HrScoreBox";
 import EmailComposeDialog from "@/components/hr/email/compose/EmailComposeDialog";
 
 const emptyForm = { id: null, manager_name: "", line_manager_email: "", department: "" };
@@ -139,6 +140,10 @@ export default function Round3Step({ app, booking, invite, onDone }) {
         <p className="mt-3 rounded-xl bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           {canSchedule ? "Chưa có lịch phỏng vấn cho ứng viên này." : "Cần cho ứng viên qua Vòng 2 trước khi đặt lịch phỏng vấn."}
         </p>
+      )}
+
+      {canSchedule && (
+        <HrScoreBox applicationId={app.id} round="interview" aiScore={app.interview_score} onChange={() => {}} />
       )}
 
       <div className="mt-3 flex flex-wrap gap-2">

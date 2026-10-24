@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
-import { buildEmail, appOrigin } from "../../shared/stageEmails.ts";
+import { appOrigin } from "../../shared/stageEmails.ts";
+import { sendStageMail } from "../../shared/mailer.ts";
 import { authorizeApplicationAccess, accessDeniedMessage } from "../../shared/applicationAccess.ts";
 import { AI_MODEL } from "../../shared/aiModel.ts";
 
@@ -67,13 +68,9 @@ Trả về JSON tiếng Việt:
 
     await base44.asServiceRole.entities.Application.update(applicationId, { interview_score: score, interview_ai_analysis: analysis });
 
-    const origin = appOrigin(req);
-    const mail = buildEmail("interview_submitted_ack", { candidateName: app.full_name, jobTitle: app.job_title, company: app.company, origin });
-    try {
-      await base44.asServiceRole.integrations.Core.SendEmail({ to: app.email, subject: mail.subject, html: mail.html });
-    } catch (e) {}
+    const mail = await sendStageMail(base44, app, "interview_submitted_ack", { origin: appOrigin(req) });
 
-    return Response.json({ ok: true, score, analysis });
+    return Response.json({ ok: true, score, analysis, email_sent: mail.sent, email_error: mail.error || undefined });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

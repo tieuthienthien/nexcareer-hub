@@ -79,7 +79,7 @@ export function buildEmail(stage: string, ctx: EmailContext): { subject: string;
         : "";
       return {
         subject: `Chúc mừng! Bạn đã đậu vòng 1 — ${job}`,
-        html: shell("Kết quả vòng 1: ĐẬU", `<p>Chào <b>${name}</b>,</p><p>Chúc mừng bạn đã vượt qua vòng sàng lọc CV cho vị trí <b>${job}</b>${jc}.${scoreBlock}</p>${accountBlock}<p>Bước tiếp theo: <b>bài thi online vòng 2</b> trên NexCareer Hub (tối đa 60 phút, đồng hồ đếm ngược và tự nộp khi hết giờ). Đăng nhập bằng tài khoản ở trên để vào phòng thi.</p>${link(origin, "/login?returnTo=/candidate-room", "Đăng nhập & làm bài vòng 2")}`)
+        html: shell("Kết quả vòng 1: ĐẬU", `<p>Chào <b>${name}</b>,</p><p>Chúc mừng bạn đã vượt qua vòng sàng lọc CV cho vị trí <b>${job}</b>${jc}.${scoreBlock}</p>${accountBlock}<p>Bước tiếp theo: <b>Vòng 2 — Job Simulation</b>, bài mô phỏng công việc thực tế đúng vị trí bạn ứng tuyển. Đăng nhập bằng tài khoản ở trên để xem lời mời và bắt đầu làm bài.</p>${link(origin, "/login?returnTo=/candidate-room", "Đăng nhập & vào Vòng 2")}`)
       };
     }
     case "round1_fail":

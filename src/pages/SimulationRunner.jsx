@@ -221,6 +221,15 @@ export default function SimulationRunner() {
         </div>
       </header>
 
+      {data.simulation.description && (
+        <div className="mx-auto mt-3 max-w-[1400px] px-3">
+          <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
+            <p className="text-[11px] font-700 uppercase tracking-wide text-primary">Bối cảnh công việc</p>
+            <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-foreground/85">{data.simulation.description}</p>
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-3 p-3 lg:grid-cols-[250px_1fr_1.1fr] lg:items-start">
         <aside className="space-y-2 rounded-2xl border border-border bg-card p-3">
           <div className="flex items-center gap-2 text-xs font-700 uppercase tracking-wide text-muted-foreground"><MessageSquare className="h-3.5 w-3.5" /> Tin nhắn & ticket</div>

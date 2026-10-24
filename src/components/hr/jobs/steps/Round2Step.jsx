@@ -3,8 +3,9 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Send, Check, X, ExternalLink, AlertTriangle, Copy } from "lucide-react";
+import { Loader2, Send, Check, X, ExternalLink, AlertTriangle, Copy, Mail } from "lucide-react";
 import { formatDateTime, rmsStatus } from "@/lib/rms";
+import HrScoreBox from "@/components/hr/jobs/HrScoreBox";
 import EmailComposeDialog from "@/components/hr/email/compose/EmailComposeDialog";
 
 const INVITE_LABEL = {
@@ -23,6 +24,8 @@ export default function Round2Step({ app, invite, attempt, booking, onDone }) {
   const [note, setNote] = useState("");
   const [link, setLink] = useState("");
   const [copied, setCopied] = useState(false);
+  const [hrScore, setHrScore] = useState(null);
+  const [notice, setNotice] = useState("");
 
   const stage = rmsStatus(app);
   const canInvite = ["cv_approved", "pending_manager", "interviewed", "pass"].includes(stage) || ["cv_passed", "test_invited", "test_submitted", "test_rejected"].includes(app?.status);
@@ -64,20 +67,26 @@ export default function Round2Step({ app, invite, attempt, booking, onDone }) {
     }
   };
 
-  // Cho qua / Loại ở Vòng 2 → cập nhật hồ sơ rồi mở trình soạn email đúng mẫu.
-  const startCompose = async (action) => {
+  // Cho qua / Loại ở Vòng 2 → bắt buộc Điểm HR, hệ thống tự gửi email kết quả.
+  const decide = async (action) => {
+    if (hrScore == null) {
+      setError("Vui lòng lưu Điểm HR của Job Simulation trước khi chuyển vòng hoặc loại.");
+      return;
+    }
     setBusy(action);
     setError("");
+    setNotice("");
     try {
       const res = await base44.functions.invoke("advanceStage", {
         application_id: app.id,
         action,
         note,
-        skip_email: true,
       });
-      if (res.data?.error) throw new Error(res.data.error);
+      const d = res.data || {};
+      if (d.error) throw new Error(d.error);
       setNote("");
-      setCompose({ templateKey: action === "approve_round2" ? "round2_pass" : "round2_fail", action });
+      setNotice(d.email_sent ? "Đã cập nhật hồ sơ và gửi email cho ứng viên." : "");
+      if (!d.email_sent && d.email_error) setError(`Chưa gửi được email cho ứng viên: ${d.email_error}`);
       await onDone?.();
     } catch (e) {
       setError(e.response?.data?.error || e.message || "Không cập nhật được quyết định.");
@@ -187,26 +196,42 @@ export default function Round2Step({ app, invite, attempt, booking, onDone }) {
         </div>
       )}
 
+      {canInvite && (
+        <HrScoreBox
+          applicationId={app.id}
+          round="simulation"
+          aiScore={attempt?.score ?? app?.test_score}
+          onChange={(r) => setHrScore(r?.hr_score ?? null)}
+        />
+      )}
+
       {error && <div className="mt-3 flex items-start gap-2 rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-800"><AlertTriangle className="mt-0.5 h-3.5 w-3.5" />{error}</div>}
+      {notice && <div className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-xs text-emerald-800">{notice}</div>}
 
       {submitted && !decided && (
         <div className="mt-3 space-y-2">
           <Textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ghi chú khi chuyển vòng 3 / loại (không bắt buộc)" className="text-sm" />
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={() => startCompose("approve_round2")} disabled={!!busy} className="gap-1.5">
+            <Button size="sm" onClick={() => decide("approve_round2")} disabled={!!busy || hrScore == null} className="gap-1.5">
               {busy === "approve_round2" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />} Cho qua vòng 3
             </Button>
-            <Button size="sm" variant="outline" onClick={() => startCompose("reject_round2")} disabled={!!busy} className="gap-1.5 text-rose-600">
+            <Button size="sm" variant="outline" onClick={() => decide("reject_round2")} disabled={!!busy || hrScore == null} className="gap-1.5 text-rose-600">
               {busy === "reject_round2" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />} Loại
             </Button>
           </div>
+          {hrScore == null && <p className="text-[11px] text-amber-800">Cần lưu Điểm HR của Vòng 2 để mở khoá quyết định.</p>}
         </div>
       )}
 
       {decided && (
-        <p className="mt-3 text-[11px] font-600 text-muted-foreground">
-          {app?.status === "test_passed" || stage === "pending_manager" ? "HR đã cho qua Vòng 3." : "HR đã loại ở Vòng 2."}
-        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <p className="text-[11px] font-600 text-muted-foreground">
+            {app?.status === "test_passed" || stage === "pending_manager" ? "HR đã cho qua Vòng 3." : "HR đã loại ở Vòng 2."}
+          </p>
+          <Button size="sm" variant="outline" onClick={() => setCompose({ templateKey: app?.status === "test_rejected" ? "round2_fail" : "round2_pass" })} className="gap-1.5">
+            <Mail className="h-3.5 w-3.5" /> Soạn email riêng
+          </Button>
+        </div>
       )}
 
       <EmailComposeDialog

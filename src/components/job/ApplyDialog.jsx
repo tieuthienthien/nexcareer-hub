@@ -25,12 +25,14 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
   const [aiResult, setAiResult] = useState(null);
+  const [mailError, setMailError] = useState("");
 
   useEffect(() => {
     if (!open) return;
     setDone(false);
     setError("");
     setAiResult(null);
+    setMailError("");
     setCvFile(null);
     setCertFiles([]);
     (async () => {
@@ -112,7 +114,10 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
         const res = await base44.functions.invoke("screenCv", { application_id: created.id });
         const data = res.data || res;
         setAiResult({ score: data.match_score, analysis: data.analysis });
-      } catch (e) {}
+        if (data.email_error) setMailError(data.email_error);
+      } catch (e) {
+        setMailError(e.response?.data?.error || e.message || "Không gọi được bước chấm CV.");
+      }
     } catch (e) {
       setError(e.message || "Không thể nộp hồ sơ. Vui lòng thử lại.");
     } finally {
@@ -139,7 +144,13 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
                   {aiResult.score != null && <span className="text-lg font-800 text-primary">{aiResult.score}%</span>}
                 </div>
                 {aiResult.analysis && <p className="mt-2 text-foreground/80">{aiResult.analysis}</p>}
-                <p className="mt-2 text-xs text-muted-foreground">Chúng tôi đã gửi email xác nhận — vui lòng kiểm tra hộp thư.</p>
+                {mailError ? (
+                  <p className="mt-2 rounded-lg bg-amber-50 px-2.5 py-2 text-xs text-amber-800">
+                    Chưa gửi được email xác nhận: {mailError}
+                  </p>
+                ) : (
+                  <p className="mt-2 text-xs text-muted-foreground">Chúng tôi đã gửi email xác nhận — vui lòng kiểm tra hộp thư.</p>
+                )}
               </div>
             )}
             <Button className="mt-6 bg-emerald-600 hover:bg-emerald-700" onClick={() => onOpenChange(false)}>Hoàn tất</Button>

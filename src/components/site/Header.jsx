@@ -59,16 +59,11 @@ export default function Header() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Button asChild variant="ghost" size="sm" className="gap-2 text-foreground/80">
-            <Link to="/hr-studio">
-              <Building2 className="h-4 w-4" /> HR Studio
-            </Link>
-          </Button>
           {isAuthenticated ? (
             <>
               <Button asChild variant="outline" size="sm" className="gap-2">
                 <Link to={isAdmin ? "/hr-studio" : "/candidate-room"}>
-                  <User className="h-4 w-4" />
+                  {isAdmin ? <Building2 className="h-4 w-4" /> : <User className="h-4 w-4" />}
                   {isAdmin ? "HR Studio" : "Candidate Room"}
                 </Link>
               </Button>
@@ -103,9 +98,15 @@ export default function Header() {
                 {l.label}
               </Link>
             ))}
-            <Link to="/hr-studio" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-500 hover:bg-muted">
-              HR Studio
-            </Link>
+            {isAuthenticated && (
+              <Link
+                to={isAdmin ? "/hr-studio" : "/candidate-room"}
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-500 hover:bg-muted"
+              >
+                {isAdmin ? "HR Studio" : "Candidate Room"}
+              </Link>
+            )}
             <div className="mt-2 flex gap-2">
               {isAuthenticated ? (
                 <Button onClick={() => { setOpen(false); handleLogout(); }} variant="outline" size="sm" className="w-full gap-2">

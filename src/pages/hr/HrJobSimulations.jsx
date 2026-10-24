@@ -6,10 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Sparkles, Clock, Award, Users, Trash2, Eye } from "lucide-react";
+import { Loader2, Plus, Sparkles, Clock, Award, Users, Trash2, Eye, Pencil } from "lucide-react";
 import { formatDateTime } from "@/lib/rms";
 
-const emptyForm = { name: "", role_title: "", description: "", duration_min: 60, pass_score: 80, status: "active" };
+const emptyForm = { name: "", role_title: "", job_id: "", description: "", duration_min: 60, pass_score: 80, status: "active" };
 const emptyTask = { id: "", title: "", type: "code", prompt: "", points: 20, starter_code: "" };
 
 export default function HrJobSimulations() {
@@ -21,6 +21,8 @@ export default function HrJobSimulations() {
   const [detail, setDetail] = useState(null);
   const [attempts, setAttempts] = useState([]);
   const [createOpen, setCreateOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [jobs, setJobs] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [tasks, setTasks] = useState([{ ...emptyTask, id: "task1" }]);
 
@@ -28,9 +30,13 @@ export default function HrJobSimulations() {
     setLoading(true);
     setError("");
     try {
-      const res = await base44.entities.JobSimulation.list({ sort: "-created_date", limit: 50 });
+      const [res, jobRes] = await Promise.all([
+        base44.entities.JobSimulation.list({ sort: "-created_date", limit: 50 }),
+        base44.entities.Job.list({ sort: "-created_date", limit: 100 }),
+      ]);
       const items = res.items || [];
       setSims(items);
+      setJobs(jobRes.items || []);
       try {
         const agg = await base44.entities.SimulationAttempt.aggregate({
           query: { status: "submitted" },
@@ -77,24 +83,49 @@ export default function HrJobSimulations() {
     }
   };
 
+  const openEdit = (sim) => {
+    setEditingId(sim.id);
+    setForm({
+      name: sim.name || "",
+      role_title: sim.role_title || "",
+      job_id: sim.job_id || "",
+      description: sim.description || "",
+      duration_min: sim.duration_min || 60,
+      pass_score: sim.pass_score || 80,
+      status: sim.status || "active",
+    });
+    const list = Array.isArray(sim.tasks) && sim.tasks.length ? sim.tasks : [{ ...emptyTask, id: "task1" }];
+    setTasks(list.map((t, i) => ({ ...emptyTask, ...t, id: t.id || `task${i + 1}` })));
+    setCreateOpen(true);
+  };
+
+  const closeDialog = (open) => {
+    setCreateOpen(open);
+    if (!open) {
+      setEditingId(null);
+      setForm(emptyForm);
+      setTasks([{ ...emptyTask, id: "task1" }]);
+    }
+  };
+
   const saveNew = async () => {
     if (!form.name) { setError("Nhập tên bài mô phỏng."); return; }
     setBusy("create");
     setError("");
     try {
-      await base44.entities.JobSimulation.create({
+      const payload = {
         ...form,
         duration_min: Number(form.duration_min) || 60,
         pass_score: Number(form.pass_score) || 80,
         criteria: `Tổng ${tasks.reduce((s, t) => s + (Number(t.points) || 0), 0)} điểm · Đạt từ ${Number(form.pass_score) || 80} điểm`,
         tasks: tasks.filter((t) => t.title).map((t, i) => ({ ...t, id: t.id || `task${i + 1}`, points: Number(t.points) || 10 })),
-      });
-      setCreateOpen(false);
-      setForm(emptyForm);
-      setTasks([{ ...emptyTask, id: "task1" }]);
+      };
+      if (editingId) await base44.entities.JobSimulation.update(editingId, payload);
+      else await base44.entities.JobSimulation.create(payload);
+      closeDialog(false);
       await load();
     } catch (e) {
-      setError(e.message || "Không tạo được bài mô phỏng.");
+      setError(e.message || "Không lưu được bài mô phỏng.");
     } finally {
       setBusy("");
     }
@@ -111,7 +142,7 @@ export default function HrJobSimulations() {
           <Button variant="outline" onClick={seedSample} disabled={!!busy} className="gap-2">
             {busy === "seed" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Tạo simulation mẫu
           </Button>
-          <Button onClick={() => setCreateOpen(true)} className="gap-2"><Plus className="h-4 w-4" /> Tạo simulation</Button>
+          <Button onClick={() => closeDialog(true)} className="gap-2"><Plus className="h-4 w-4" /> Tạo simulation</Button>
         </div>
       </div>
 
@@ -144,7 +175,10 @@ export default function HrJobSimulations() {
                   <span className="inline-flex items-center gap-1"><Users className="h-3.5 w-3.5" />{stat.count || 0} ứng viên đã làm</span>
                   <span>{stat.avg != null ? `TB ${Math.round(stat.avg * 10) / 10} điểm` : "Chưa có điểm"}</span>
                 </div>
-                <Button size="sm" variant="outline" onClick={() => openDetail(sim)} className="mt-3 gap-1.5"><Eye className="h-3.5 w-3.5" /> Xem đề & kết quả</Button>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" onClick={() => openDetail(sim)} className="gap-1.5"><Eye className="h-3.5 w-3.5" /> Xem đề & kết quả</Button>
+                  <Button size="sm" variant="outline" onClick={() => openEdit(sim)} className="gap-1.5"><Pencil className="h-3.5 w-3.5" /> Sửa kịch bản</Button>
+                </div>
               </div>
             );
           })}
@@ -192,12 +226,22 @@ export default function HrJobSimulations() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+      <Dialog open={createOpen} onOpenChange={closeDialog}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-          <DialogHeader><DialogTitle>Tạo Job Simulation</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editingId ? "Chỉnh sửa Job Simulation" : "Tạo Job Simulation"}</DialogTitle></DialogHeader>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Tên bài mô phỏng</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
             <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Vị trí áp dụng</Label><Input value={form.role_title} onChange={(e) => setForm({ ...form, role_title: e.target.value })} /></div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label className="text-xs">Gắn với tin tuyển dụng (dùng để tự chọn bài cho ứng viên)</Label>
+              <Select value={form.job_id || "none"} onValueChange={(v) => setForm({ ...form, job_id: v === "none" ? "" : v })}>
+                <SelectTrigger><SelectValue placeholder="Chọn vị trí đang tuyển" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Không gắn vị trí cụ thể</SelectItem>
+                  {jobs.map((j) => <SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Bối cảnh doanh nghiệp</Label><Textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
             <div className="space-y-1.5"><Label className="text-xs">Thời lượng (phút)</Label><Input type="number" value={form.duration_min} onChange={(e) => setForm({ ...form, duration_min: e.target.value })} /></div>
             <div className="space-y-1.5"><Label className="text-xs">Ngưỡng đạt</Label><Input type="number" value={form.pass_score} onChange={(e) => setForm({ ...form, pass_score: e.target.value })} /></div>
@@ -231,7 +275,7 @@ export default function HrJobSimulations() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>Hủy</Button>
+            <Button variant="outline" onClick={() => closeDialog(false)}>Hủy</Button>
             <Button onClick={saveNew} disabled={busy === "create"} className="gap-2">{busy === "create" && <Loader2 className="h-4 w-4 animate-spin" />} Lưu</Button>
           </DialogFooter>
         </DialogContent>

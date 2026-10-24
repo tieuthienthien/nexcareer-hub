@@ -2,8 +2,9 @@ import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Check, X, Loader2, Sparkles, AlertTriangle } from "lucide-react";
+import { Check, X, Loader2, Sparkles, AlertTriangle, Mail } from "lucide-react";
 import { formatDateTime } from "@/lib/rms";
+import HrScoreBox from "@/components/hr/jobs/HrScoreBox";
 import EmailComposeDialog from "@/components/hr/email/compose/EmailComposeDialog";
 
 const ADVICE = {
@@ -16,42 +17,37 @@ export default function Round1Step({ app, invite, booking, onDone }) {
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
-  const [compose, setCompose] = useState(null);
+  const [notice, setNotice] = useState("");
+  const [hrScore, setHrScore] = useState(null);
+  const [compose, setCompose] = useState(false);
 
   const pending = !app?.round1_decided_at && (app?.status === "cv_screening" || !app?.status);
   const rejected = app?.status === "cv_rejected";
+  const decided = !pending;
   const rubric = Array.isArray(app?.cv_rubric) ? app.cv_rubric : [];
   const advice = ADVICE[app?.cv_advice];
 
-  // Bấm duyệt/loại → cập nhật hồ sơ rồi mở trình soạn email với mẫu tương ứng.
-  const startCompose = async (action) => {
+  // Quyết định vòng 1: bắt buộc có Điểm HR, hệ thống tự gửi email cho ứng viên.
+  const decide = async (action) => {
+    if (hrScore == null) {
+      setError("Vui lòng lưu Điểm HR của vòng 1 trước khi duyệt hoặc loại hồ sơ.");
+      return;
+    }
     setBusy(action);
     setError("");
+    setNotice("");
     try {
       const res = await base44.functions.invoke("advanceStage", {
         application_id: app.id,
         action,
         note,
         hr_decision_reason: note,
-        skip_email: true,
       });
-      if (res.data?.error) throw new Error(res.data.error);
-      let preset = {};
-      if (action === "approve_round1") {
-        try {
-          const sim = await base44.functions.invoke("sendJobSimulation", { application_id: app.id, skip_email: true, expires_days: 3 });
-          const d = sim.data || {};
-          if (!d.error) {
-            preset = {
-              link_job_simulation: d.link,
-              han_nop_simulation: d.invite?.expires_at ? formatDateTime(d.invite.expires_at) : "",
-              thoi_luong: d.duration_min,
-            };
-          }
-        } catch (e) {}
-      }
+      const d = res.data || {};
+      if (d.error) throw new Error(d.error);
       setNote("");
-      setCompose({ templateKey: action === "approve_round1" ? "round1_pass" : "round1_fail", preset, action });
+      setNotice(d.email_sent ? "Đã cập nhật hồ sơ và gửi email cho ứng viên." : "");
+      if (!d.email_sent && d.email_error) setError(`Chưa gửi được email cho ứng viên: ${d.email_error}`);
       await onDone?.();
     } catch (e) {
       setError(e.response?.data?.error || e.message || "Không cập nhật được quyết định.");
@@ -65,7 +61,7 @@ export default function Round1Step({ app, invite, booking, onDone }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h4 className="text-sm font-700">Vòng 1 — Duyệt CV</h4>
-          <p className="text-xs text-muted-foreground">AI chấm theo nhãn JD · HR là người quyết định cuối cùng</p>
+          <p className="text-xs text-muted-foreground">AI chấm theo nhãn JD (tham khảo) · Điểm HR là điểm chính thức</p>
         </div>
         {rejected ? (
           <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-600 text-rose-700">Đã loại ở vòng CV</span>
@@ -81,10 +77,6 @@ export default function Round1Step({ app, invite, booking, onDone }) {
       ) : (
         <div className="mt-3 space-y-3">
           <div className="flex flex-wrap items-center gap-3">
-            <div className="rounded-xl bg-primary/10 px-3 py-2 text-center">
-              <div className="font-heading text-xl font-700 text-primary">{app.cv_match_score}<span className="text-xs font-500">/100</span></div>
-              <div className="text-[10px] font-600 uppercase tracking-wide text-primary/80">Điểm khớp JD</div>
-            </div>
             {advice && <span className={`rounded-full px-2 py-1 text-[11px] font-600 ${advice.cls}`}>{advice.label}</span>}
             {app.cv_quality_signals && <span className="text-[11px] text-muted-foreground">Tín hiệu chất lượng: {app.cv_quality_signals}</span>}
           </div>
@@ -130,39 +122,47 @@ export default function Round1Step({ app, invite, booking, onDone }) {
         </div>
       )}
 
+      <HrScoreBox applicationId={app.id} round="cv" aiScore={app.cv_match_score} onChange={(r) => setHrScore(r?.hr_score ?? null)} />
+
       {error && <div className="mt-3 flex items-start gap-2 rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-800"><AlertTriangle className="mt-0.5 h-3.5 w-3.5" />{error}</div>}
+      {notice && <div className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-xs text-emerald-800">{notice}</div>}
 
       {pending ? (
         <div className="mt-3 space-y-2">
           <Textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ghi chú quyết định (không bắt buộc) — sẽ lưu vào hồ sơ và email gửi ứng viên" className="text-sm" />
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={() => startCompose("approve_round1")} disabled={!!busy} className="gap-1.5">
+            <Button size="sm" onClick={() => decide("approve_round1")} disabled={!!busy || hrScore == null} className="gap-1.5">
               {busy === "approve_round1" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />} Duyệt CV
             </Button>
-            <Button size="sm" variant="outline" onClick={() => startCompose("reject_round1")} disabled={!!busy} className="gap-1.5 text-rose-600">
+            <Button size="sm" variant="outline" onClick={() => decide("reject_round1")} disabled={!!busy || hrScore == null} className="gap-1.5 text-rose-600">
               {busy === "reject_round1" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />} Loại hồ sơ
             </Button>
           </div>
+          {hrScore == null && <p className="text-[11px] text-amber-800">Cần lưu Điểm HR của vòng 1 để mở khoá quyết định.</p>}
         </div>
       ) : (
-        app?.round1_decided_at && (
-          <p className="mt-3 text-[11px] text-muted-foreground">
-            Quyết định lúc {formatDateTime(app.round1_decided_at)}
-            {app.hr_decision_reason ? ` · Lý do: ${app.hr_decision_reason}` : ""}
-          </p>
-        )
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          {app?.round1_decided_at && (
+            <p className="text-[11px] text-muted-foreground">
+              Quyết định lúc {formatDateTime(app.round1_decided_at)}
+              {app.hr_decision_reason ? ` · Lý do: ${app.hr_decision_reason}` : ""}
+            </p>
+          )}
+          <Button size="sm" variant="outline" onClick={() => setCompose(true)} className="gap-1.5">
+            <Mail className="h-3.5 w-3.5" /> Soạn email riêng
+          </Button>
+        </div>
       )}
 
       <EmailComposeDialog
-        open={!!compose}
-        onOpenChange={(value) => { if (!value) setCompose(null); }}
+        open={compose}
+        onOpenChange={setCompose}
         app={app}
         invite={invite}
         booking={booking}
-        templateKey={compose?.templateKey || "round1_pass"}
+        templateKey={rejected ? "round1_fail" : "round1_pass"}
         step="Vòng 1"
-        preset={compose?.preset || {}}
-        onSent={() => { setCompose(null); onDone?.(); }}
+        onSent={() => { setCompose(false); onDone?.(); }}
       />
     </div>
   );
