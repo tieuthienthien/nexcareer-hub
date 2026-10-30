@@ -140,7 +140,7 @@ const JOB_IMAGES = [
   [/ux\s*\/?\s*ui/, "/images/vieclam/tuyen-dung-ux-ui-designer.png"],
   [/\bhr\b|nhan su/, "/images/vieclam/tuyen-dung-hr-executive-nh-n-s-.png"],
   [/mobile|flutter/, "/images/vieclam/tuyen-dung-mobile-developer-flutter-.png"],
-  { match: /marketing/, file: "tuyen-dung-digital-marketing-specialist.png" },
+  [/marketing/, "/images/vieclam/tuyen-dung-digital-marketing-specialist.png"],
 ];
 
 export function jobImage(job) {
