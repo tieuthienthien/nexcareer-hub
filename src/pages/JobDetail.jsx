@@ -5,7 +5,8 @@ import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { MapPin, Briefcase, Clock, Wallet, Users, CalendarDays, Building2, CheckCircle2, ArrowLeft, Share2, TrendingUp, Eye } from "lucide-react";
 import ApplyDialog from "@/components/job/ApplyDialog";
-import { formatSalary, workTypeLabel, employmentTypeLabel, experienceLabel, companyInitials, companyGradient } from "@/lib/jobUtils";
+import { formatSalary, workTypeLabel, employmentTypeLabel, experienceLabel } from "@/lib/jobUtils";
+import JobAvatar from "@/components/job/JobAvatar";
 
 function RichText({ content }) {
   if (!content) return null;
@@ -89,9 +90,7 @@ export default function JobDetail() {
       {/* Header card */}
       <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-          <div className={`grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${companyGradient(job.company)} text-xl font-700 text-white shadow-lg`}>
-            {companyInitials(job.company)}
-          </div>
+          <JobAvatar job={job} className="h-16 w-16 rounded-2xl shadow-lg" textClassName="text-xl" />
           <div className="min-w-0 flex-1">
             <h1 className="font-heading text-2xl font-800 leading-tight sm:text-3xl">{job.title}</h1>
             <p className="mt-1.5 text-muted-foreground">{job.company}</p>
@@ -189,7 +188,7 @@ export default function JobDetail() {
             {related.map((r, i) => (
               <Link key={r.id} to={`/viec-lam/${r.id}`} className="flex items-center gap-4 border-b border-border/60 px-5 py-4 last:border-0 transition-colors hover:bg-muted/40">
                 <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-700 ${i < 3 ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>{i + 1}</div>
-                <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${companyGradient(r.company)} text-xs font-700 text-white`}>{companyInitials(r.company)}</div>
+                <JobAvatar job={r} className="h-10 w-10 rounded-xl" textClassName="text-xs" />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-600">{r.title}</div>
                   <div className="truncate text-xs text-muted-foreground">{r.company} · {r.location}</div>
