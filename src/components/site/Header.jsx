@@ -27,7 +27,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 w-full bg-transparent">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2.5 group">
+        <Link to="/" className="group flex items-center gap-2.5 rounded-full border border-border/60 bg-background/70 py-1.5 pl-1.5 pr-5 shadow-sm backdrop-blur-xl">
           <Image
             src="https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492/133362060_PhihnhgiaX-MEgiangnhmngm.png"
             alt="X-ME NexCareer Hub"

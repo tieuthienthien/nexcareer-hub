@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import GalaxyButton from "@/components/ui/galaxy-button";
 import { Input } from "@/components/ui/input";
-import { Search, Building2, User, ArrowRight, Sparkles, Users, Briefcase, Award, CheckCircle2, Code2, Target, Heart } from "lucide-react";
+import { Search, Building2, User, ArrowRight, Sparkles, Users, Briefcase, Award, CheckCircle2, Code2, Target, Heart, ChevronDown } from "lucide-react";
 import JobCard from "@/components/job/JobCard";
 import { useSiteContent } from "@/components/design/SiteDesignProvider";
 
@@ -47,55 +47,76 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute -top-24 left-1/2 h-72 w-[40rem] -translate-x-1/2 rounded-full bg-pastel-lavender/20 blur-3xl" />
-        <div className="absolute -bottom-20 right-0 h-72 w-[30rem] rounded-full bg-pastel-pink/15 blur-3xl" />
-        <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 lg:px-8 lg:pt-28">
-          <div className="mx-auto max-w-3xl text-center">
+      {/* Hero: ảnh nền riêng, hết ảnh là về nền cũ */}
+      <section className="relative -mt-20 flex min-h-[100svh] items-center overflow-hidden">
+        <img
+          src="/images/nen.jpg"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover object-[78%_center]"
+        />
+        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-[#140a33]/75 via-[#140a33]/35 to-transparent" />
+        <div className="relative mx-auto w-full max-w-7xl px-4 pb-28 pt-28 sm:px-6 lg:px-8">
+          <div className="max-w-xl text-left">
             {c.hero_badge && (
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-600 text-primary">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-1.5 text-xs font-600 text-white backdrop-blur-sm">
                 <Sparkles className="h-3.5 w-3.5" /> {c.hero_badge}
               </div>
             )}
             <h1 className="mt-6 font-heading text-4xl font-800 leading-[1.1] tracking-tight text-balance sm:text-5xl lg:text-6xl">
-              <span className="text-galaxy">{c.hero_title}</span>
+              <span className="bg-gradient-to-r from-white via-pastel-lavender to-pastel-pink bg-clip-text text-transparent">{c.hero_title}</span>
             </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mt-5 max-w-lg text-base leading-relaxed text-white/85 sm:text-lg">
               {c.hero_subtitle}
             </p>
-          </div>
 
-          <form onSubmit={handleSearch} className="mx-auto mt-10 max-w-4xl">
-            <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-2xl shadow-primary/5 sm:flex-row sm:items-center">
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  placeholder={c.search_placeholder}
-                  className="h-14 border-0 bg-transparent pl-12 text-base shadow-none focus-visible:ring-0"
-                />
+            <form onSubmit={handleSearch} className="mt-8 max-w-xl">
+              <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card/95 p-3 shadow-2xl shadow-black/20 sm:flex-row sm:items-center">
+                <div className="relative flex-1">
+                  <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    placeholder={c.search_placeholder}
+                    className="h-14 border-0 bg-transparent pl-12 text-base shadow-none focus-visible:ring-0"
+                  />
+                </div>
+                <GalaxyButton type="submit" size="lg" className="btn-galaxy h-14 px-8 text-base font-700 sm:w-auto">
+                  <Search className="mr-2 h-5 w-5" /> {c.search_cta}
+                </GalaxyButton>
               </div>
-              <GalaxyButton type="submit" size="lg" className="btn-galaxy h-14 px-8 text-base font-700 sm:w-auto">
-                <Search className="mr-2 h-5 w-5" /> {c.search_cta}
-              </GalaxyButton>
+            </form>
+          </div>
+        </div>
+
+        {/* Gợi ý vuốt lên */}
+        <button
+          type="button"
+          onClick={() => document.getElementById("home-after-hero")?.scrollIntoView({ behavior: "smooth" })}
+          className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-white/80 transition-colors hover:text-white"
+          aria-label="Vuốt lên để xem thêm"
+        >
+          <span className="text-[11px] font-600 uppercase tracking-[0.25em]">Vuốt lên để xem thêm</span>
+          <span className="grid h-9 w-9 animate-bounce place-items-center rounded-full border border-white/40 bg-white/10 backdrop-blur-sm">
+            <ChevronDown className="h-4 w-4" />
+          </span>
+        </button>
+      </section>
+
+      {/* Số liệu: nằm trên nền cũ, ngay sau ảnh */}
+      <section id="home-after-hero" className="relative">
+        <div className="mx-auto grid max-w-4xl grid-cols-4 gap-4 px-4 py-12 sm:px-6 lg:px-8">
+          {[
+            { value: String(totalJobs), label: "Vị trí đang tuyển" },
+            { value: "3", label: "Vòng đánh giá" },
+            { value: "98%", label: "Tỷ lệ hài lòng" },
+            { value: "20.000+", label: "Số lượt tiếp cận" },
+          ].map((s) => (
+            <div key={s.label} className="text-center">
+              <div className="font-heading text-2xl font-800 text-primary sm:text-3xl">{s.value}</div>
+              <div className="mt-1 text-xs font-500 text-muted-foreground sm:text-sm">{s.label}</div>
             </div>
-          </form>
-
-          <div className="mx-auto mt-8 grid max-w-4xl grid-cols-4 gap-4">
-            {[
-              { value: String(totalJobs), label: "Vị trí đang tuyển" },
-              { value: "3", label: "Vòng đánh giá" },
-              { value: "98%", label: "Tỷ lệ hài lòng" },
-              { value: "20.000+", label: "Số lượt tiếp cận" },
-            ].map((s) => (
-              <div key={s.label} className="text-center">
-                <div className="font-heading text-2xl font-800 text-primary sm:text-3xl">{s.value}</div>
-                <div className="mt-1 text-xs font-500 text-muted-foreground sm:text-sm">{s.label}</div>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       </section>
       {/* Chúng tôi làm việc với */}
