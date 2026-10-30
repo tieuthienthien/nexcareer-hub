@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Building2, Menu, X, User, LogOut, Briefcase } from "lucide-react";
-import { Image } from "@/components/ui/image";
 
 const navLinks = [
   { label: "Trang chủ", path: "/" },
@@ -28,12 +27,10 @@ export default function Header() {
     <header className="sticky top-0 z-40 w-full bg-transparent">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="group flex items-center gap-2.5 rounded-full border border-border/60 bg-background/70 py-1.5 pl-1.5 pr-5 shadow-sm backdrop-blur-xl">
-          <Image
-            src="https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492/133362060_PhihnhgiaX-MEgiangnhmngm.png"
+          <img
+            src="/images/logo_tron_1254.png"
             alt="X-ME NexCareer Hub"
-            fittingType="fill"
-            focalPointY={0.32}
-            className="h-10 w-10 rounded-full ring-1 ring-border shadow-lg shadow-primary/25"
+            className="h-10 w-10 rounded-full object-cover ring-1 ring-border shadow-lg shadow-primary/25"
           />
           <div className="leading-tight">
             <div className="font-heading text-[15px] font-700 tracking-tight">NexCareer Hub</div>
@@ -58,25 +55,25 @@ export default function Header() {
           })}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-1 rounded-full border border-border/60 bg-background/70 p-1.5 shadow-sm backdrop-blur-xl md:flex">
           {isAuthenticated ? (
             <>
-              <Button asChild variant="outline" size="sm" className="gap-2">
+              <Button asChild variant="ghost" size="sm" className="gap-2 rounded-full">
                 <Link to={isAdmin ? "/hr-studio" : "/candidate-room"}>
                   {isAdmin ? <Building2 className="h-4 w-4" /> : <User className="h-4 w-4" />}
                   {isAdmin ? "HR Studio" : "Candidate Room"}
                 </Link>
               </Button>
-              <Button onClick={handleLogout} variant="ghost" size="icon" className="rounded-full">
+              <Button onClick={handleLogout} variant="ghost" size="icon" className="h-9 w-9 rounded-full">
                 <LogOut className="h-4 w-4" />
               </Button>
             </>
           ) : (
             <>
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="rounded-full">
                 <Link to="/login">Đăng nhập</Link>
               </Button>
-              <Button asChild size="sm" className="gap-2">
+              <Button asChild size="sm" className="gap-2 rounded-full">
                 <Link to="/register">
                   <Briefcase className="h-4 w-4" /> Đăng ký
                 </Link>
