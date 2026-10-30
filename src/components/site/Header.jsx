@@ -55,7 +55,7 @@ export default function Header() {
           />
           <div className="leading-tight">
             <div className="text-galaxy font-heading text-[15px] font-700 tracking-tight">NexCareer Hub</div>
-            <div className="text-galaxy text-[10px] font-500 uppercase tracking-[0.18em]">Recruitment Platform</div>
+            <div className="text-[10px] font-500 uppercase tracking-[0.18em] text-muted-foreground">Recruitment Platform</div>
           </div>
         </Link>
 
