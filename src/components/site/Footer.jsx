@@ -14,7 +14,7 @@ export default function Footer() {
           <div className="md:col-span-1">
             <div className="flex items-center gap-2.5">
               <Image
-                src="https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492/133362060_PhihnhgiaX-MEgiangnhmngm.png"
+                src="/images/logo_tron_1254.png"
                 alt="X-ME NexCareer Hub"
                 fittingType="fill"
                 focalPointY={0.32}
