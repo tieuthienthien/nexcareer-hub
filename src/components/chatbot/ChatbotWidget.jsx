@@ -194,8 +194,8 @@ export default function ChatbotWidget() {
         )}
       </button>
       {!open && (
-        <div className="pointer-events-none flex items-center gap-1.5 rounded-full glass px-3 py-1.5 text-xs font-600 text-foreground shadow-md">
-          <Sparkles className="h-3.5 w-3.5 text-pastel-pink" /> Hỏi Starbuddy
+        <div className="pointer-events-none flex items-center gap-1.5 rounded-full border border-border/60 bg-card/95 px-3 py-1.5 text-xs font-600 shadow-md backdrop-blur-xl">
+          <Sparkles className="h-3.5 w-3.5 text-pastel-pink" /> <span className="text-galaxy">Hỏi Starbuddy</span>
         </div>
       )}
     </div>

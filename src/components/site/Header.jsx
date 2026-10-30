@@ -11,12 +11,33 @@ const navLinks = [
   { label: "Trung tâm hỗ trợ", path: "/ho-tro" },
 ];
 
+// Nền trắng đục (giống ô tìm kiếm ở trang chủ)
+const PILL = "rounded-full border border-border/60 bg-card/95 shadow-sm backdrop-blur-xl";
+
+// Mục trong pill: bình thường = chữ gradient, đang ở trang đó = nền gradient chạy (giống nút "Tìm việc")
+function PillLink({ to, active, icon: Icon, children, onClick }) {
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-500 transition-colors ${
+        active ? "btn-galaxy" : "hover:bg-primary/10"
+      }`}
+    >
+      {Icon && <Icon className={`h-4 w-4 ${active ? "" : "text-primary"}`} />}
+      {active ? children : <span className="text-galaxy">{children}</span>}
+    </Link>
+  );
+}
+
 export default function Header() {
   const { isAuthenticated, user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const isAdmin = user?.role === "admin";
+  const portalPath = isAdmin ? "/hr-studio" : "/candidate-room";
+  const isActive = (path) => location.pathname === path || (path !== "/" && location.pathname.startsWith(path));
 
   const handleLogout = () => {
     logout(false);
@@ -26,95 +47,78 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 w-full bg-transparent">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="group flex items-center gap-2.5 rounded-full border border-border/60 bg-background/70 py-1.5 pl-1.5 pr-5 shadow-sm backdrop-blur-xl">
+        <Link to="/" className={`group flex items-center gap-2.5 py-1.5 pl-1.5 pr-5 ${PILL}`}>
           <img
             src="/images/logo_tron_1254.png"
             alt="X-ME NexCareer Hub"
             className="h-10 w-10 rounded-full object-cover ring-1 ring-border shadow-lg shadow-primary/25"
           />
           <div className="leading-tight">
-            <div className="font-heading text-[15px] font-700 tracking-tight">NexCareer Hub</div>
-            <div className="text-[10px] font-500 uppercase tracking-[0.18em] text-muted-foreground">Recruitment Platform</div>
+            <div className="text-galaxy font-heading text-[15px] font-700 tracking-tight">NexCareer Hub</div>
+            <div className="text-galaxy text-[10px] font-500 uppercase tracking-[0.18em]">Recruitment Platform</div>
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-1 rounded-full border border-border/60 bg-background/70 p-1.5 shadow-sm backdrop-blur-xl md:flex">
-          {navLinks.map((l) => {
-            const active = location.pathname === l.path || (l.path !== "/" && location.pathname.startsWith(l.path));
-            return (
-              <Link
-                key={l.path}
-                to={l.path}
-                className={`rounded-full px-4 py-2 text-sm font-500 transition-colors ${
-                  active ? "bg-background text-primary shadow-sm" : "text-foreground/70 hover:bg-background/60 hover:text-foreground"
-                }`}
-              >
-                {l.label}
-              </Link>
-            );
-          })}
+        <nav className={`hidden items-center gap-1 p-1.5 md:flex ${PILL}`}>
+          {navLinks.map((l) => (
+            <PillLink key={l.path} to={l.path} active={isActive(l.path)}>
+              {l.label}
+            </PillLink>
+          ))}
         </nav>
 
-        <div className="hidden items-center gap-1 rounded-full border border-border/60 bg-background/70 p-1.5 shadow-sm backdrop-blur-xl md:flex">
+        <div className={`hidden items-center gap-1 p-1.5 md:flex ${PILL}`}>
           {isAuthenticated ? (
             <>
-              <Button asChild variant="ghost" size="sm" className="gap-2 rounded-full">
-                <Link to={isAdmin ? "/hr-studio" : "/candidate-room"}>
-                  {isAdmin ? <Building2 className="h-4 w-4" /> : <User className="h-4 w-4" />}
-                  {isAdmin ? "HR Studio" : "Candidate Room"}
-                </Link>
-              </Button>
-              <Button onClick={handleLogout} variant="ghost" size="icon" className="h-9 w-9 rounded-full">
+              <PillLink to={portalPath} active={isActive(portalPath)} icon={isAdmin ? Building2 : User}>
+                {isAdmin ? "HR Studio" : "Candidate Room"}
+              </PillLink>
+              <button
+                type="button"
+                onClick={handleLogout}
+                aria-label="Đăng xuất"
+                className="grid h-9 w-9 place-items-center rounded-full text-primary transition-colors hover:bg-primary/10"
+              >
                 <LogOut className="h-4 w-4" />
-              </Button>
+              </button>
             </>
           ) : (
             <>
-              <Button asChild variant="ghost" size="sm" className="rounded-full">
-                <Link to="/login">Đăng nhập</Link>
-              </Button>
-              <Button asChild size="sm" className="gap-2 rounded-full">
-                <Link to="/register">
-                  <Briefcase className="h-4 w-4" /> Đăng ký
-                </Link>
-              </Button>
+              <PillLink to="/login" active={isActive("/login")}>Đăng nhập</PillLink>
+              <PillLink to="/register" active icon={Briefcase}>Đăng ký</PillLink>
             </>
           )}
         </div>
 
         <button className="md:hidden" onClick={() => setOpen((v) => !v)} aria-label="Menu">
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {open ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
         </button>
       </div>
 
       {open && (
-        <div className="mx-4 rounded-2xl border border-border bg-background/95 px-4 py-4 shadow-lg backdrop-blur-xl md:hidden">
+        <div className="mx-4 rounded-2xl border border-border/60 bg-card/95 px-4 py-4 shadow-lg backdrop-blur-xl md:hidden">
           <div className="flex flex-col gap-1">
             {navLinks.map((l) => (
-              <Link key={l.path} to={l.path} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-500 hover:bg-muted">
+              <PillLink key={l.path} to={l.path} active={isActive(l.path)} onClick={() => setOpen(false)}>
                 {l.label}
-              </Link>
+              </PillLink>
             ))}
             {isAuthenticated && (
-              <Link
-                to={isAdmin ? "/hr-studio" : "/candidate-room"}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-500 hover:bg-muted"
-              >
+              <PillLink to={portalPath} active={isActive(portalPath)} onClick={() => setOpen(false)}>
                 {isAdmin ? "HR Studio" : "Candidate Room"}
-              </Link>
+              </PillLink>
             )}
             <div className="mt-2 flex gap-2">
               {isAuthenticated ? (
-                <Button onClick={() => { setOpen(false); handleLogout(); }} variant="outline" size="sm" className="w-full gap-2">
-                  <LogOut className="h-4 w-4" /> Đăng xuất
+                <Button onClick={() => { setOpen(false); handleLogout(); }} variant="outline" size="sm" className="w-full gap-2 rounded-full">
+                  <LogOut className="h-4 w-4" /> <span className="text-galaxy">Đăng xuất</span>
                 </Button>
               ) : (
                 <>
-                  <Button asChild variant="outline" size="sm" className="flex-1">
-                    <Link to="/login" onClick={() => setOpen(false)}>Đăng nhập</Link>
+                  <Button asChild variant="outline" size="sm" className="flex-1 rounded-full">
+                    <Link to="/login" onClick={() => setOpen(false)}><span className="text-galaxy">Đăng nhập</span></Link>
                   </Button>
-                  <Button asChild size="sm" className="flex-1">
+                  <Button asChild size="sm" className="btn-galaxy flex-1 rounded-full">
                     <Link to="/register" onClick={() => setOpen(false)}>Đăng ký</Link>
                   </Button>
                 </>
