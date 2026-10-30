@@ -88,6 +88,11 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
         const r = await base44.integrations.Core.UploadPrivateFile({ file });
         certUris.push(r.file_uri);
       }
+      let avatarUri;
+      try {
+        const res = await base44.entities.CandidateProfile.filter({ email: form.email }, { limit: 1 });
+        avatarUri = res.items?.[0]?.avatar_uri || undefined;
+      } catch (e) {}
       const created = await base44.entities.Application.create({
         job_id: job.id,
         job_title: job.title,
@@ -97,6 +102,7 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
         phone: form.phone,
         english_certificate: form.english_certificate,
         cv_file_uri: up.file_uri,
+        avatar_uri: avatarUri,
         certificate_uris: certUris,
         github_url: form.github_url,
         portfolio_url: form.portfolio_url,
