@@ -36,6 +36,10 @@
       "type": "string",
       "description": "Ch\u1ee9ng ch\u1ec9 ti\u1ebfng Anh (VD: IELTS 7.0, TOEIC 850)"
     },
+    "avatar_uri": {
+      "type": "string",
+      "description": "URI ảnh đại diện của ứng viên (riêng tư, chỉ ứng viên và HR xem qua link tạm)"
+    },
     "cv_file_uri": {
       "type": "string",
       "description": "URI file CV (ri\u00eang t\u01b0)"
