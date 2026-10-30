@@ -18,6 +18,7 @@ import Contact from '@/pages/Contact';
 import HrDashboard from '@/pages/hr/HrDashboard';
 import HrJobs from '@/pages/hr/HrJobs';
 import HrApplications from '@/pages/hr/HrApplications';
+import ManagerWorkspace from '@/pages/hr/ManagerWorkspace';
 import HrSchedule from '@/pages/hr/HrSchedule';
 import HrJobDetail from '@/pages/hr/HrJobDetail';
 import HrJobSimulations from '@/pages/hr/HrJobSimulations';
@@ -110,7 +111,7 @@ const AuthenticatedApp = () => {
             <Route path="feedback" element={<HrFeedback />} />
             <Route path="email-templates" element={<HrEmailTemplates />} />
             <Route path="jd" element={<Navigate to="/hr-studio/jobs" replace />} />
-            <Route path="manager" element={<Navigate to="/hr-studio/jobs" replace />} />
+            <Route path="manager" element={<ManagerWorkspace />} />
             <Route path="pipeline" element={<Navigate to="/hr-studio/jobs" replace />} />
             <Route path="design" element={<Navigate to="/hr-studio/jobs" replace />} />
             <Route path="courses" element={<Navigate to="/hr-studio/job-simulations" replace />} />
