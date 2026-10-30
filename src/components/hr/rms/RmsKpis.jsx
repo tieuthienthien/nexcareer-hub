@@ -28,7 +28,14 @@ function weekEnd() {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 7);
 }
 
-const COLORS = ["#564be7", "#7c6df0", "#8b5cf6", "#6366f1", "#a78bfa", "#4f46e5", "#818cf8", "#6d28d9"];
+// Cặp màu gradient giống các thanh của "Phễu tuyển dụng" (indigo → violet → fuchsia → pink → rose → emerald)
+const BAR_GRADIENTS = [
+  ["#6366f1", "#8b5cf6"],
+  ["#8b5cf6", "#d946ef"],
+  ["#d946ef", "#ec4899"],
+  ["#ec4899", "#f43f5e"],
+  ["#10b981", "#14b8a6"],
+];
 
 export default function RmsKpis() {
   const [period, setPeriod] = useState("month");
@@ -175,6 +182,14 @@ export default function RmsKpis() {
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={byPosition} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
+                <defs>
+                  {BAR_GRADIENTS.map(([from, to], i) => (
+                    <linearGradient key={i} id={`cv-bar-${i}`} x1="0" y1="1" x2="0" y2="0">
+                      <stop offset="0%" stopColor={from} />
+                      <stop offset="100%" stopColor={to} />
+                    </linearGradient>
+                  ))}
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                 <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-12} textAnchor="end" height={54} stroke="hsl(var(--muted-foreground))" />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
@@ -183,7 +198,7 @@ export default function RmsKpis() {
                   formatter={(v) => [`${v} CV`, "Số lượng"]}
                 />
                 <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-                  {byPosition.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  {byPosition.map((_, i) => <Cell key={i} fill={`url(#cv-bar-${i % BAR_GRADIENTS.length})`} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
