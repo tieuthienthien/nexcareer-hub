@@ -25,8 +25,8 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-40 w-full bg-transparent">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2.5 group">
           <Image
             src="https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492/133362060_PhihnhgiaX-MEgiangnhmngm.png"
@@ -41,15 +41,15 @@ export default function Header() {
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 rounded-full border border-border/60 bg-background/70 p-1.5 shadow-sm backdrop-blur-xl md:flex">
           {navLinks.map((l) => {
             const active = location.pathname === l.path || (l.path !== "/" && location.pathname.startsWith(l.path));
             return (
               <Link
                 key={l.path}
                 to={l.path}
-                className={`rounded-lg px-3.5 py-2 text-sm font-500 transition-colors ${
-                  active ? "bg-primary/10 text-primary" : "text-foreground/70 hover:bg-muted hover:text-foreground"
+                className={`rounded-full px-4 py-2 text-sm font-500 transition-colors ${
+                  active ? "bg-background text-primary shadow-sm" : "text-foreground/70 hover:bg-background/60 hover:text-foreground"
                 }`}
               >
                 {l.label}
@@ -91,7 +91,7 @@ export default function Header() {
       </div>
 
       {open && (
-        <div className="border-t border-border bg-background px-4 py-4 md:hidden">
+        <div className="mx-4 rounded-2xl border border-border bg-background/95 px-4 py-4 shadow-lg backdrop-blur-xl md:hidden">
           <div className="flex flex-col gap-1">
             {navLinks.map((l) => (
               <Link key={l.path} to={l.path} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-500 hover:bg-muted">
