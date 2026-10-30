@@ -136,7 +136,7 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
       <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-xl">
         {done ? (
           <div className="flex flex-col items-center py-10 text-center">
-            <div className="grid h-16 w-16 place-items-center rounded-full bg-emerald-100 text-emerald-600">
+            <div className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 text-primary">
               <CheckCircle2 className="h-9 w-9" />
             </div>
             <DialogTitle className="mt-5 text-xl">Ứng tuyển thành công!</DialogTitle>
@@ -159,7 +159,7 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
                 )}
               </div>
             )}
-            <Button className="mt-6 bg-emerald-600 hover:bg-emerald-700" onClick={() => onOpenChange(false)}>Hoàn tất</Button>
+            <Button className="mt-6" onClick={() => onOpenChange(false)}>Hoàn tất</Button>
           </div>
         ) : (
           <>
@@ -190,18 +190,18 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
                 <Field id="ph" label="Số điện thoại">
                   <Input id="ph" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="09xx xxx xxx" />
                 </Field>
-                <Field id="en" label="Chứng chỉ tiếng Anh (không bắt buộc)">
+                <Field id="en" label="Chứng chỉ tiếng Anh" optional>
                   <Input id="en" value={form.english_certificate} onChange={(e) => setForm({ ...form, english_certificate: e.target.value })} placeholder="VD: IELTS 7.0 (2025), TOEIC 850" />
                 </Field>
               </div>
 
               <div className="space-y-2">
                 <Label>CV của bạn (bắt buộc, PDF/DOC/DOCX)</Label>
-                <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-muted/20 p-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-lg bg-emerald-50 text-emerald-600">
+                <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/20 p-3">
+                  <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">
                     <FileText className="h-5 w-5" />
                   </div>
-                  <label className="cursor-pointer rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-600 text-white transition-colors hover:bg-emerald-700">
+                  <label className="cursor-pointer rounded-md bg-primary px-3 py-1.5 text-xs font-600 text-primary-foreground transition-colors hover:bg-primary/90">
                     Chọn tệp
                     <input type="file" className="hidden" accept=".pdf,.doc,.docx" onChange={handleCv} />
                   </label>
@@ -213,7 +213,7 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
 
               <div className="space-y-2">
                 <Label>Chứng chỉ kèm theo (tiếng Anh, chuyên môn — không bắt buộc)</Label>
-                <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-emerald-600/60 px-3 py-1.5 text-xs font-600 text-emerald-700 transition-colors hover:bg-emerald-50">
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-primary/50 px-3 py-1.5 text-xs font-600 text-primary transition-colors hover:bg-primary/5">
                   <Upload className="h-4 w-4" /> Thêm tệp chứng chỉ
                   <input type="file" className="hidden" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" onChange={handleCerts} />
                 </label>
@@ -221,7 +221,7 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
                   <ul className="space-y-1 pt-1">
                     {certFiles.map((f, i) => (
                       <li key={`${f.name}-${i}`} className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Paperclip className="h-3.5 w-3.5 text-emerald-600" />
+                        <Paperclip className="h-3.5 w-3.5 text-primary" />
                         <span className="min-w-0 flex-1 truncate">{f.name}</span>
                         <button type="button" className="text-destructive hover:underline" onClick={() => setCertFiles((prev) => prev.filter((_, idx) => idx !== i))}>Xóa</button>
                       </li>
@@ -237,7 +237,7 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
                     <Input id="gh" value={form.github_url} onChange={(e) => setForm({ ...form, github_url: e.target.value })} placeholder="https://github.com/ten-ban" className="pl-9" />
                   </div>
                 </Field>
-                <Field id="pf" label="Portfolio / website (không bắt buộc)">
+                <Field id="pf" label="Portfolio / website" optional>
                   <div className="relative">
                     <Link2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input id="pf" value={form.portfolio_url} onChange={(e) => setForm({ ...form, portfolio_url: e.target.value })} placeholder="https://portfolio-cua-ban.com" className="pl-9" />
@@ -252,7 +252,7 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Button onClick={submit} disabled={submitting} className="h-11 w-full gap-2 bg-emerald-600 text-white hover:bg-emerald-700">
+              <Button onClick={submit} disabled={submitting} className="h-11 w-full gap-2">
                 {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Đang gửi...</> : "Gửi hồ sơ ứng tuyển"}
               </Button>
               <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)} disabled={submitting} className="text-muted-foreground">Hủy</Button>
@@ -264,10 +264,14 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
   );
 }
 
-function Field({ id, label, required, children }) {
+function Field({ id, label, required, optional, children }) {
   return (
-    <div className="space-y-2">
-      <Label htmlFor={id}>{label}{required && " *"}</Label>
+    <div className="flex h-full flex-col justify-end gap-2">
+      <Label htmlFor={id} className="leading-snug">
+        {label}
+        {required && " *"}
+        {optional && <span className="font-400 text-muted-foreground"> (không bắt buộc)</span>}
+      </Label>
       {children}
     </div>
   );

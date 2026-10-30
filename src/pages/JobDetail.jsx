@@ -13,6 +13,20 @@ function RichText({ content }) {
   return <div className="prose prose-sm max-w-none whitespace-pre-wrap leading-relaxed text-foreground/80" dangerouslySetInnerHTML={{ __html: content }} />;
 }
 
+// Ghi nhận 1 lượt xem cho mỗi phiên trình duyệt (F5 không cộng thêm). Trả về số lượt mới hoặc null.
+async function trackView(jobId) {
+  try {
+    const key = `viewed_job_${jobId}`;
+    if (sessionStorage.getItem(key)) return null;
+    sessionStorage.setItem(key, "1");
+    const res = await base44.functions.invoke("trackJobView", { job_id: jobId });
+    const data = res?.data || res;
+    return typeof data?.views === "number" ? data.views : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 export default function JobDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -29,6 +43,7 @@ export default function JobDetail() {
       try {
         const j = await base44.entities.Job.get(id);
         setJob(j);
+        trackView(id).then((v) => { if (v != null) setJob((cur) => (cur ? { ...cur, views: v } : cur)); });
         try {
           const res = await base44.entities.Job.filter(
             { status: "published", category: j.category, id: { $ne: id } },

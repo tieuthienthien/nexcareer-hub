@@ -320,12 +320,10 @@ export default function SimulationRunner() {
     >
       <header className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-2 border-b border-border bg-background/90 px-4 py-3 backdrop-blur-xl">
         <Link to="/" onClick={confirmLeave} className="flex items-center gap-2 rounded-xl transition-opacity hover:opacity-80" title="Về trang chủ">
-          <Image
-            src="https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492/133362060_PhihnhgiaX-MEgiangnhmngm.png"
+                    <img
+            src="/images/logo_tron_1254.png"
             alt="X-ME NexCareer Hub"
-            fittingType="fill"
-            focalPointY={0.32}
-            className="h-9 w-9 rounded-full ring-1 ring-border"
+            className="h-9 w-9 rounded-full object-cover ring-1 ring-border"
           />
           <div className="leading-tight">
             <div className="font-heading text-sm font-700">NexCareer Hub</div>
