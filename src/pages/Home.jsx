@@ -113,7 +113,7 @@ export default function Home() {
             { value: "20.000+", label: "Số lượt tiếp cận" },
           ].map((s) => (
             <div key={s.label} className="text-center">
-              <div className="font-heading text-2xl font-800 text-primary sm:text-3xl">{s.value}</div>
+              <div className="text-galaxy font-heading text-2xl font-800 sm:text-3xl">{s.value}</div>
               <div className="mt-1 text-xs font-500 text-muted-foreground sm:text-sm">{s.label}</div>
             </div>
           ))}
@@ -162,8 +162,8 @@ export default function Home() {
       {/* Two portals CTA */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-accent to-chart-4 p-8 text-white shadow-xl shadow-primary/30 lg:col-span-2">
-            <div className="absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/25 blur-2xl" />
+          <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-foreground to-primary p-8 text-white shadow-xl shadow-primary/30 lg:col-span-2">
+            <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-accent/30 blur-3xl" />
             <div className="relative">
               <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-600">
                 <User className="h-3.5 w-3.5" /> Dành cho ứng viên
