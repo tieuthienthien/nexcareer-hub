@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Briefcase, Clock, ArrowUpRight } from "lucide-react";
-import { formatSalary, workTypeLabel, employmentTypeLabel, companyInitials, companyGradient } from "@/lib/jobUtils";
+import { formatSalary, workTypeLabel, employmentTypeLabel } from "@/lib/jobUtils";
+import JobAvatar from "@/components/job/JobAvatar";
 
 export default function JobCard({ job }) {
   return (
@@ -9,9 +10,7 @@ export default function JobCard({ job }) {
       className="group relative flex flex-col rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5"
     >
       <div className="flex items-start gap-3.5">
-        <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${companyGradient(job.company)} text-sm font-700 text-white shadow-md`}>
-          {companyInitials(job.company)}
-        </div>
+        <JobAvatar job={job} className="h-12 w-12 rounded-xl shadow-md" />
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-heading text-[15px] font-600 leading-snug group-hover:text-primary">
             {job.title}
