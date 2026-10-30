@@ -89,7 +89,7 @@ export default function CandidatePanel({ applicationId, open, onOpenChange, onCh
             <div className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border bg-card p-4">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <UserAvatar name={app.full_name} email={app.email} size={40} />
+                  <UserAvatar name={app.full_name} email={app.email} fileUri={app.avatar_uri} size={40} />
                   <h3 className="font-heading text-lg font-700">{app.full_name || "Chưa có tên"}</h3>
                   <Badge className={`rounded-full border-0 ${meta?.color}`}>{meta?.label}</Badge>
                   <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-700 text-muted-foreground">{candidateCode(app)}</span>
