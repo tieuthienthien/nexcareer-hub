@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
 
 // Bảng màu tối giản: mỗi avatar chỉ dùng 1 màu nền + 1 màu chữ.
@@ -28,11 +30,32 @@ export function avatarInitials(name, email) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+// Ảnh đại diện lưu riêng tư nên phải xin link tạm; nhớ link trong ~9 phút để không xin lại mỗi lần render.
+const urlCache = new Map();
+async function getAvatarUrl(fileUri) {
+  const hit = urlCache.get(fileUri);
+  if (hit && hit.exp > Date.now()) return hit.url;
+  const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({ file_uri: fileUri, expires_in: 600 });
+  urlCache.set(fileUri, { url: signed_url, exp: Date.now() + 540000 });
+  return signed_url;
+}
+
 /**
  * Avatar tối giản, ổn định: cùng một tên/email luôn ra cùng màu và cùng chữ cái đầu.
  * Chỉ gồm hình tròn + chữ cái đầu, tối đa 2 màu, không chi tiết phức tạp.
+ * Nếu có `fileUri` (ảnh riêng tư) thì hiện ảnh; chưa có hoặc lỗi thì quay về chữ cái đầu.
  */
-export default function UserAvatar({ name, email, size = 36, className = "" }) {
+export default function UserAvatar({ name, email, fileUri, size = 36, className = "" }) {
+  const [photoUrl, setPhotoUrl] = useState(null);
+
+  useEffect(() => {
+    let alive = true;
+    setPhotoUrl(null);
+    if (!fileUri) return undefined;
+    getAvatarUrl(fileUri).then((url) => { if (alive) setPhotoUrl(url); }).catch(() => {});
+    return () => { alive = false; };
+  }, [fileUri]);
+
   const palette = PALETTES[hashString(avatarSeed(name, email)) % PALETTES.length];
   return (
     <span
@@ -44,9 +67,13 @@ export default function UserAvatar({ name, email, size = 36, className = "" }) {
         color: palette.fg,
         fontSize: Math.max(10, Math.round(size * 0.38)),
       }}
-      className={cn("inline-grid shrink-0 select-none place-items-center rounded-full font-700 leading-none", className)}
+      className={cn("inline-grid shrink-0 select-none place-items-center overflow-hidden rounded-full font-700 leading-none", className)}
     >
-      {avatarInitials(name, email)}
+      {photoUrl ? (
+        <img src={photoUrl} alt="" onError={() => setPhotoUrl(null)} className="h-full w-full object-cover" />
+      ) : (
+        avatarInitials(name, email)
+      )}
     </span>
   );
 }
