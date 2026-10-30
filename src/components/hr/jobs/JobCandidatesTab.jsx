@@ -101,7 +101,7 @@ export default function JobCandidatesTab({ job, onChanged }) {
               return (
                 <button key={app.id} onClick={() => setSelected(app)} className="grid w-full grid-cols-1 items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-muted/30 lg:grid-cols-[2.2fr_1fr_0.9fr_0.9fr_auto] lg:gap-3">
                   <div className="flex min-w-0 items-center gap-2.5">
-                    <UserAvatar name={app.full_name} email={app.email} size={36} />
+                    <UserAvatar name={app.full_name} email={app.email} fileUri={app.avatar_uri} size={36} />
                     <div className="min-w-0">
                       <div className="truncate text-sm font-600">{app.full_name || "Chưa có tên"}</div>
                       <div className="truncate text-xs text-muted-foreground">{app.email}</div>

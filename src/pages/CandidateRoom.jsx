@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, FileText, Briefcase, Upload, Download, Link2, Loader2, CheckCircle2, ExternalLink, Pencil, Save, Plus, Sparkles } from "lucide-react";
+import { User, FileText, Briefcase, Upload, Download, Link2, Loader2, CheckCircle2, ExternalLink, Pencil, Save, Plus, Sparkles, Camera } from "lucide-react";
 import { applicationStatusLabel, applicationStatusColor } from "@/lib/jobUtils";
 import ApplicationTimeline from "@/components/candidate/ApplicationTimeline";
 
@@ -20,6 +20,7 @@ export default function CandidateRoom() {
   const [editing, setEditing] = useState(false);
   const [applications, setApplications] = useState([]);
   const [uploadingCv, setUploadingCv] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const [form, setForm] = useState({
     full_name: "", email: "", phone: "", headline: "", bio: "",
@@ -99,6 +100,29 @@ export default function CandidateRoom() {
     }
   };
 
+  const uploadAvatar = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { alert("Vui lòng chọn file ảnh (JPG, PNG, WEBP)."); return; }
+    if (file.size > 5 * 1024 * 1024) { alert("Ảnh không quá 5MB."); return; }
+    setUploadingAvatar(true);
+    try {
+      const up = await base44.integrations.Core.UploadPrivateFile({ file });
+      let p = profile;
+      if (!p?.id) {
+        p = await base44.entities.CandidateProfile.create({ full_name: form.full_name || user?.full_name || "Ứng viên", avatar_uri: up.file_uri });
+      } else {
+        p = await base44.entities.CandidateProfile.update(profile.id, { avatar_uri: up.file_uri });
+      }
+      setProfile(p);
+    } catch (err) {
+      alert(err.message || "Tải ảnh thất bại.");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const downloadCv = async () => {
     if (!profile?.cv_file_uri) return;
     try {
@@ -122,12 +146,19 @@ export default function CandidateRoom() {
         <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-indigo-600 p-6 text-white shadow-xl sm:p-8">
           <div className="flex items-center justify-between">
             <div>
-              <UserAvatar
-                name={profile?.full_name || user?.full_name}
-                email={user?.email}
-                size={56}
-                className="mb-3 ring-2 ring-white/40"
-              />
+              <label className="relative mb-3 inline-block cursor-pointer" title="Đổi ảnh đại diện">
+                <UserAvatar
+                  name={profile?.full_name || user?.full_name}
+                  email={user?.email}
+                  fileUri={profile?.avatar_uri}
+                  size={56}
+                  className="ring-2 ring-white/40"
+                />
+                <span className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full bg-white text-primary shadow">
+                  {uploadingAvatar ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Camera className="h-3.5 w-3.5" />}
+                </span>
+                <input type="file" accept="image/*" className="hidden" onChange={uploadAvatar} disabled={uploadingAvatar} />
+              </label>
               <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-600">
                 <Sparkles className="h-3.5 w-3.5" /> Candidate Room
               </div>
