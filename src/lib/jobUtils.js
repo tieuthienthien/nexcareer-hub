@@ -130,3 +130,24 @@ export function companyGradient(name = "") {
   for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
   return palette[Math.abs(hash) % palette.length];
 }
+
+// Ảnh đại diện cho từng vị trí tuyển dụng (public/images/vieclam).
+// Khớp theo từ khóa trong tiêu đề, không phụ thuộc dấu tiếng Việt.
+const JOB_IMAGES = [
+  [/backend|node\.?js/, "/images/vieclam/tuyen-dung-l-p-tr-nh-vi-n-backend-node-js-.png"],
+  [/frontend|react/, "/images/vieclam/tuyen-dung-l-p-tr-nh-vi-n-frontend-reactjs-.png"],
+  [/iot|embedded/, "/images/vieclam/tuyen-dung-k-s-iot-embedded-.png"],
+  [/ux\s*\/?\s*ui/, "/images/vieclam/tuyen-dung-ux-ui-designer.png"],
+  [/\bhr\b|nhan su/, "/images/vieclam/tuyen-dung-hr-executive-nh-n-s-.png"],
+  [/mobile|flutter/, "/images/vieclam/tuyen-dung-mobile-developer-flutter-.png"],
+];
+
+export function jobImage(job) {
+  const title = (job?.title || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .toLowerCase();
+  const hit = JOB_IMAGES.find(([re]) => re.test(title));
+  return hit ? hit[1] : job?.company_logo || null;
+}
