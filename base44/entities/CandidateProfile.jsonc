@@ -22,7 +22,7 @@
     },
     "avatar_uri": {
       "type": "string",
-      "description": "URI ảnh đại diện của ứng viên (riêng tư, chỉ ứng viên và HR xem qua link tạm)"
+      "description": "URI \u1ea3nh \u0111\u1ea1i di\u1ec7n c\u1ee7a \u1ee9ng vi\u00ean (ri\u00eang t\u01b0, ch\u1ec9 \u1ee9ng vi\u00ean v\u00e0 HR xem qua link t\u1ea1m)"
     },
     "cv_file_uri": {
       "type": "string",
@@ -35,6 +35,25 @@
     "portfolio_url": {
       "type": "string",
       "description": "Link portfolio"
+    },
+    "english_certificate": {
+      "type": "string",
+      "description": "Ch\u1ee9ng ch\u1ec9 ti\u1ebfng Anh (VD: IELTS 7.0, TOEIC 850)"
+    },
+    "github_url": {
+      "type": "string",
+      "description": "Link GitHub"
+    },
+    "project_links": {
+      "type": "string",
+      "description": "Link d\u1ef1 \u00e1n / website / \u1ee9ng d\u1ee5ng \u0111\u00e3 l\u00e0m, m\u1ed7i d\u00f2ng m\u1ed9t link"
+    },
+    "certificate_uris": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Danh s\u00e1ch URI file ch\u1ee9ng ch\u1ec9 (ri\u00eang t\u01b0)"
     },
     "skills": {
       "type": "array",
