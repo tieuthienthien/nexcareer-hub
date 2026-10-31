@@ -93,7 +93,12 @@ export default async function (req: Request): Promise<Response> {
     const invite = (inviteRes.items || [])[0];
     if (!invite) return Response.json({ error: 'Link làm bài không hợp lệ' }, { status: 404 });
 
-    const isOwner = normalizeEmail(user.email) === normalizeEmail(invite.candidate_email);
+    let isOwner = normalizeEmail(user.email) === normalizeEmail(invite.candidate_email);
+    if (!isOwner && invite.application_id) {
+      // Email trên hồ sơ có thể khác email đăng nhập → vẫn cho chủ hồ sơ (tài khoản đã nộp) vào làm bài.
+      const ownerApp = await base44.asServiceRole.entities.Application.get(invite.application_id).catch(() => null);
+      isOwner = !!ownerApp && !!user.id && ownerApp.created_by_id === user.id;
+    }
     if (!isOwner && user.role !== 'admin') {
       return Response.json({ error: 'Link làm bài này không thuộc tài khoản của bạn' }, { status: 403 });
     }

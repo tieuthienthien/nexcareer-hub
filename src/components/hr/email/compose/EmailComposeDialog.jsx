@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Image } from "@/components/ui/image";
-import { AlertTriangle, CheckCircle2, Eye, EyeOff, ImagePlus, Loader2, Monitor, Save, Send, Smartphone, Trash2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ImagePlus, Loader2, Monitor, Save, Send, Smartphone, Trash2 } from "lucide-react";
 import RichTextEditor from "@/components/hr/email/compose/RichTextEditor";
 import MergeTagChips from "@/components/hr/email/compose/MergeTagChips";
 import AiRewriteBar from "@/components/hr/email/compose/AiRewriteBar";
@@ -44,8 +44,7 @@ export default function EmailComposeDialog({
   const [to, setTo] = useState("");
   const [cc, setCc] = useState("");
   const [bcc, setBcc] = useState("");
-  const [device, setDevice] = useState("desktop");
-  const [showPreview, setShowPreview] = useState(true);
+  const [previewDevice, setPreviewDevice] = useState(null); // null | "desktop" | "mobile"
   const [imageDialog, setImageDialog] = useState(false);
   const [hr, setHr] = useState(null);
   const [job, setJob] = useState(null);
@@ -275,7 +274,7 @@ export default function EmailComposeDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[94vh] overflow-y-auto sm:max-w-6xl">
+      <DialogContent className="max-h-[94vh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle className="text-lg">Soạn email cho ứng viên</DialogTitle>
           <DialogDescription>
@@ -290,7 +289,7 @@ export default function EmailComposeDialog({
           </div>
         )}
 
-        <div className="grid gap-4 lg:grid-cols-[1.15fr_1fr]">
+        <div className="space-y-3">
           <div className="space-y-3">
             <div className="grid gap-2 sm:grid-cols-2">
               <div className="space-y-1">
@@ -333,8 +332,11 @@ export default function EmailComposeDialog({
               <Button size="sm" variant="outline" onClick={() => setImageDialog(true)} className="gap-1.5">
                 <ImagePlus className="h-3.5 w-3.5" /> Thêm ảnh
               </Button>
-              <Button size="sm" variant="outline" onClick={() => setShowPreview((v) => !v)} className="gap-1.5">
-                {showPreview ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />} {showPreview ? "Ẩn xem trước" : "Xem trước"}
+              <Button size="sm" variant="outline" onClick={() => setPreviewDevice("desktop")} className="gap-1.5">
+                <Monitor className="h-3.5 w-3.5" /> Xem trước PC
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setPreviewDevice("mobile")} className="gap-1.5">
+                <Smartphone className="h-3.5 w-3.5" /> Xem trước Mobile
               </Button>
             </div>
 
@@ -416,36 +418,6 @@ export default function EmailComposeDialog({
             )}
           </div>
 
-          {showPreview && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-1.5 rounded-xl border border-border p-1">
-                <button
-                  onClick={() => setDevice("desktop")}
-                  className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-600 ${device === "desktop" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
-                >
-                  <Monitor className="h-3.5 w-3.5" /> Xem trước desktop
-                </button>
-                <button
-                  onClick={() => setDevice("mobile")}
-                  className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-600 ${device === "mobile" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
-                >
-                  <Smartphone className="h-3.5 w-3.5" /> Mobile
-                </button>
-              </div>
-              <div className="max-h-[70vh] overflow-y-auto pr-1">
-                <EmailPreviewFrame
-                  subject={fillTags(subject, context)}
-                  bodyHtml={fillTags(body, context)}
-                  banner={banner}
-                  inlineImages={inlineImages}
-                  signature={signature}
-                  cta={{ label: fillTags(ctaLabel, context), url: fillTags(ctaUrl, context) }}
-                  signatureLines={signatureLines}
-                  device={device}
-                />
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
@@ -466,6 +438,39 @@ export default function EmailComposeDialog({
           </div>
         </div>
       </DialogContent>
+
+      <Dialog open={!!previewDevice} onOpenChange={(v) => !v && setPreviewDevice(null)}>
+        <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-base">Xem trước email</DialogTitle>
+            <DialogDescription>Hiển thị gần giống thư thật ứng viên sẽ nhận.</DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center gap-1.5 rounded-xl border border-border p-1">
+            <button
+              onClick={() => setPreviewDevice("desktop")}
+              className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-600 ${previewDevice === "desktop" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
+            >
+              <Monitor className="h-3.5 w-3.5" /> PC
+            </button>
+            <button
+              onClick={() => setPreviewDevice("mobile")}
+              className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-600 ${previewDevice === "mobile" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
+            >
+              <Smartphone className="h-3.5 w-3.5" /> Mobile
+            </button>
+          </div>
+          <EmailPreviewFrame
+            subject={fillTags(subject, context)}
+            bodyHtml={fillTags(body, context)}
+            banner={banner}
+            inlineImages={inlineImages}
+            signature={signature}
+            cta={{ label: fillTags(ctaLabel, context), url: fillTags(ctaUrl, context) }}
+            signatureLines={signatureLines}
+            device={previewDevice || "desktop"}
+          />
+        </DialogContent>
+      </Dialog>
 
       <ImageInsertDialog open={imageDialog} onOpenChange={setImageDialog} onPick={handleImagePicked} />
     </Dialog>

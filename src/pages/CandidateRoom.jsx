@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, FileText, Briefcase, Upload, Download, Link2, Loader2, CheckCircle2, ExternalLink, Pencil, Save, Plus, Sparkles, Camera, Award, Github, Trash2, Rocket, AlertCircle } from "lucide-react";
+import { User, FileText, Briefcase, Upload, Download, Link2, Loader2, CheckCircle2, ExternalLink, Pencil, Save, Plus, Sparkles, Camera, Award, Github, Trash2, Rocket, AlertCircle, ArrowRight } from "lucide-react";
 import { applicationStatusLabel, applicationStatusColor } from "@/lib/jobUtils";
 import ApplicationTimeline from "@/components/candidate/ApplicationTimeline";
 import { getMissingItems, fileNameOf } from "@/lib/candidateProfile";
@@ -21,6 +21,7 @@ export default function CandidateRoom() {
   const [editing, setEditing] = useState(false);
   const [applications, setApplications] = useState([]);
   const [uploadingCv, setUploadingCv] = useState(false);
+  const [invites, setInvites] = useState([]);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingCert, setUploadingCert] = useState(false);
   const [savedKey, setSavedKey] = useState("");
@@ -57,6 +58,10 @@ export default function CandidateRoom() {
           { sort: "-created_date", limit: 50 }
         );
         setApplications(apps.items || []);
+      } catch (e) {}
+      try {
+        const inv = await base44.functions.invoke("findMyInvites", {});
+        setInvites((inv.data || inv)?.invites || []);
       } catch (e) {}
       setLoading(false);
     })();
@@ -210,6 +215,13 @@ export default function CandidateRoom() {
     ? Math.round(((!!profile.full_name + !!profile.phone + !!profile.headline + !!profile.bio + (!!profile.cv_file_uri || !!profile.cv_source_url) + !!profile.portfolio_url + (profile.skills?.length > 0)) / 7) * 100)
     : 0;
 
+  // Lời mời còn hạn và hồ sơ chưa nộp bài / chưa bị loại
+  const pendingInvites = invites.filter((inv) => {
+    if (inv.expires_at && new Date(inv.expires_at).getTime() < Date.now()) return false;
+    const a = applications.find((x) => x.id === inv.application_id);
+    return !a || ["cv_passed", "test_invited"].includes(a.status);
+  });
+
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-muted/30">
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
@@ -245,6 +257,22 @@ export default function CandidateRoom() {
             <div className="h-full rounded-full bg-white transition-all" style={{ width: `${completion}%` }} />
           </div>
         </div>
+
+        {pendingInvites.map((inv) => (
+          <div key={inv.id} className="mt-6 flex flex-col gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-4 text-sm sm:flex-row sm:items-center">
+            <Rocket className="h-5 w-5 shrink-0 text-primary" />
+            <div className="min-w-0 flex-1">
+              <div className="font-600 text-primary">Bạn có bài Job Simulation (Vòng 2) cần làm</div>
+              <div className="text-xs text-muted-foreground">
+                {inv.job_title || inv.simulation_name || "Vị trí ứng tuyển"}
+                {inv.expires_at ? ` · Hạn nộp ${new Date(inv.expires_at).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" })}` : ""}
+              </div>
+            </div>
+            <Button asChild size="sm" className="btn-galaxy gap-1.5 rounded-full">
+              <Link to={`/job-simulation/${inv.token}`}>Vào làm ngay <ArrowRight className="h-3.5 w-3.5" /></Link>
+            </Button>
+          </div>
+        ))}
 
         {missing.length > 0 && (
           <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 sm:flex-row sm:items-center">
@@ -472,7 +500,7 @@ export default function CandidateRoom() {
               ) : (
                 <div className="mt-6 space-y-4">
                   {applications.map((a) => (
-                    <ApplicationTimeline key={a.id} app={a} />
+                    <ApplicationTimeline key={a.id} app={a} invite={invites.find((i) => i.application_id === a.id) || null} />
                   ))}
                 </div>
               )}

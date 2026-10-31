@@ -26,14 +26,19 @@ export async function ensureCandidateUser(base44: any, rawEmail?: string): Promi
   const email = normalizeEmail(rawEmail);
   if (!email) return { registered: false, invited: false, error: 'Hồ sơ không có địa chỉ email hợp lệ' };
   try {
-    const users = await base44.asServiceRole.entities.User.filter({ email }, '-created_date', 1, 0);
-    if (users?.length) return { registered: true, invited: false };
+    // SDK có thể trả mảng hoặc { items: [...] } tùy phiên bản → đọc được cả hai (giống claimReferral).
+    const result = await base44.asServiceRole.entities.User.filter({ email }, { limit: 1 });
+    const users = Array.isArray(result) ? result : result?.items || [];
+    if (users.length) return { registered: true, invited: false };
   } catch (e) {}
   try {
     await base44.users.inviteUser(email, 'user');
     return { registered: true, invited: true };
   } catch (e: any) {
-    return { registered: false, invited: false, error: e?.message || 'Không tạo được tài khoản cho ứng viên' };
+    const raw = e?.message || '';
+    // Tài khoản đã tồn tại thì coi như đã đăng ký, để bước gửi mail tự báo lỗi thật (nếu có).
+    if (/already|exist|tồn tại|registered/i.test(raw)) return { registered: true, invited: false };
+    return { registered: false, invited: false, error: raw || 'Không tạo được tài khoản cho ứng viên' };
   }
 }
 
