@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import UserAvatar from "@/components/UserAvatar";
 import { useAuth } from "@/lib/AuthContext";
@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, FileText, Briefcase, Upload, Download, Link2, Loader2, CheckCircle2, ExternalLink, Pencil, Save, Plus, Sparkles, Camera } from "lucide-react";
+import { User, FileText, Briefcase, Upload, Download, Link2, Loader2, CheckCircle2, ExternalLink, Pencil, Save, Plus, Sparkles, Camera, Award, Github, Trash2, Rocket, AlertCircle } from "lucide-react";
 import { applicationStatusLabel, applicationStatusColor } from "@/lib/jobUtils";
 import ApplicationTimeline from "@/components/candidate/ApplicationTimeline";
+import { getMissingItems, fileNameOf } from "@/lib/candidateProfile";
 
 export default function CandidateRoom() {
   const { user } = useAuth();
@@ -21,6 +22,13 @@ export default function CandidateRoom() {
   const [applications, setApplications] = useState([]);
   const [uploadingCv, setUploadingCv] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingCert, setUploadingCert] = useState(false);
+  const [savedKey, setSavedKey] = useState("");
+  const [searchParams] = useSearchParams();
+  const wantedTab = searchParams.get("tab");
+  const [tab, setTab] = useState(["profile", "cv", "apps"].includes(wantedTab) ? wantedTab : "profile");
+  // Thông tin dùng khi ứng tuyển, lưu ở Candidate Room
+  const [extra, setExtra] = useState({ english_certificate: "", github_url: "", project_links: "" });
 
   const [form, setForm] = useState({
     full_name: "", email: "", phone: "", headline: "", bio: "",
@@ -41,6 +49,7 @@ export default function CandidateRoom() {
           skillsText: (p.skills || []).join(", "), portfolio_url: p.portfolio_url || "",
         });
         else setForm((f) => ({ ...f, full_name: user?.full_name || "", email: user?.email || "" }));
+        if (p) setExtra({ english_certificate: p.english_certificate || "", github_url: p.github_url || "", project_links: p.project_links || "" });
       } catch (e) {}
       try {
         const apps = await base44.entities.Application.filter(
@@ -123,6 +132,61 @@ export default function CandidateRoom() {
     }
   };
 
+  // Cập nhật hồ sơ; chưa có hồ sơ thì tạo mới
+  const patchProfile = async (data) => {
+    let p;
+    if (profile?.id) p = await base44.entities.CandidateProfile.update(profile.id, data);
+    else p = await base44.entities.CandidateProfile.create({ full_name: form.full_name || user?.full_name || "Ứng viên", email: form.email || user?.email || "", ...data });
+    setProfile(p);
+    return p;
+  };
+
+  const saveExtra = async (key, fields) => {
+    try {
+      await patchProfile(fields);
+      setSavedKey(key);
+      setTimeout(() => setSavedKey(""), 2000);
+    } catch (e) {
+      alert(e.message || "Không thể lưu.");
+    }
+  };
+
+  const uploadCerts = async (e) => {
+    const picked = Array.from(e.target.files || []);
+    e.target.value = "";
+    if (!picked.length) return;
+    const current = profile?.certificate_uris || [];
+    const room = 5 - current.length;
+    if (room <= 0) { alert("Tối đa 5 tệp chứng chỉ."); return; }
+    setUploadingCert(true);
+    try {
+      const uris = [];
+      for (const file of picked.slice(0, room)) {
+        if (file.size > 10 * 1024 * 1024) { alert(`${file.name} vượt quá 10MB nên bị bỏ qua.`); continue; }
+        const up = await base44.integrations.Core.UploadPrivateFile({ file });
+        uris.push(up.file_uri);
+      }
+      if (uris.length) await patchProfile({ certificate_uris: [...current, ...uris] });
+    } catch (err) {
+      alert(err.message || "Tải chứng chỉ thất bại.");
+    } finally {
+      setUploadingCert(false);
+    }
+  };
+
+  const removeCert = async (uri) => {
+    try {
+      await patchProfile({ certificate_uris: (profile?.certificate_uris || []).filter((u) => u !== uri) });
+    } catch (err) { alert(err.message || "Không thể xóa."); }
+  };
+
+  const openFile = async (uri) => {
+    try {
+      const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({ file_uri: uri });
+      window.open(signed_url, "_blank");
+    } catch (e) { alert("Không thể mở tệp."); }
+  };
+
   const downloadCv = async () => {
     if (!profile?.cv_file_uri) return;
     try {
@@ -134,6 +198,13 @@ export default function CandidateRoom() {
   if (loading) {
     return <div className="mx-auto max-w-5xl px-4 py-20"><div className="h-64 animate-pulse rounded-2xl bg-muted" /></div>;
   }
+
+  // Mục bắt buộc còn thiếu để ứng tuyển (tên/email lấy tạm từ tài khoản nếu hồ sơ chưa có)
+  const missing = getMissingItems({
+    ...(profile || {}),
+    full_name: profile?.full_name || user?.full_name,
+    email: profile?.email || user?.email,
+  });
 
   const completion = profile
     ? Math.round(((!!profile.full_name + !!profile.phone + !!profile.headline + !!profile.bio + (!!profile.cv_file_uri || !!profile.cv_source_url) + !!profile.portfolio_url + (profile.skills?.length > 0)) / 7) * 100)
@@ -175,10 +246,20 @@ export default function CandidateRoom() {
           </div>
         </div>
 
-        <Tabs defaultValue="profile" className="mt-6">
+        {missing.length > 0 && (
+          <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 sm:flex-row sm:items-center">
+            <AlertCircle className="h-5 w-5 shrink-0" />
+            <div className="min-w-0 flex-1">
+              <span className="font-600">Hồ sơ chưa đủ để ứng tuyển.</span> Còn thiếu: {missing.map((m) => m.label).join(", ")}.
+            </div>
+            <Button size="sm" className="btn-galaxy rounded-full" onClick={() => setTab(missing[0].tab)}>Bổ sung ngay</Button>
+          </div>
+        )}
+
+        <Tabs value={tab} onValueChange={setTab} className="mt-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile" className="gap-2"><User className="h-4 w-4" /> Hồ sơ</TabsTrigger>
-            <TabsTrigger value="cv" className="gap-2"><FileText className="h-4 w-4" /> CV & Portfolio</TabsTrigger>
+            <TabsTrigger value="cv" className="gap-2"><FileText className="h-4 w-4" /> CV, chứng chỉ & dự án</TabsTrigger>
             <TabsTrigger value="apps" className="gap-2"><Briefcase className="h-4 w-4" /> Ứng tuyển</TabsTrigger>
           </TabsList>
 
@@ -296,6 +377,79 @@ export default function CandidateRoom() {
                       <ExternalLink className="h-3.5 w-3.5" /> Mở portfolio
                     </a>
                   )}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+              {/* Chứng chỉ */}
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <div className="flex items-center gap-3">
+                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary"><Award className="h-6 w-6" /></div>
+                  <div>
+                    <h3 className="font-600">Chứng chỉ</h3>
+                    <p className="text-xs text-muted-foreground">Tiếng Anh, chuyên môn — tối đa 5 tệp, không bắt buộc</p>
+                  </div>
+                </div>
+                <div className="mt-5 space-y-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-600 uppercase tracking-wide text-muted-foreground">Chứng chỉ tiếng Anh</Label>
+                    <Input
+                      value={extra.english_certificate}
+                      onChange={(e) => setExtra({ ...extra, english_certificate: e.target.value })}
+                      placeholder="VD: IELTS 7.0 (2025), TOEIC 850"
+                    />
+                    <Button size="sm" variant="outline" className="gap-2" onClick={() => saveExtra("english", { english_certificate: extra.english_certificate })}>
+                      <Save className="h-4 w-4" /> {savedKey === "english" ? "Đã lưu" : "Lưu"}
+                    </Button>
+                  </div>
+                  {(profile?.certificate_uris || []).length > 0 && (
+                    <ul className="space-y-2">
+                      {profile.certificate_uris.map((uri) => (
+                        <li key={uri} className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm">
+                          <FileText className="h-4 w-4 shrink-0 text-primary" />
+                          <button type="button" onClick={() => openFile(uri)} className="min-w-0 flex-1 truncate text-left hover:text-primary hover:underline">{fileNameOf(uri)}</button>
+                          <button type="button" onClick={() => removeCert(uri)} className="text-muted-foreground hover:text-destructive" aria-label="Xóa chứng chỉ"><Trash2 className="h-4 w-4" /></button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-primary/50 px-3 py-1.5 text-xs font-600 text-primary transition-colors hover:bg-primary/5">
+                    {uploadingCert ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />} Thêm tệp chứng chỉ
+                    <input type="file" className="hidden" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" onChange={uploadCerts} disabled={uploadingCert} />
+                  </label>
+                </div>
+              </div>
+
+              {/* Dự án & liên kết */}
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <div className="flex items-center gap-3">
+                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-accent/10 text-accent"><Rocket className="h-6 w-6" /></div>
+                  <div>
+                    <h3 className="font-600">Dự án & liên kết</h3>
+                    <p className="text-xs text-muted-foreground">GitHub, website, ứng dụng bạn đã làm</p>
+                  </div>
+                </div>
+                <div className="mt-5 space-y-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-600 uppercase tracking-wide text-muted-foreground">GitHub</Label>
+                    <div className="relative">
+                      <Github className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input value={extra.github_url} onChange={(e) => setExtra({ ...extra, github_url: e.target.value })} placeholder="https://github.com/ten-ban" className="pl-9" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-600 uppercase tracking-wide text-muted-foreground">Link dự án / website / ứng dụng (mỗi dòng một link)</Label>
+                    <Textarea
+                      rows={4}
+                      value={extra.project_links}
+                      onChange={(e) => setExtra({ ...extra, project_links: e.target.value })}
+                      placeholder={"https://ten-du-an.vercel.app\nhttps://play.google.com/store/apps/..."}
+                    />
+                  </div>
+                  <Button size="sm" variant="outline" className="gap-2" onClick={() => saveExtra("links", { github_url: extra.github_url, project_links: extra.project_links })}>
+                    <Save className="h-4 w-4" /> {savedKey === "links" ? "Đã lưu" : "Lưu"}
+                  </Button>
                 </div>
               </div>
             </div>

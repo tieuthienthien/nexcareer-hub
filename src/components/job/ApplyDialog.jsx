@@ -1,112 +1,87 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Loader2, Upload, FileText, CheckCircle2, Link2, AlertCircle, Github, Award, Paperclip } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, FileText, Github, Link2, Award, Phone, Mail, User, Rocket } from "lucide-react";
+import { getMissingItems, tabToFix, fileNameOf, splitLinks } from "@/lib/candidateProfile";
 
-const emptyForm = {
-  full_name: "",
-  email: "",
-  phone: "",
-  english_certificate: "",
-  github_url: "",
-  portfolio_url: "",
-  cover_letter: "",
-};
-
+// Ứng tuyển bằng hồ sơ đã lưu trong Candidate Room: không nhập lại thông tin.
+//  - Thiếu mục bắt buộc  -> báo chưa đủ thông tin + nút "Về Candidate Room"
+//  - Đủ                  -> hỏi xác nhận rồi gửi hồ sơ
 export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
-  const [form, setForm] = useState(emptyForm);
-  const [cvFile, setCvFile] = useState(null);
-  const [certFiles, setCertFiles] = useState([]);
+  const [state, setState] = useState("loading"); // loading | missing | applied | ready | done
+  const [profile, setProfile] = useState(null);
+  const [missing, setMissing] = useState([]);
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(false);
   const [error, setError] = useState("");
   const [aiResult, setAiResult] = useState(null);
   const [mailError, setMailError] = useState("");
 
   useEffect(() => {
     if (!open) return;
-    setDone(false);
+    setState("loading");
     setError("");
     setAiResult(null);
     setMailError("");
-    setCvFile(null);
-    setCertFiles([]);
+    setSubmitting(false);
+    let alive = true;
     (async () => {
+      let me = null;
+      let p = null;
       try {
-        const me = await base44.auth.me();
-        const res = await base44.entities.CandidateProfile.filter({}, { limit: 1 });
-        const profile = res.items?.[0];
-        setForm({
-          ...emptyForm,
-          full_name: profile?.full_name || me?.full_name || "",
-          email: profile?.email || me?.email || "",
-          phone: profile?.phone || "",
-          portfolio_url: profile?.portfolio_url || "",
-        });
+        me = await base44.auth.me();
+        let res = await base44.entities.CandidateProfile.filter({ email: me?.email }, { limit: 1 });
+        if (!res.items?.length) res = await base44.entities.CandidateProfile.filter({ created_by_id: me?.id }, { limit: 1 });
+        p = res.items?.[0] || null;
       } catch (e) {}
+      if (!alive) return;
+      // Tài khoản mới chưa có hồ sơ: lấy tạm tên/email từ tài khoản để kiểm tra
+      const merged = { ...(p || {}), full_name: p?.full_name || me?.full_name || "", email: p?.email || me?.email || "" };
+      setProfile(merged);
+      const miss = getMissingItems(merged);
+      setMissing(miss);
+      if (miss.length) {
+        setState("missing");
+        return;
+      }
+      // Đã ứng tuyển vị trí này rồi?
+      try {
+        const res = await base44.entities.Application.filter(
+          { job_id: job.id, $or: [{ created_by_id: me?.id }, { email: merged.email }] },
+          { limit: 1 }
+        );
+        if (res.items?.length) {
+          if (alive) setState("applied");
+          return;
+        }
+      } catch (e) {}
+      if (alive) setState("ready");
     })();
-  }, [open]);
-
-  const handleCv = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 10 * 1024 * 1024) {
-      setError("File CV không được vượt quá 10MB.");
-      return;
-    }
-    setCvFile(file);
-    setError("");
-  };
-
-  const handleCerts = (e) => {
-    const picked = Array.from(e.target.files || []);
-    if (!picked.length) return;
-    setCertFiles((prev) => [...prev, ...picked].slice(0, 5));
-    e.target.value = "";
-  };
+    return () => {
+      alive = false;
+    };
+  }, [open, job?.id]);
 
   const submit = async () => {
     setError("");
-    if (!form.full_name.trim() || !form.email.trim()) {
-      setError("Vui lòng nhập họ tên và email.");
-      return;
-    }
-    if (!cvFile) {
-      setError("Vui lòng tải lên CV (PDF/DOC/DOCX) trước khi gửi hồ sơ.");
-      return;
-    }
     setSubmitting(true);
     try {
-      const up = await base44.integrations.Core.UploadPrivateFile({ file: cvFile });
-      const certUris = [];
-      for (const file of certFiles) {
-        if (file.size > 10 * 1024 * 1024) continue;
-        const r = await base44.integrations.Core.UploadPrivateFile({ file });
-        certUris.push(r.file_uri);
-      }
-      let avatarUri;
-      try {
-        const res = await base44.entities.CandidateProfile.filter({ email: form.email }, { limit: 1 });
-        avatarUri = res.items?.[0]?.avatar_uri || undefined;
-      } catch (e) {}
+      const links = splitLinks(profile.project_links);
       const created = await base44.entities.Application.create({
         job_id: job.id,
         job_title: job.title,
         company: job.company,
-        full_name: form.full_name,
-        email: form.email,
-        phone: form.phone,
-        english_certificate: form.english_certificate,
-        cv_file_uri: up.file_uri,
-        avatar_uri: avatarUri,
-        certificate_uris: certUris,
-        github_url: form.github_url,
-        portfolio_url: form.portfolio_url,
-        cover_letter: form.cover_letter,
+        full_name: profile.full_name,
+        email: profile.email,
+        phone: profile.phone || "",
+        english_certificate: profile.english_certificate || "",
+        cv_file_uri: profile.cv_file_uri,
+        avatar_uri: profile.avatar_uri || undefined,
+        certificate_uris: profile.certificate_uris || [],
+        github_url: profile.github_url || "",
+        portfolio_url: profile.portfolio_url || "",
+        cover_letter: links.length ? `Dự án / liên kết khác:\n${links.join("\n")}` : "",
         cv_source: "nexcareer",
         status: "cv_screening",
         rms_status: "new",
@@ -114,7 +89,7 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
         step1_done: true,
         step1_at: new Date().toISOString(),
       });
-      setDone(true);
+      setState("done");
       onApplied?.();
       try {
         const res = await base44.functions.invoke("screenCv", { application_id: created.id });
@@ -131,10 +106,104 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
     }
   };
 
+  const roomLink = `/candidate-room?tab=${tabToFix(missing)}`;
+  const certCount = profile?.certificate_uris?.length || 0;
+  const linkCount = splitLinks(profile?.project_links).length;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-xl">
-        {done ? (
+      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-lg">
+        {state === "loading" && (
+          <div className="flex flex-col items-center py-14 text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <DialogTitle className="sr-only">Đang kiểm tra hồ sơ</DialogTitle>
+            <DialogDescription className="mt-3">Đang kiểm tra hồ sơ của bạn...</DialogDescription>
+          </div>
+        )}
+
+        {state === "missing" && (
+          <div className="flex flex-col items-center py-6 text-center">
+            <div className="grid h-16 w-16 place-items-center rounded-full bg-amber-100 text-amber-600">
+              <AlertCircle className="h-9 w-9" />
+            </div>
+            <DialogTitle className="mt-5 text-xl">Hồ sơ chưa đủ thông tin cần thiết</DialogTitle>
+            <DialogDescription className="mt-2 max-w-sm">
+              Bạn cần bổ sung các mục bắt buộc trong Candidate Room trước khi ứng tuyển <span className="font-600 text-foreground">{job.title}</span>.
+            </DialogDescription>
+            <ul className="mt-4 w-full max-w-sm space-y-2 text-left text-sm">
+              {missing.map((m) => (
+                <li key={m.key} className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-amber-800">
+                  <AlertCircle className="h-4 w-4 shrink-0" /> Thiếu: {m.label}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6 flex w-full max-w-sm flex-col gap-2">
+              <Button asChild className="btn-galaxy h-11 w-full rounded-full">
+                <Link to={roomLink} onClick={() => onOpenChange(false)}>Về Candidate Room</Link>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)} className="text-muted-foreground">Để sau</Button>
+            </div>
+          </div>
+        )}
+
+        {state === "applied" && (
+          <div className="flex flex-col items-center py-8 text-center">
+            <div className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 text-primary">
+              <CheckCircle2 className="h-9 w-9" />
+            </div>
+            <DialogTitle className="mt-5 text-xl">Bạn đã ứng tuyển vị trí này</DialogTitle>
+            <DialogDescription className="mt-2 max-w-sm">
+              Hồ sơ của bạn cho <span className="font-600 text-foreground">{job.title}</span> đã được gửi trước đó. Theo dõi tiến trình trong Candidate Room.
+            </DialogDescription>
+            <div className="mt-6 flex w-full max-w-sm flex-col gap-2">
+              <Button asChild className="btn-galaxy h-11 w-full rounded-full">
+                <Link to="/candidate-room?tab=apps" onClick={() => onOpenChange(false)}>Xem trong Candidate Room</Link>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)} className="text-muted-foreground">Đóng</Button>
+            </div>
+          </div>
+        )}
+
+        {state === "ready" && profile && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-xl font-700">Xác nhận ứng tuyển</DialogTitle>
+              <DialogDescription>
+                Bạn muốn ứng tuyển <span className="font-600 text-foreground">{job.title}</span> tại {job.company}? Hồ sơ trong Candidate Room của bạn sẽ được gửi đi.
+              </DialogDescription>
+            </DialogHeader>
+
+            {error && (
+              <div className="flex items-start gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> {error}
+              </div>
+            )}
+
+            <div className="space-y-2 rounded-2xl border border-border bg-muted/30 p-4 text-sm">
+              <Row icon={User} text={profile.full_name} />
+              <Row icon={Mail} text={profile.email} />
+              {profile.phone && <Row icon={Phone} text={profile.phone} />}
+              <Row icon={FileText} text={`CV: ${fileNameOf(profile.cv_file_uri)}`} />
+              {certCount > 0 && <Row icon={Award} text={`${certCount} chứng chỉ đính kèm`} />}
+              {profile.english_certificate && <Row icon={Award} text={`Tiếng Anh: ${profile.english_certificate}`} />}
+              {profile.github_url && <Row icon={Github} text={profile.github_url} />}
+              {profile.portfolio_url && <Row icon={Link2} text={profile.portfolio_url} />}
+              {linkCount > 0 && <Row icon={Rocket} text={`${linkCount} link dự án / ứng dụng`} />}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Muốn thay đổi thông tin? <Link to="/candidate-room" onClick={() => onOpenChange(false)} className="text-primary hover:underline">Chỉnh sửa trong Candidate Room</Link>.
+            </p>
+
+            <div className="flex flex-col gap-2">
+              <Button onClick={submit} disabled={submitting} className="btn-galaxy h-11 w-full gap-2 rounded-full">
+                {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Đang gửi...</> : "Đồng ý ứng tuyển"}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)} disabled={submitting} className="text-muted-foreground">Hủy</Button>
+            </div>
+          </>
+        )}
+
+        {state === "done" && (
           <div className="flex flex-col items-center py-10 text-center">
             <div className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 text-primary">
               <CheckCircle2 className="h-9 w-9" />
@@ -161,118 +230,17 @@ export default function ApplyDialog({ job, open, onOpenChange, onApplied }) {
             )}
             <Button className="mt-6" onClick={() => onOpenChange(false)}>Hoàn tất</Button>
           </div>
-        ) : (
-          <>
-            <DialogHeader>
-              <DialogTitle className="text-xl font-700">Ứng tuyển: {job.title}</DialogTitle>
-              <DialogDescription>
-                Gửi hồ sơ đầy đủ tới {job.company}: CV, chứng chỉ, dự án đã làm và chứng chỉ tiếng Anh.
-              </DialogDescription>
-            </DialogHeader>
-
-            {error && (
-              <div className="flex items-start gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> {error}
-              </div>
-            )}
-
-            <div className="space-y-4 py-2">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field id="fn" label="Họ và tên" required>
-                  <Input id="fn" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} placeholder="Nguyễn Văn A" />
-                </Field>
-                <Field id="em" label="Email" required>
-                  <Input id="em" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="ban@email.com" />
-                </Field>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field id="ph" label="Số điện thoại">
-                  <Input id="ph" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="09xx xxx xxx" />
-                </Field>
-                <Field id="en" label="Chứng chỉ tiếng Anh" optional>
-                  <Input id="en" value={form.english_certificate} onChange={(e) => setForm({ ...form, english_certificate: e.target.value })} placeholder="VD: IELTS 7.0 (2025), TOEIC 850" />
-                </Field>
-              </div>
-
-              <div className="space-y-2">
-                <Label>CV của bạn (bắt buộc, PDF/DOC/DOCX)</Label>
-                <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/20 p-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">
-                    <FileText className="h-5 w-5" />
-                  </div>
-                  <label className="cursor-pointer rounded-md bg-primary px-3 py-1.5 text-xs font-600 text-primary-foreground transition-colors hover:bg-primary/90">
-                    Chọn tệp
-                    <input type="file" className="hidden" accept=".pdf,.doc,.docx" onChange={handleCv} />
-                  </label>
-                  <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
-                    {cvFile ? `${cvFile.name} · ${(cvFile.size / 1024 / 1024).toFixed(2)} MB` : "Không có tệp nào được chọn"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Chứng chỉ kèm theo (tiếng Anh, chuyên môn — không bắt buộc)</Label>
-                <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-primary/50 px-3 py-1.5 text-xs font-600 text-primary transition-colors hover:bg-primary/5">
-                  <Upload className="h-4 w-4" /> Thêm tệp chứng chỉ
-                  <input type="file" className="hidden" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" onChange={handleCerts} />
-                </label>
-                {certFiles.length > 0 && (
-                  <ul className="space-y-1 pt-1">
-                    {certFiles.map((f, i) => (
-                      <li key={`${f.name}-${i}`} className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Paperclip className="h-3.5 w-3.5 text-primary" />
-                        <span className="min-w-0 flex-1 truncate">{f.name}</span>
-                        <button type="button" className="text-destructive hover:underline" onClick={() => setCertFiles((prev) => prev.filter((_, idx) => idx !== i))}>Xóa</button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field id="gh" label="GitHub / dự án đã làm">
-                  <div className="relative">
-                    <Github className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input id="gh" value={form.github_url} onChange={(e) => setForm({ ...form, github_url: e.target.value })} placeholder="https://github.com/ten-ban" className="pl-9" />
-                  </div>
-                </Field>
-                <Field id="pf" label="Portfolio / website" optional>
-                  <div className="relative">
-                    <Link2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input id="pf" value={form.portfolio_url} onChange={(e) => setForm({ ...form, portfolio_url: e.target.value })} placeholder="https://portfolio-cua-ban.com" className="pl-9" />
-                  </div>
-                </Field>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cl">Thư giới thiệu (không bắt buộc)</Label>
-                <Textarea id="cl" rows={4} value={form.cover_letter} onChange={(e) => setForm({ ...form, cover_letter: e.target.value })} placeholder="Giới thiệu ngắn về kinh nghiệm, dự án tiêu biểu và điểm mạnh của bạn" />
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Button onClick={submit} disabled={submitting} className="h-11 w-full gap-2">
-                {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Đang gửi...</> : "Gửi hồ sơ ứng tuyển"}
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)} disabled={submitting} className="text-muted-foreground">Hủy</Button>
-            </div>
-          </>
         )}
       </DialogContent>
     </Dialog>
   );
 }
 
-function Field({ id, label, required, optional, children }) {
+function Row({ icon: Icon, text }) {
   return (
-    <div className="flex h-full flex-col justify-end gap-2">
-      <Label htmlFor={id} className="leading-snug">
-        {label}
-        {required && " *"}
-        {optional && <span className="font-400 text-muted-foreground"> (không bắt buộc)</span>}
-      </Label>
-      {children}
+    <div className="flex items-center gap-2.5">
+      <Icon className="h-4 w-4 shrink-0 text-primary" />
+      <span className="min-w-0 flex-1 truncate">{text}</span>
     </div>
   );
 }
