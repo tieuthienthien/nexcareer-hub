@@ -60,11 +60,8 @@ export default function CandidateRoom() {
         setApplications(apps.items || []);
       } catch (e) {}
       try {
-        const inv = await base44.entities.SimulationInvite.filter(
-          { status: { $in: ["sent", "started"] } },
-          { sort: "-created_date", limit: 10 }
-        );
-        setInvites(inv.items || []);
+        const inv = await base44.functions.invoke("findMyInvites", {});
+        setInvites((inv.data || inv)?.invites || []);
       } catch (e) {}
       setLoading(false);
     })();
@@ -503,7 +500,7 @@ export default function CandidateRoom() {
               ) : (
                 <div className="mt-6 space-y-4">
                   {applications.map((a) => (
-                    <ApplicationTimeline key={a.id} app={a} />
+                    <ApplicationTimeline key={a.id} app={a} invite={invites.find((i) => i.application_id === a.id) || null} />
                   ))}
                 </div>
               )}
