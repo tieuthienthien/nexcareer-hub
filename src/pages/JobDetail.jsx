@@ -118,7 +118,7 @@ export default function JobDetail() {
           </div>
           <div className="flex flex-col gap-2 sm:w-44">
             {applied ? (
-              <Button disabled className="gap-2 bg-emerald-600 hover:bg-emerald-600"><CheckCircle2 className="h-4 w-4" /> Đã ứng tuyển</Button>
+              <Button disabled className="btn-galaxy gap-2 disabled:opacity-100"><CheckCircle2 className="h-4 w-4" /> Đã ứng tuyển</Button>
             ) : (
               <Button size="lg" onClick={handleApply} className="gap-2">{isAuthenticated ? "Ứng tuyển ngay" : "Đăng nhập để ứng tuyển"}</Button>
             )}
@@ -180,7 +180,7 @@ export default function JobDetail() {
               <div className="flex justify-between"><dt className="text-muted-foreground">Hạn nộp</dt><dd className="font-600">{job.deadline ? new Date(job.deadline).toLocaleDateString("vi-VN") : "—"}</dd></div>
             </dl>
             {applied ? (
-              <Button disabled className="mt-5 w-full gap-2 bg-emerald-600 hover:bg-emerald-600"><CheckCircle2 className="h-4 w-4" /> Đã ứng tuyển</Button>
+              <Button disabled className="btn-galaxy mt-5 w-full gap-2 disabled:opacity-100"><CheckCircle2 className="h-4 w-4" /> Đã ứng tuyển</Button>
             ) : (
               <Button className="mt-5 w-full gap-2" onClick={handleApply}>{isAuthenticated ? "Ứng tuyển ngay" : "Đăng nhập để ứng tuyển"}</Button>
             )}

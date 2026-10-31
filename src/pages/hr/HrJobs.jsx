@@ -28,7 +28,7 @@ export default function HrJobs() {
     setSeeding(true);
     try {
       const r = await replaceWithNexoraJobs(base44);
-      alert(`Xong: tạo mới ${r.created}, cập nhật ${r.updated}, đã xóa ${r.removed} việc làm cũ.`);
+      alert(`Xong: tạo mới ${r.created}, cập nhật ${r.updated}, đã xóa ${r.removed} việc làm cũ.${r.failed ? ` Còn ${r.failed} thao tác lỗi, hãy bấm nút lần nữa.` : ""}`);
       await load();
     } catch (e) {
       alert(e.message || "Không thể nạp việc làm.");

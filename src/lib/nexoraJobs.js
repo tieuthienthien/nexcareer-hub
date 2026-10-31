@@ -233,37 +233,64 @@ export const NEXORA_JOBS = [
  * - Chạy lại nhiều lần không bị trùng: việc đã nạp được cập nhật thay vì tạo mới.
  * - Xóa là vĩnh viễn, không khôi phục được.
  */
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Thử lại vài lần khi gặp lỗi tạm thời (quá nhiều yêu cầu, mạng chập chờn...).
+async function retry(fn, tries = 4) {
+  let lastErr;
+  for (let i = 0; i < tries; i += 1) {
+    try {
+      return await fn();
+    } catch (e) {
+      lastErr = e;
+      await sleep(400 * (i + 1));
+    }
+  }
+  throw lastErr;
+}
+
 export async function replaceWithNexoraJobs(base44) {
   const Job = base44.entities.Job;
-  const existing = (await Job.filter({ external_source: NEXORA_SOURCE }, { limit: 50 })).items || [];
+  const existing = (await retry(() => Job.filter({ external_source: NEXORA_SOURCE }, { limit: 50 }))).items || [];
   const byId = new Map(existing.map((j) => [j.external_id, j]));
   let created = 0;
   let updated = 0;
+  let failed = 0;
 
   // Tạo theo thứ tự ngược để việc số 01 là mới nhất và hiện đầu danh sách.
   for (const spec of [...NEXORA_JOBS].reverse()) {
     const data = { ...COMMON, ...spec };
     const found = byId.get(spec.external_id);
-    if (found) {
-      await Job.update(found.id, data);
-      updated += 1;
-    } else {
-      await Job.create(data);
-      created += 1;
+    try {
+      if (found) {
+        await retry(() => Job.update(found.id, data));
+        updated += 1;
+      } else {
+        await retry(() => Job.create(data));
+        created += 1;
+      }
+    } catch (e) {
+      failed += 1;
     }
+    await sleep(150);
   }
 
+  // Xóa mọi việc làm không phải của Nexora; lặp lại đến khi không còn.
   let removed = 0;
-  for (let round = 0; round < 50; round += 1) {
-    const items = ((await Job.filter({}, { limit: 100 })).items || []).filter(
+  for (let round = 0; round < 10; round += 1) {
+    const items = ((await retry(() => Job.filter({}, { limit: 100 }))).items || []).filter(
       (j) => j.external_source !== NEXORA_SOURCE,
     );
     if (items.length === 0) break;
     for (const j of items) {
-      await Job.delete(j.id);
-      removed += 1;
+      try {
+        await retry(() => Job.delete(j.id));
+        removed += 1;
+      } catch (e) {
+        failed += 1;
+      }
+      await sleep(150);
     }
   }
-  return { created, updated, removed };
+  return { created, updated, removed, failed };
 }
-

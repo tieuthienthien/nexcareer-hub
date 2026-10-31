@@ -20,7 +20,7 @@ export default function RichTextEditor({ value, onChange, editorRef }) {
   );
 
   return (
-    <div className="email-quill overflow-hidden rounded-xl border border-border bg-card">
+    <div className="email-quill overflow-hidden rounded-xl border border-border bg-card [&_.ql-editor]:max-h-[52vh] [&_.ql-editor]:min-h-[360px] [&_.ql-editor]:overflow-y-auto [&_.ql-editor]:text-[14px] [&_.ql-container]:border-0 [&_.ql-toolbar]:border-0 [&_.ql-toolbar]:border-b [&_.ql-toolbar]:border-border">
       <ReactQuill
         theme="snow"
         value={value}
