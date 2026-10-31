@@ -41,8 +41,18 @@ export function rmsStatus(app) {
   return legacyStage(app);
 }
 
+// Trạng thái RMS chỉ có 6 mức nên Vòng 2 và bước chọn lịch đều bị gộp thành "Đã duyệt CV" / "Chờ Line Manager".
+// Nhãn chi tiết dưới đây tách các chặng đó ra, dựa vào trạng thái cũ (status) mà các luồng chuyển vòng vẫn cập nhật.
+const STAGE_DETAIL = {
+  "cv_approved:test_invited": { label: "Chờ làm bài Vòng 2", color: "bg-amber-100 text-amber-800", ring: "ring-amber-200" },
+  "cv_approved:test_submitted": { label: "Chờ chấm Vòng 2", color: "bg-sky-100 text-sky-700", ring: "ring-sky-200" },
+  "pending_manager:interview_invited": { label: "Chờ ứng viên chọn lịch", color: "bg-violet-100 text-violet-700", ring: "ring-violet-200" },
+  "pending_manager:scheduled": { label: "Đã đặt lịch phỏng vấn", color: "bg-indigo-100 text-indigo-700", ring: "ring-indigo-200" },
+};
+
 export function rmsMeta(app) {
-  return RMS_STATUS[rmsStatus(app)] || RMS_STATUS.new;
+  const key = rmsStatus(app);
+  return STAGE_DETAIL[`${key}:${app?.status}`] || RMS_STATUS[key] || RMS_STATUS.new;
 }
 
 export function candidateCode(app) {
