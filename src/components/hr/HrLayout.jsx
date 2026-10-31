@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
-import { Building2, ArrowLeft, LogOut, LayoutDashboard, FileText, Users, MessageCircle, GitCompare, MessageSquare, CalendarClock, GraduationCap, Mail } from "lucide-react";
+import { Building2, ArrowLeft, LogOut, LayoutDashboard, FileText, Users, MessageCircle, GitCompare, MessageSquare, CalendarClock, GraduationCap, Mail, UserCog } from "lucide-react";
 import StarRainClick from "@/components/StarRainClick";
 import HrChatbotNotifications from "@/components/hr/rms/HrChatbotNotifications";
 import ManagerWorkspace from "@/pages/hr/ManagerWorkspace";
@@ -10,6 +10,7 @@ const mainNav = [
   { label: "Tổng quan", path: "/hr-studio", icon: LayoutDashboard, end: true },
   { label: "Việc làm", path: "/hr-studio/jobs", icon: FileText },
   { label: "Hồ sơ ứng viên", path: "/hr-studio/applications", icon: Users },
+  { label: "Line Manager", path: "/hr-studio/manager", icon: UserCog },
   { label: "Lịch phỏng vấn", path: "/hr-studio/schedule", icon: CalendarClock },
 ];
 

@@ -4,15 +4,19 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import GalaxyButton from "@/components/ui/galaxy-button";
 import { Input } from "@/components/ui/input";
-import { Search, Building2, User, ArrowRight, Sparkles, Users, Briefcase, Award, CheckCircle2, Code2, Target, Heart, ChevronDown } from "lucide-react";
+import { Search, Building2, User, ArrowRight, Sparkles, Users, Briefcase, Award, CheckCircle2, Target, ChevronDown, Globe, Smartphone, Brain, Cpu, RefreshCw } from "lucide-react";
 import JobCard from "@/components/job/JobCard";
 import { useSiteContent } from "@/components/design/SiteDesignProvider";
+import { CAT } from "@/lib/nexoraJobs";
 
+// 6 mục chuyên môn của Nexora; tên trùng với "category" của việc làm để lọc ở trang Việc làm.
 const categories = [
-  { name: "Kỹ thuật phần mềm", icon: Code2 },
-  { name: "Thiết kế UI/UX", icon: Heart },
-  { name: "Marketing & Truyền thông", icon: Target },
-  { name: "Nhân sự", icon: Users },
+  { name: CAT.web, icon: Globe },
+  { name: CAT.mobile, icon: Smartphone },
+  { name: CAT.enterprise, icon: Building2 },
+  { name: CAT.ai, icon: Brain },
+  { name: CAT.iot, icon: Cpu },
+  { name: CAT.ops, icon: RefreshCw },
 ];
 
 export default function Home() {
@@ -113,7 +117,7 @@ export default function Home() {
             { value: "20.000+", label: "Số lượt tiếp cận" },
           ].map((s) => (
             <div key={s.label} className="text-center">
-              <div className="text-galaxy font-heading text-2xl font-800 sm:text-3xl">{s.value}</div>
+              <div className="font-heading text-2xl font-800 text-primary sm:text-3xl">{s.value}</div>
               <div className="mt-1 text-xs font-500 text-muted-foreground sm:text-sm">{s.label}</div>
             </div>
           ))}
@@ -162,8 +166,8 @@ export default function Home() {
       {/* Two portals CTA */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-foreground to-primary p-8 text-white shadow-xl shadow-primary/30 lg:col-span-2">
-            <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-accent/30 blur-3xl" />
+          <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-accent to-chart-4 p-8 text-white shadow-xl shadow-primary/30 lg:col-span-2">
+            <div className="absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/25 blur-2xl" />
             <div className="relative">
               <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-600">
                 <User className="h-3.5 w-3.5" /> Dành cho ứng viên
@@ -230,7 +234,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-center font-heading text-2xl font-700 sm:text-3xl">{c.categories_title}</h2>
           <p className="mt-2 text-center text-sm text-muted-foreground">{c.categories_subtitle}</p>
-          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             {categories.map((cat) => (
               <Link
                 key={cat.name}

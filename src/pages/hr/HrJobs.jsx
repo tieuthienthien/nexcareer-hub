@@ -4,9 +4,10 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Pencil, Trash2, ExternalLink, Loader2 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, ExternalLink, Loader2, Sparkles } from "lucide-react";
 import JobFormDialog from "@/components/hr/JobFormDialog";
 import { formatSalary, employmentTypeLabel } from "@/lib/jobUtils";
+import { replaceWithNexoraJobs, NEXORA_JOBS } from "@/lib/nexoraJobs";
 
 export default function HrJobs() {
   const [jobs, setJobs] = useState([]);
@@ -16,6 +17,24 @@ export default function HrJobs() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deleting, setDeleting] = useState(null);
+  const [seeding, setSeeding] = useState(false);
+
+  const seedNexora = async () => {
+    const ok = confirm(
+      `Nạp ${NEXORA_JOBS.length} việc làm chuẩn của Nexora (theo 6 mục chuyên môn)?\n\n` +
+      "TẤT CẢ việc làm khác (kể cả bản nháp và đã đóng) sẽ bị XÓA vĩnh viễn, không khôi phục được."
+    );
+    if (!ok) return;
+    setSeeding(true);
+    try {
+      const r = await replaceWithNexoraJobs(base44);
+      alert(`Xong: tạo mới ${r.created}, cập nhật ${r.updated}, đã xóa ${r.removed} việc làm cũ.`);
+      await load();
+    } catch (e) {
+      alert(e.message || "Không thể nạp việc làm.");
+    }
+    setSeeding(false);
+  };
 
   const load = async () => {
     setLoading(true);
@@ -49,6 +68,9 @@ export default function HrJobs() {
           <p className="mt-1 text-sm text-muted-foreground">Đăng và quản lý các vị trí tuyển dụng</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button onClick={seedNexora} disabled={seeding} variant="outline" className="gap-2">
+            {seeding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Nạp 6 việc Nexora
+          </Button>
           <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="gap-2"><Plus className="h-4 w-4" /> Tạo việc làm</Button>
         </div>
       </div>
