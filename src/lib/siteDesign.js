@@ -110,7 +110,7 @@ export const CONTENT_PAGES = [
         title: "Giới thiệu Nexora",
         fields: [
           { key: "about_badge", label: "Nhãn nhỏ", default: "Về Nexora Technology" },
-          { key: "about_title", label: "Tiêu đề", multiline: true, default: "Công ty phần mềm sinh năm 2025, tại Sài Gòn" },
+          { key: "about_title", label: "Tiêu đề", multiline: true, default: "Công ty phần mềm ra đời năm 2025, tại TP. Hồ Chí Minh" },
           { key: "about_desc", label: "Đoạn 1", multiline: true, default: "Nexora Technology là đối tác phát triển phần mềm theo yêu cầu - từ web, mobile đến IoT và chuyển đổi hệ thống cũ. Chúng tôi là đội ngũ kỹ sư, thiết kế và quản lý sản phẩm cùng chung triết lý: làm ít hơn, làm tốt hơn." },
           { key: "about_desc2", label: "Đoạn 2", multiline: true, default: "NexCareer Hub là cổng tuyển dụng nội bộ của Nexora - Candidate Room cho ứng viên và HR Studio cho bộ phận Nhân sự, giúp Nexora tìm đúng người, đúng việc." },
         ],
