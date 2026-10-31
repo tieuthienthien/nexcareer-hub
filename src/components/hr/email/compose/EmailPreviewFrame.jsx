@@ -1,7 +1,7 @@
 import { Image } from "@/components/ui/image";
 import { BRAND_PREVIEW } from "@/lib/emailPreviewBrand";
 
-const LOGO = "https://media.base44.com/images/public/6acd03fc9e292b4e6a9a3492/0ca8c156e_logo.png";
+const LOGO = BRAND_PREVIEW.logo;
 
 function bodyHtmlForPreview(html) {
   return String(html || "").replace(/class="ql-align-(center|right|justify)"/g, (_m, align) => `style="text-align:${align}"`);
@@ -18,7 +18,7 @@ export default function EmailPreviewFrame({ subject, bodyHtml, banner, inlineIma
       <div className={`mx-auto ${width} overflow-hidden rounded-xl border border-border bg-[#fbf7fd] p-3`}>
         <div className="overflow-hidden rounded-lg border border-border bg-card">
           <div className="flex items-center gap-2 bg-primary px-4 py-3">
-            <img src={LOGO} alt="NexCareer Hub" className="h-8 w-8 rounded-full bg-white object-contain" />
+            <img src={LOGO} alt="NexCareer Hub" className="h-8 w-8 rounded-full bg-white object-cover" />
             <span className="text-sm font-700 text-primary-foreground">NexCareer Hub</span>
           </div>
           {banner?.url && <Image src={banner.url} alt={banner.alt || ""} className="w-full" fittingType="fill" />}
