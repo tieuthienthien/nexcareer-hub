@@ -7,19 +7,20 @@ import BookingCard from "@/components/interview/BookingCard";
 
 const roundIcon = [FileSearch, ClipboardCheck, CalendarClock];
 
-export default function ApplicationTimeline({ app }) {
+export default function ApplicationTimeline({ app, invite: inviteProp = null }) {
   const info = getStageInfo(app.status);
   const final = isFinalStatus(app.status);
   const [booking, setBooking] = useState(null);
-  const [invite, setInvite] = useState(null);
+  const [inviteFetched, setInviteFetched] = useState(null);
+  const invite = inviteProp || inviteFetched;
 
   useEffect(() => {
     (async () => {
       try {
         const res = await base44.entities.SimulationInvite.filter({ application_id: app.id }, { sort: "-created_date", limit: 1 });
-        setInvite((res.items || [])[0] || null);
+        setInviteFetched((res.items || [])[0] || null);
       } catch (e) {
-        setInvite(null);
+        setInviteFetched(null);
       }
     })();
   }, [app.id, app.status]);
@@ -82,7 +83,7 @@ export default function ApplicationTimeline({ app }) {
               <div className="min-w-0 flex-1 pb-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[11px] font-700 text-muted-foreground">VÒNG {r.id}</span>
-                  {st === "active" && <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-600 text-primary"><Clock className="h-3 w-3" /> Đang diễn ra</span>}
+                  {st === "active" && <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-600 text-primary"><Clock className="h-3 w-3" /> {r.id === 2 && canTakeExam && !invite ? "Chờ HR gửi đề" : "Đang diễn ra"}</span>}
                   {st === "rejected" && <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-600 text-rose-700">Không đạt</span>}
                   {st === "passed" && <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-600 text-emerald-700">Đã đạt</span>}
                 </div>
