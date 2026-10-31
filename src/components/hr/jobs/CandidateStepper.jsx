@@ -48,19 +48,28 @@ const STEPS = [
 ];
 
 export default function CandidateStepper({ app, invite, attempt, booking }) {
+  const states = STEPS.map((_, i) => stepState(app, invite, attempt, i).state);
+  // Đoạn nối xanh khi bước trước đã hoàn thành
+  const lineColor = (prevState) => (prevState === "done" ? "bg-emerald-400" : "bg-border");
+
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
       <h4 className="text-sm font-700">Tiến trình tuyển dụng</h4>
       <div className="mt-4 grid gap-3 sm:grid-cols-5 sm:gap-0">
         {STEPS.map((step, i) => {
-          const { state } = stepState(app, invite, attempt, i);
+          const state = states[i];
           const done = state === "done";
           const failed = state === "failed";
           const current = state === "current";
           return (
             <div key={step.label} className="relative flex items-start gap-3 sm:flex-col sm:items-center sm:text-center">
+              {/* Màn hình nhỏ: đường dọc từ dưới số này xuống số kế tiếp */}
+              {i < STEPS.length - 1 && (
+                <span className={`absolute left-[15px] top-8 -bottom-3 w-0.5 sm:hidden ${lineColor(state)}`} aria-hidden />
+              )}
+              {/* Màn hình rộng: đường ngang nối tâm số trước tới tâm số này (bước đầu không có, bước cuối không thừa) */}
               {i > 0 && (
-                <span className={`absolute left-[15px] top-8 hidden h-[calc(100%-8px)] w-0.5 sm:block sm:left-1/2 sm:top-[15px] sm:h-0.5 sm:w-full ${done ? "bg-emerald-400" : "bg-border"}`} aria-hidden />
+                <span className={`absolute right-1/2 top-[15px] hidden h-0.5 w-full sm:block ${lineColor(states[i - 1])}`} aria-hidden />
               )}
               <span
                 className={`relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 text-xs font-700 transition-colors ${
@@ -69,8 +78,8 @@ export default function CandidateStepper({ app, invite, attempt, booking }) {
                     : done
                       ? "border-emerald-500 bg-emerald-500 text-white"
                       : current
-                        ? "border-primary bg-primary/10 text-primary ring-4 ring-primary/10"
-                        : "border-border bg-muted text-muted-foreground"
+                        ? "border-primary bg-card text-primary ring-4 ring-card shadow-[0_0_14px_hsl(var(--primary)/0.45)]"
+                        : "border-border bg-card text-muted-foreground"
                 }`}
               >
                 {failed ? <X className="h-4 w-4" /> : done ? <Check className="h-4 w-4" /> : i + 1}
