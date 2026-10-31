@@ -76,7 +76,7 @@ export const CONTENT_PAGES = [
         fields: [
           { key: "hero_badge", label: "Nhãn nhỏ phía trên tiêu đề", default: "Cổng tuyển dụng của Nexora Technology" },
           { key: "hero_title", label: "Tiêu đề lớn", multiline: true, default: "Gia nhập Nexora Technology cùng NexCareer Hub" },
-          { key: "hero_subtitle", label: "Mô tả ngắn", multiline: true, default: "Các vị trí đang mở tại Nexora Technology — công ty phần mềm tại TP. Hồ Chí Minh. Ứng tuyển dễ, theo dõi hồ sơ minh bạch qua 3 vòng đánh giá." },
+          { key: "hero_subtitle", label: "Mô tả ngắn", multiline: true, default: "Các vị trí đang mở tại Nexora Technology - công ty phần mềm tại TP. Hồ Chí Minh. Ứng tuyển dễ, theo dõi hồ sơ minh bạch qua 3 vòng đánh giá." },
           { key: "search_placeholder", label: "Gợi ý trong ô tìm kiếm", default: "Vị trí, từ khóa..." },
           { key: "search_cta", label: "Chữ trên nút tìm kiếm", default: "Tìm việc" },
         ],
@@ -111,15 +111,15 @@ export const CONTENT_PAGES = [
         fields: [
           { key: "about_badge", label: "Nhãn nhỏ", default: "Về Nexora Technology" },
           { key: "about_title", label: "Tiêu đề", multiline: true, default: "Công ty phần mềm sinh năm 2025, tại Sài Gòn" },
-          { key: "about_desc", label: "Đoạn 1", multiline: true, default: "Nexora Technology là đối tác phát triển phần mềm theo yêu cầu — từ web, mobile đến IoT và chuyển đổi hệ thống cũ. Chúng tôi là đội ngũ kỹ sư, thiết kế và quản lý sản phẩm cùng chung triết lý: làm ít hơn, làm tốt hơn." },
-          { key: "about_desc2", label: "Đoạn 2", multiline: true, default: "NexCareer Hub là cổng tuyển dụng nội bộ của Nexora — Candidate Room cho ứng viên và HR Studio cho bộ phận Nhân sự, giúp Nexora tìm đúng người, đúng việc." },
+          { key: "about_desc", label: "Đoạn 1", multiline: true, default: "Nexora Technology là đối tác phát triển phần mềm theo yêu cầu - từ web, mobile đến IoT và chuyển đổi hệ thống cũ. Chúng tôi là đội ngũ kỹ sư, thiết kế và quản lý sản phẩm cùng chung triết lý: làm ít hơn, làm tốt hơn." },
+          { key: "about_desc2", label: "Đoạn 2", multiline: true, default: "NexCareer Hub là cổng tuyển dụng nội bộ của Nexora - Candidate Room cho ứng viên và HR Studio cho bộ phận Nhân sự, giúp Nexora tìm đúng người, đúng việc." },
         ],
       },
       {
         title: "Khối kêu gọi cuối trang",
         fields: [
           { key: "cta_title", label: "Tiêu đề", default: "Sẵn sàng bước tiếp theo?" },
-          { key: "cta_subtitle", label: "Mô tả", multiline: true, default: "Ứng tuyển vào Nexora Technology hôm nay — minh bạch, nhanh chóng." },
+          { key: "cta_subtitle", label: "Mô tả", multiline: true, default: "Ứng tuyển vào Nexora Technology hôm nay - minh bạch, nhanh chóng." },
         ],
       },
     ],
