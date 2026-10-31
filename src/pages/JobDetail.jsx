@@ -105,7 +105,7 @@ export default function JobDetail() {
       {/* Header card */}
       <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-          <JobAvatar job={job} className="h-16 w-16 rounded-2xl shadow-lg" textClassName="text-xl" />
+          <JobAvatar job={job} className="h-28 w-28 rounded-3xl shadow-lg sm:h-36 sm:w-36" textClassName="text-3xl" />
           <div className="min-w-0 flex-1">
             <h1 className="font-heading text-2xl font-800 leading-tight sm:text-3xl">{job.title}</h1>
             <p className="mt-1.5 text-muted-foreground">{job.company}</p>

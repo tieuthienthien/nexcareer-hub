@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { Image } from "@/components/ui/image";
 import { useAuth } from "@/lib/AuthContext";
+import LegalDialog from "@/components/site/LegalDialog";
 
 export default function Footer() {
   const { isAuthenticated, user } = useAuth();
   const isAdmin = user?.role === "admin";
+  const [legal, setLegal] = useState(null); // "terms" | "privacy" | null
 
   return (
     <footer className="border-t border-border bg-muted/30">
@@ -25,7 +28,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              Cổng tuyển dụng của Nexora Technology — công ty phần mềm tại TP. Hồ Chí Minh.
+              Cổng tuyển dụng của Nexora Technology - công ty phần mềm tại TP. Hồ Chí Minh.
             </p>
           </div>
 
@@ -61,14 +64,14 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-primary">
+                <button type="button" onClick={() => setLegal("terms")} className="text-left hover:text-primary">
                   Điều khoản sử dụng
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="hover:text-primary">
+                <button type="button" onClick={() => setLegal("privacy")} className="text-left hover:text-primary">
                   Chính sách bảo mật
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -107,6 +110,7 @@ export default function Footer() {
           </p>
         </div>
       </div>
+      <LegalDialog type={legal} onClose={() => setLegal(null)} />
     </footer>
   );
 }

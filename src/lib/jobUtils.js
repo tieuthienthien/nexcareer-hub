@@ -1,6 +1,6 @@
 export const workTypeLabel = {
   remote: "Làm từ xa",
-  hybrid: "Lai trộn",
+  hybrid: "Kết hợp",
   onsite: "Tại văn phòng",
 };
 
@@ -70,7 +70,7 @@ export const STATUS_OPTIONS = [
 ];
 
 export const ROUNDS = [
-  { id: 1, title: "Vòng 1 — Chấm CV tự động", desc: "AI đối chiếu barem, HR quyết định" },
+  { id: 1, title: "Vòng 1 — Chấm CV tự động", desc: "AI đối chiếu barem, HR là người ra quyết định" },
   { id: 2, title: "Vòng 2 — Bài thi online", desc: "Tối đa 60 phút, tự nộp khi hết giờ" },
   { id: 3, title: "Đặt lịch & phỏng vấn", desc: "Ứng viên chọn khung giờ, HR chốt kết quả" },
 ];
