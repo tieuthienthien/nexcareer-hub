@@ -25,7 +25,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              Cổng tuyển dụng của Nexora Technology — công ty phần mềm tại TP. Hồ Chí Minh.
+              Cổng tuyển dụng của Nexora Technology - công ty phần mềm tại TP. Hồ Chí Minh.
             </p>
           </div>
 
