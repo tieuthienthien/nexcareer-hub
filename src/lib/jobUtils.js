@@ -134,13 +134,13 @@ export function companyGradient(name = "") {
 // Ảnh đại diện cho từng vị trí tuyển dụng (public/images/vieclam).
 // Khớp theo từ khóa trong tiêu đề, không phụ thuộc dấu tiếng Việt.
 const JOB_IMAGES = [
-  [/backend|node\.?js/, "/images/vieclam/tuyen-dung-l-p-tr-nh-vi-n-backend-node-js-.png"],
-  [/frontend|react/, "/images/vieclam/tuyen-dung-l-p-tr-nh-vi-n-frontend-reactjs-.png"],
-  [/iot|embedded/, "/images/vieclam/tuyen-dung-k-s-iot-embedded-.png"],
-  [/ux\s*\/?\s*ui/, "/images/vieclam/tuyen-dung-ux-ui-designer.png"],
-  [/\bhr\b|nhan su/, "/images/vieclam/tuyen-dung-hr-executive-nh-n-s-.png"],
-  [/mobile|flutter/, "/images/vieclam/tuyen-dung-mobile-developer-flutter-.png"],
-  [/marketing/, "/images/vieclam/tuyen-dung-digital-marketing-specialist.png"],
+  // 6 vị trí Nexora (src/lib/nexoraJobs.js)
+  [/frontend|react|next\.?js/, "/images/vieclam/frontend.png"],
+  [/mobile|flutter|android|\bios\b/, "/images/vieclam/mobile.png"],
+  [/backend|node\.?js|\.net/, "/images/vieclam/backend.png"],
+  [/\bai\b|data/, "/images/vieclam/ai-data.png"],
+  [/iot|embedded/, "/images/vieclam/iot.png"],
+  [/devops|cloud/, "/images/vieclam/devops.png"],
 ];
 
 export function jobImage(job) {
