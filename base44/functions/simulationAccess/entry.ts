@@ -162,6 +162,8 @@ export default async function (req: Request): Promise<Response> {
           name: simulation.name,
           role_title: simulation.role_title,
           description: simulation.description,
+          video_url: simulation.video_url || '',
+          video_caption: simulation.video_caption || '',
           duration_min: durationMin,
           pass_score: passScore,
           tasks: publicTasks(simulation)
