@@ -7,6 +7,7 @@ import { Image } from "@/components/ui/image";
 import { Loader2, Clock, Send, Lock, AlertTriangle, Check, MessageSquare, Ticket, ShieldAlert, Maximize2, Minimize2 } from "lucide-react";
 import CodeWorkspace from "@/components/sim/CodeWorkspace";
 import SimulationResult from "@/components/sim/SimulationResult";
+import SimulationIntroVideo from "@/components/sim/SimulationIntroVideo";
 import { runTests, summarize } from "@/lib/simulationRunner";
 
 function mmss(sec) {
@@ -356,6 +357,8 @@ export default function SimulationRunner() {
           </div>
         </div>
       )}
+
+      <SimulationIntroVideo />
 
       <div className="grid gap-3 p-3 lg:grid-cols-[250px_1fr_1.1fr] lg:items-start">
         <aside className="space-y-2 rounded-2xl border border-border bg-card p-3">
