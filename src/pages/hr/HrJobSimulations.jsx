@@ -6,10 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Sparkles, Clock, Award, Users, Trash2, Eye, Pencil } from "lucide-react";
+import { Loader2, Plus, Upload, Video, Sparkles, Clock, Award, Users, Trash2, Eye, Pencil } from "lucide-react";
 import { formatDateTime } from "@/lib/rms";
 
-const emptyForm = { name: "", role_title: "", job_id: "", description: "", duration_min: 60, pass_score: 80, cheat_threshold: 3, status: "active" };
+const emptyForm = { name: "", role_title: "", job_id: "", description: "", video_url: "", video_caption: "", duration_min: 60, pass_score: 80, cheat_threshold: 3, status: "active" };
 const emptyTask = { id: "", title: "", type: "code", prompt: "", points: 20, starter_code: "" };
 
 export default function HrJobSimulations() {
@@ -90,6 +90,8 @@ export default function HrJobSimulations() {
       role_title: sim.role_title || "",
       job_id: sim.job_id || "",
       description: sim.description || "",
+      video_url: sim.video_url || "",
+      video_caption: sim.video_caption || "",
       duration_min: sim.duration_min || 60,
         pass_score: sim.pass_score || 80,
         cheat_threshold: sim.cheat_threshold || 3,
@@ -98,6 +100,22 @@ export default function HrJobSimulations() {
     const list = Array.isArray(sim.tasks) && sim.tasks.length ? sim.tasks : [{ ...emptyTask, id: "task1" }];
     setTasks(list.map((t, i) => ({ ...emptyTask, ...t, id: t.id || `task${i + 1}` })));
     setCreateOpen(true);
+  };
+
+  const uploadVideo = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setBusy("video");
+    setError("");
+    try {
+      const { file_url } = await base44.integrations.Core.UploadPublicFile({ file });
+      setForm((f) => ({ ...f, video_url: file_url }));
+    } catch (err) {
+      setError(err.message || "Không tải được video.");
+    } finally {
+      setBusy("");
+    }
   };
 
   const closeDialog = (open) => {
@@ -245,6 +263,20 @@ export default function HrJobSimulations() {
               </Select>
             </div>
             <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Bối cảnh doanh nghiệp</Label><Textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label className="flex items-center gap-1.5 text-xs"><Video className="h-3.5 w-3.5" /> Video giới thiệu (của bài này)</Label>
+              <div className="flex flex-wrap gap-2">
+                <Input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="Dán link video (mp4, webm...) hoặc tải lên" className="min-w-[220px] flex-1" />
+                <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-input px-3 py-2 text-sm font-500 hover:bg-muted">
+                  {busy === "video" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />} Tải video
+                  <input type="file" accept="video/*" className="hidden" onChange={uploadVideo} disabled={busy === "video"} />
+                </label>
+                {form.video_url && <Button type="button" variant="outline" size="sm" onClick={() => setForm({ ...form, video_url: "" })}>Xóa video</Button>}
+              </div>
+              {form.video_url && <video key={form.video_url} src={form.video_url} controls playsInline className="aspect-video w-full max-w-md rounded-lg bg-black" />}
+              <Textarea rows={3} placeholder="Mô tả hiển thị cạnh video (bỏ trống = dùng mô tả mặc định)" value={form.video_caption} onChange={(e) => setForm({ ...form, video_caption: e.target.value })} />
+              <p className="text-[11px] text-muted-foreground">Để trống video thì ứng viên xem video mặc định chung của hệ thống.</p>
+            </div>
             <div className="space-y-1.5"><Label className="text-xs">Thời lượng (phút)</Label><Input type="number" value={form.duration_min} onChange={(e) => setForm({ ...form, duration_min: e.target.value })} /></div>
             <div className="space-y-1.5"><Label className="text-xs">Ngưỡng đạt</Label><Input type="number" value={form.pass_score} onChange={(e) => setForm({ ...form, pass_score: e.target.value })} /></div>
             <div className="space-y-1.5">
