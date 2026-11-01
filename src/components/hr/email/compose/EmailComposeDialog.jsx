@@ -440,7 +440,7 @@ export default function EmailComposeDialog({
       </DialogContent>
 
       <Dialog open={!!previewDevice} onOpenChange={(v) => !v && setPreviewDevice(null)}>
-        <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
+        <DialogContent className="max-h-[92vh] overflow-x-hidden overflow-y-auto sm:max-w-3xl [&>*]:min-w-0">
           <DialogHeader>
             <DialogTitle className="text-base">Xem trước email</DialogTitle>
             <DialogDescription>Hiển thị gần giống thư thật ứng viên sẽ nhận.</DialogDescription>
