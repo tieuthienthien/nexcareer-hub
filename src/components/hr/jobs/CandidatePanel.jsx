@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FileText, Loader2, Mail, Phone } from "lucide-react";
 import CandidateStepper from "@/components/hr/jobs/CandidateStepper";
+import CandidateExtras from "@/components/hr/jobs/CandidateExtras";
 import Round1Step from "@/components/hr/jobs/steps/Round1Step";
 import Round2Step from "@/components/hr/jobs/steps/Round2Step";
 import Round3Step from "@/components/hr/jobs/steps/Round3Step";
@@ -104,6 +105,8 @@ export default function CandidatePanel({ applicationId, open, onOpenChange, onCh
               </div>
               <Button size="sm" variant="outline" onClick={openCv} className="gap-1.5"><FileText className="h-4 w-4" /> Xem CV</Button>
             </div>
+
+            <CandidateExtras app={app} />
 
             <CandidateStepper app={app} invite={invite} attempt={attempt} booking={booking} />
 
