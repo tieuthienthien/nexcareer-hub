@@ -358,7 +358,7 @@ export default function SimulationRunner() {
         </div>
       )}
 
-      <SimulationIntroVideo />
+      <SimulationIntroVideo src={data.simulation.video_url || undefined} description={data.simulation.video_caption || undefined} />
 
       <div className="grid gap-3 p-3 lg:grid-cols-[250px_1fr_1.1fr] lg:items-start">
         <aside className="space-y-2 rounded-2xl border border-border bg-card p-3">
