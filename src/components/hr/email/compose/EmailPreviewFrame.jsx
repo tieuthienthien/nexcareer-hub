@@ -4,16 +4,19 @@ import { BRAND_PREVIEW } from "@/lib/emailPreviewBrand";
 const LOGO = BRAND_PREVIEW.logo;
 
 function bodyHtmlForPreview(html) {
-  return String(html || "").replace(/class="ql-align-(center|right|justify)"/g, (_m, align) => `style="text-align:${align}"`);
+  return String(html || "")
+    // Ký tự khoảng trắng không ngắt dòng (do trình soạn/biến điền) làm chữ không xuống dòng và bị cắt ở khung mobile.
+    .replace(/&nbsp;|\u00a0/g, " ")
+    .replace(/class="ql-align-(center|right|justify)"/g, (_m, align) => `style="text-align:${align}"`);
 }
 
 export default function EmailPreviewFrame({ subject, bodyHtml, banner, inlineImages = [], signature, cta, signatureLines = [], device = "desktop" }) {
-  const width = device === "mobile" ? "w-[360px]" : "w-full";
+  const width = device === "mobile" ? "w-full max-w-[360px]" : "w-full";
   return (
-    <div className="space-y-2">
+    <div className="w-full min-w-0 space-y-2">
       <div className="rounded-lg border border-border bg-muted/40 px-3 py-2">
         <p className="text-[10px] font-700 uppercase tracking-wide text-muted-foreground">Tiêu đề</p>
-        <p className="text-sm font-600 leading-snug">{subject || "(chưa có tiêu đề)"}</p>
+        <p className="break-words text-sm font-600 leading-snug">{subject || "(chưa có tiêu đề)"}</p>
       </div>
       <div className={`mx-auto ${width} overflow-hidden rounded-xl border border-border bg-[#fbf7fd] p-3`}>
         <div className="overflow-hidden rounded-lg border border-border bg-card">
@@ -23,7 +26,7 @@ export default function EmailPreviewFrame({ subject, bodyHtml, banner, inlineIma
           </div>
           {banner?.url && <Image src={banner.url} alt={banner.alt || ""} className="w-full" fittingType="fill" />}
           <div
-            className="prose-sm px-4 py-4 text-[13px] leading-relaxed text-foreground [&_h3]:mt-4 [&_h3]:mb-1.5 [&_h3]:text-[14px] [&_h3]:font-700 [&_li]:mb-1 [&_p]:mb-2.5 [&_ul]:mb-2.5 [&_ul]:list-disc [&_ul]:pl-5"
+            className="prose-sm whitespace-normal break-words px-4 py-4 text-[13px] [&_*]:max-w-full [&_*]:whitespace-normal [&_*]:break-words leading-relaxed text-foreground [&_h3]:mt-4 [&_h3]:mb-1.5 [&_h3]:text-[14px] [&_h3]:font-700 [&_li]:mb-1 [&_p]:mb-2.5 [&_ul]:mb-2.5 [&_ul]:list-disc [&_ul]:pl-5"
             dangerouslySetInnerHTML={{ __html: bodyHtmlForPreview(bodyHtml) }}
           />
           {inlineImages.filter((img) => img?.url).map((img, i) => (
