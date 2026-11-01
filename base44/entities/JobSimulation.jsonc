@@ -71,6 +71,14 @@
         }
       }
     },
+    "video_url": {
+      "type": "string",
+      "description": "Video gi\u1edbi thi\u1ec7u b\u00e0i m\u00f4 ph\u1ecfng (t\u1ea3i l\u00ean ho\u1eb7c d\u00e1n link)"
+    },
+    "video_caption": {
+      "type": "string",
+      "description": "M\u00f4 t\u1ea3 hi\u1ec3n th\u1ecb c\u1ea1nh video"
+    },
     "criteria": {
       "type": "string",
       "description": "Thang \u0111i\u1ec3m / ng\u01b0\u1ee1ng \u0111\u1ea1t ghi ch\u00fa cho HR"
