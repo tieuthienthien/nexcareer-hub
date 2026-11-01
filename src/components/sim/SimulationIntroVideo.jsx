@@ -14,7 +14,7 @@ const DESCRIPTION = `Video này giới thiệu bối cảnh công việc, cách 
 // =========================
 
 // Thu gọn mặc định để không chiếm chỗ; ứng viên muốn xem chi tiết thì bấm mở.
-export default function SimulationIntroVideo({ src = VIDEO_SRC }) {
+export default function SimulationIntroVideo({ src = VIDEO_SRC, description = DESCRIPTION }) {
   const [open, setOpen] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
 
@@ -47,6 +47,8 @@ export default function SimulationIntroVideo({ src = VIDEO_SRC }) {
                 className="overflow-hidden rounded-xl bg-black"
               >
                 <video
+                  key={src}
+                  src={src}
                   controls
                   preload="metadata"
                   playsInline
@@ -55,16 +57,14 @@ export default function SimulationIntroVideo({ src = VIDEO_SRC }) {
                   disablePictureInPicture
                   onError={() => setVideoFailed(true)}
                   className="aspect-video w-full"
-                >
-                  <source src={src} type="video/mp4" />
-                </video>
+                />
               </div>
             ) : (
               <div className="grid place-items-center rounded-xl bg-muted p-6 text-center text-sm text-muted-foreground">
                 Video chưa sẵn sàng. Bạn vẫn có thể đọc phần mô tả bên cạnh.
               </div>
             )}
-            <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/85">{DESCRIPTION}</p>
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/85">{description}</p>
           </div>
         )}
       </div>
